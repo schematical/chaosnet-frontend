@@ -1,8 +1,37 @@
 import React, {Component} from 'react';
 import AuthService from '../services/AuthService';
 class HomePage extends Component {
-    login(){
-        AuthService.signup(this.props.username, this.props.password);
+    constructor(props) {
+        super(props);
+        this.state = {
+            username: "",
+            password:""
+        }
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+    handleChange(event) {
+        console.log("TARGET:" , event.target.name, event.target.value, event.target);
+        let state = {};
+        state[event.target.name] = event.target.value;
+        this.setState(state);
+    }
+    handleSubmit(event) {
+       console.log("SUBMITT: ", this.state);
+        event.preventDefault();
+        AuthService.login(this.state.username, this.state.password)
+            .then((response)=>{
+                console.log("SUCCESS:", response);
+            })
+            .catch((err)=>{
+               console.log("Error: ", err.message, err.response.status);
+               this.setState({
+                   error: err
+               })
+            })
+    }
+    login(event){
+
     }
     render() {
         return (
@@ -23,16 +52,27 @@ class HomePage extends Component {
                                             <div className="text-center">
                                                 <h1 className="h4 text-gray-900 mb-4">Welcome Back!</h1>
                                             </div>
-                                            <form className="user">
+                                            <form className="user" onSubmit={this.handleSubmit}>
+                                                {
+                                                    this.state.error &&
+                                                    <div className="card mb-4 py-3  bg-danger text-white shadow">
+                                                        <div className="card-body">
+                                                            Error
+                                                            <div className="text-white-50 small">
+                                                                {this.state.error.message}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
                                                 <div className="form-group">
                                                     <input type="text" className="form-control form-control-user"
-                                                           id="exampleInputEmail" aria-describedby="emailHelp"
-                                                           placeholder="Enter Email Address..."  value={this.props.username}
+                                                           id="username" name="username" aria-describedby="emailHelp"
+                                                           placeholder="Enter Username..."  value={this.state.username} onChange={this.handleChange}
                                                     />
                                                 </div>
                                                 <div className="form-group">
                                                     <input type="password" className="form-control form-control-user"
-                                                           id="exampleInputPassword" placeholder="Password" value={this.props.password} />
+                                                           id="password" name="password"  placeholder="Password" value={this.state.password}  onChange={this.handleChange}/>
                                                 </div>
                                                 <div className="form-group">
                                                     <div className="custom-control custom-checkbox small">
@@ -44,7 +84,7 @@ class HomePage extends Component {
                                                 </div>
                                                 <button
                                                     className="btn btn-primary btn-user btn-block"
-                                                    onClick={() => this.login() }
+
                                                 >
                                                     Login
                                                 </button>

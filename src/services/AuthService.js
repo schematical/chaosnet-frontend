@@ -1,21 +1,15 @@
 const axios = require('axios');
 class AuthService{
     static signup(username, password){
-        return axios.get('/user?ID=12345')
-            .then(function (response) {
-                // handle success
-                console.log(response);
-            })
-            .catch(function (error) {
-                // handle error
-                console.log(error);
-            })
-            .then(function () {
-                // always executed
-            });
+        return axios.post('/user?ID=12345')
     }
     static login(username, password){
-       return axios.get('/user?ID=12345')
+        console.log(username, password);
+
+       return axios.post('https://chaosnet.schematical.com/v0/auth/login', {
+           username:username,
+           password: password
+       })
 
     }
 }
