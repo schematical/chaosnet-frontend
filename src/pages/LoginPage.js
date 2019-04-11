@@ -31,7 +31,6 @@ class HomePage extends Component {
             })
     }
     login(event){
-
     }
     render() {
         return (
@@ -98,12 +97,12 @@ class HomePage extends Component {
                                                     </a>*/}
                                             </form>
                                             <hr />
-                                                <div className="text-center">
+                                                {/*<div className="text-center">
                                                     <a className="small" href="forgot-password.html">Forgot
                                                         Password?</a>
-                                                </div>
+                                                </div>*/}
                                                 <div className="text-center">
-                                                    <a className="small" href="register.html">Create an Account!</a>
+                                                    <a className="small" href="/signup">Create an Account!</a>
                                                 </div>
                                         </div>
                                     </div>

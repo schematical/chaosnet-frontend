@@ -12,7 +12,7 @@ class SidebarComponent extends Component {
                     <div className="sidebar-brand-icon rotate-n-15">
                         <i className="fas fa-laugh-wink"/>
                     </div>
-                    <div className="sidebar-brand-text mx-3">SB Admin <sup>2</sup></div>
+                    <div className="sidebar-brand-text mx-3">ChaosNet <sup>v1</sup></div>
                 </a>
                 {/* Divider */}
                 <hr className="sidebar-divider my-0"/>

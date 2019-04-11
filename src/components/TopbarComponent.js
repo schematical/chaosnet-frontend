@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-
+import SearchbarComponent from './SearchbarComponent';
 class TopbarComponent extends Component {
     render() {
         return (
@@ -12,19 +12,8 @@ class TopbarComponent extends Component {
                     <i className="fa fa-bars"/>
                 </button>
                 {/* Topbar Search */}
-                <form
-                    className="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-                    <div className="input-group">
-                        <input type="text" className="form-control bg-light border-0 small"
-                               placeholder="Search for..." aria-label="Search"
-                               aria-describedby="basic-addon2"/>
-                        <div className="input-group-append">
-                            <button className="btn btn-primary" type="button">
-                                <i className="fas fa-search fa-sm"/>
-                            </button>
-                        </div>
-                    </div>
-                </form>
+                <SearchbarComponent></SearchbarComponent>
+
                 {/* Topbar Navbar */}
                 <ul className="navbar-nav ml-auto">
                     {/* Nav Item - Search Dropdown (Visible Only XS) */}
