@@ -26,7 +26,7 @@ class HomePage extends Component {
             .catch((err)=>{
                console.log("Error: ", err.message, err.response.status);
                this.setState({
-                   error: err
+                   error: err.message
                })
             })
     }

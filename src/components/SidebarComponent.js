@@ -18,17 +18,42 @@ class SidebarComponent extends Component {
                 <hr className="sidebar-divider my-0"/>
                 {/* Nav Item - Dashboard */}
                 <li className="nav-item active">
-                    <a className="nav-link" href="index.html">
+                    <a className="nav-link" href="/">
                         <i className="fas fa-fw fa-tachometer-alt"/>
-                        <span>Dashboard</span></a>
+                        <span>Home</span></a>
                 </li>
+
                 {/* Divider */}
                 <hr className="sidebar-divider"/>
                 {/* Heading */}
                 <div className="sidebar-heading">
-                    Interface
+                    Projects
                 </div>
                 {/* Nav Item - Pages Collapse Menu */}
+                <li className="nav-item">
+                    <a className="nav-link collapsed" href="#" data-toggle="collapse"
+                       data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                        <i className="fas fa-fw fa-cog"/>
+                        <span>ChaosPixel</span>
+                    </a>
+                    <div id="collapseTwo" className="collapse" aria-labelledby="headingTwo"
+                         data-parent="#accordionSidebar">
+                        <div className="bg-white py-2 collapse-inner rounded">
+                            <h6 className="collapse-header">ChaosPixel:</h6>
+                            <a className="collapse-item" href="/chaospixel">Slicer</a>
+                        </div>
+                    </div>
+                </li>
+
+
+{/*
+                 Divider
+                <hr className="sidebar-divider"/>
+                 Heading
+                <div className="sidebar-heading">
+                    Interface
+                </div>
+                 Nav Item - Pages Collapse Menu
                 <li className="nav-item">
                     <a className="nav-link collapsed" href="#" data-toggle="collapse"
                        data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
@@ -44,7 +69,7 @@ class SidebarComponent extends Component {
                         </div>
                     </div>
                 </li>
-                {/* Nav Item - Utilities Collapse Menu */}
+                 Nav Item - Utilities Collapse Menu
                 <li className="nav-item">
                     <a className="nav-link collapsed" href="#" data-toggle="collapse"
                        data-target="#collapseUtilities" aria-expanded="true"
@@ -63,13 +88,13 @@ class SidebarComponent extends Component {
                         </div>
                     </div>
                 </li>
-                {/* Divider */}
+                 Divider
                 <hr className="sidebar-divider"/>
-                {/* Heading */}
+                 Heading
                 <div className="sidebar-heading">
                     Addons
                 </div>
-                {/* Nav Item - Pages Collapse Menu */}
+                 Nav Item - Pages Collapse Menu
                 <li className="nav-item">
                     <a className="nav-link collapsed" href="#" data-toggle="collapse"
                        data-target="#collapsePages" aria-expanded="true" aria-controls="collapsePages">
@@ -90,26 +115,26 @@ class SidebarComponent extends Component {
                         </div>
                     </div>
                 </li>
-                {/* Nav Item - Charts */}
+                 Nav Item - Charts
                 <li className="nav-item">
                     <a className="nav-link" href="charts.html">
                         <i className="fas fa-fw fa-chart-area"/>
                         <span>Charts</span></a>
                 </li>
-                {/* Nav Item - Tables */}
+                 Nav Item - Tables
                 <li className="nav-item">
                     <a className="nav-link" href="tables.html">
                         <i className="fas fa-fw fa-table"/>
                         <span>Tables</span></a>
                 </li>
-                {/* Divider */}
+                 Divider
                 <hr className="sidebar-divider d-none d-md-block"/>
-                {/* Sidebar Toggler (Sidebar) */}
+                 Sidebar Toggler (Sidebar)
                 <div className="text-center d-none d-md-inline">
                     <button className="rounded-circle border-0" id="sidebarToggle">
                         s
                     </button>
-                </div>
+                </div>*/}
             </ul>
 
         );
