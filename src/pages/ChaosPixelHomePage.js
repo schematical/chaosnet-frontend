@@ -2,23 +2,72 @@ import React, {Component} from 'react';
 import SidebarComponent from '../components/SidebarComponent';
 import TopbarComponent from '../components/TopbarComponent';
 class ChaosPixelHomePage extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            height: 16,
+            width:16
+        }
+        this.handleChange = this.handleChange.bind(this);
+        this.handleImage = this.handleImage.bind(this);
+        this.drawSliceLines = this.drawSliceLines.bind(this);
+    }
+    handleChange(event) {
+        console.log("TARGET:" , event.target.name, event.target.value, event.target);
+        let state = {};
+        switch(event.target.name){
+            case("height"):
+            case("width"):
+                state[event.target.name] = parseInt(event.target.value);
+                break;
+            default:
+                state[event.target.name] = event.target.value;
+        }
+
+        this.setState(state);
+    }
     handleImage(e){
-        var canvas = document.getElementById('imageCanvas');
-        var ctx = canvas.getContext('2d');
+        this.canvas = document.getElementById('imageCanvas');
+
         var reader = new FileReader();
-        reader.onload = function(event){
-            var img = new Image();
-            img.onload = function(){
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img,0,0);
+        reader.onload = (event) =>{
+            this.img = new Image();
+            this.img.onload = ()=>{
+                this.resetCanvasWithImage();
             }
-            img.src = event.target.result;
+            this.img.src = event.target.result;
         }
         reader.readAsDataURL(e.target.files[0]);
 
 
 
+
+
+    }
+    resetCanvasWithImage(){
+        var ctx = this.canvas.getContext('2d');
+        this.canvas.width = this.img.width;
+        this.canvas.height = this.img.height;
+        ctx.drawImage(this.img,0,0);
+    }
+    drawSliceLines(){
+        this.resetCanvasWithImage();
+        var ctx = this.canvas.getContext("2d");
+
+        for(let x = 0; x < this.img.width; x += this.state.width){
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, this.img.height);
+            console.log(x, 0, "   to   ", x, this.img.height);
+            ctx.stroke();
+        }
+        for(let y = 0; y < this.img.height; y += this.state.height){
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(this.img.width,y);
+            ctx.stroke();
+        }
 
 
     }
@@ -51,32 +100,27 @@ class ChaosPixelHomePage extends Component {
                                         {/* Area Chart */}
                                         <div className="col-xl-8 col-lg-7">
                                             <div className="card shadow mb-4">
-                                                {/* Card Header - Dropdown */}
-                                                <div
-                                                    className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                                    <h6 className="m-0 font-weight-bold text-primary">Image Info</h6>
-                                                    <div className="dropdown no-arrow">
-                                                        <a className="dropdown-toggle" href="#" role="button"
-                                                           id="dropdownMenuLink" data-toggle="dropdown"
-                                                           aria-haspopup="true" aria-expanded="false">
-                                                            <i className="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"/>
-                                                        </a>
-                                                        <div
-                                                            className="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                                            aria-labelledby="dropdownMenuLink">
-                                                            <div className="dropdown-header">Dropdown Header:</div>
-                                                            <a className="dropdown-item" href="#">Action</a>
-                                                            <a className="dropdown-item" href="#">Another action</a>
-                                                            <div className="dropdown-divider"/>
-                                                            <a className="dropdown-item" href="#">Something else
-                                                                here</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
+
                                                 {/* Card Body */}
                                                 <div className="card-body">
                                                     <div >
-                                                        <input type="file" id="imageLoader" name="imageLoader" onChange={this.handleImage}/>
+                                                        <form>
+                                                            <div className="form-group">
+                                                                <label htmlFor="exampleInputEmail1">Upload Image </label>
+                                                                <input type="file" id="imageLoader" name="imageLoader" onChange={this.handleImage}/>
+                                                            </div>
+                                                            <div className="form-group">
+                                                                <label htmlFor="exampleInputEmail1">Sprite Height </label>
+                                                                <input type="number" name="height" placeholder="Height" value={this.state.height} onChange={this.handleChange} />
+                                                            </div>
+                                                            <div className="form-group">
+                                                                <label htmlFor="exampleInputEmail1">Sprite Width </label>
+                                                                <input type="number" name="width" placeholder="Width" value={this.state.width} onChange={this.handleChange} />
+                                                            </div>
+                                                            <input type="button" className="btn btn-danger btn-circle btn-lg" onClick={this.drawSliceLines} value="Splice">
+                                                            </input>
+
+                                                        </form>
                                                     </div>
                                                 </div>
                                             </div>
@@ -86,28 +130,7 @@ class ChaosPixelHomePage extends Component {
                                         {/* Area Chart */}
                                         <div className="col-xl-8 col-lg-7">
                                             <div className="card shadow mb-4">
-                                                {/* Card Header - Dropdown */}
-                                                <div
-                                                    className="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                                    <h6 className="m-0 font-weight-bold text-primary">Image</h6>
-                                                    <div className="dropdown no-arrow">
-                                                        <a className="dropdown-toggle" href="#" role="button"
-                                                           id="dropdownMenuLink" data-toggle="dropdown"
-                                                           aria-haspopup="true" aria-expanded="false">
-                                                            <i className="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"/>
-                                                        </a>
-                                                        <div
-                                                            className="dropdown-menu dropdown-menu-right shadow animated--fade-in"
-                                                            aria-labelledby="dropdownMenuLink">
-                                                            <div className="dropdown-header">Dropdown Header:</div>
-                                                            <a className="dropdown-item" href="#">Action</a>
-                                                            <a className="dropdown-item" href="#">Another action</a>
-                                                            <div className="dropdown-divider"/>
-                                                            <a className="dropdown-item" href="#">Something else
-                                                                here</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
+
                                                 {/* Card Body */}
                                                 <div className="card-body">
                                                     <div>
