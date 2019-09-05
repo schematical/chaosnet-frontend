@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import _ from 'underscore';
+import * as _ from 'underscore';
 import SidebarComponent from '../components/SidebarComponent';
 import TopbarComponent from '../components/TopbarComponent';
 class ChaosPixelHomePage extends Component {
@@ -10,16 +10,39 @@ class ChaosPixelHomePage extends Component {
             height: 16,
             width:16,
             background_color: "#ffffff",
-            sprite_group_range: 3
+            sprite_group_range: 1,
+            stack_max:1000,
+            scale: 1,
+            zoom: 1
         }
+        this.alerts = [];
+        this.currBatchAction = null;
         this.handleChange = this.handleChange.bind(this);
         this.handleImage = this.handleImage.bind(this);
         this.drawSliceLines = this.drawSliceLines.bind(this);
         this.onCanvasMouseMove = this.onCanvasMouseMove.bind(this);
         this.autosliceSpriteGroup = this.autosliceSpriteGroup.bind(this);
+        this.autoscale = this.autoscale.bind(this);
+        this.resetCanvasWithImage = this.resetCanvasWithImage.bind(this);
+        this.tick = this.tick.bind(this);
+        this.timer = setInterval(this.tick, 100);
+    }
+    tick(){
+
+        if(this.currBatchAction){
+            this.currBatchAction.tick();
+            this.state['batch_status'] = this.currBatchAction.getStatus();
+            this.setState(this.state);
+        }
+    }
+    alert(message){
+        this.alerts.push({
+            id: Math.random() * 1000,
+            message: message
+        })
     }
     handleChange(event) {
-        console.log("TARGET:" , event.target.name, event.target.value, event.target);
+        //console.log("TARGET:" , event.target.name, event.target.value, event.target);
         let state = {};
         switch(event.target.name){
             case("height"):
@@ -53,9 +76,19 @@ class ChaosPixelHomePage extends Component {
     }
     resetCanvasWithImage(){
         var ctx = this.canvas.getContext('2d');
-        this.canvas.width = this.img.width;
-        this.canvas.height = this.img.height;
-        ctx.drawImage(this.img,0,0);
+        let scaledWidth = this.img.width * this.state.scale;
+        let scaledHeight = this.img.height * this.state.scale;
+        this.canvas.width = scaledWidth;
+        this.canvas.height = scaledHeight;
+        ctx.drawImage(this.img,0,0, scaledWidth, scaledHeight);
+        let imageData = ctx.getImageData(0, 0, 1, 1);
+        this.state.background_color = this.rgbToHex(
+            imageData.data[0],
+            imageData.data[1],
+            imageData.data[2]
+        );
+        console.log("Background: ", this.state.background_color);
+        this.setState(this.state);
     }
     drawSliceLines(){
         this.resetCanvasWithImage();
@@ -77,6 +110,7 @@ class ChaosPixelHomePage extends Component {
 
     }
     onCanvasMouseMove(e){
+        return;
         if(!this.canvas){
             this.canvas  = document.getElementById('imageCanvas');
         }
@@ -132,17 +166,21 @@ class ChaosPixelHomePage extends Component {
         return response;
     }
     autosliceSpriteGroup(){
-        let bgColor = this.hexToRgb(this.state.background_color);
-        let ctx = this.canvas.getContext("2d");
+
         this.spriteGroupingMap = {};
         this.spriteGroups = [];
-        for(let x = 0; x < this.img.width; x ++){
-            for(let y = 0; y < this.img.height; y ++){
-               this.checkSpriteGroupPixel(x,y, ctx, bgColor, -1);
+        this.currBatchAction = new AutoSliceBatchAction(this);
+        console.log("CurrBatch Added");
+    }
+    eachPixel(fun){
+        for(let y = 0; y < this.canvas.height; y ++){
+            for(let x = 0; x < this.canvas.width; x ++){
+
+               fun(x, y);
             }
         }
     }
-    checkSpriteGroupPixel(x, y, ctx, bgColor, spriteGroupIndex){
+    checkSpriteGroupPixel(x, y, ctx, bgColor, spriteGroupIndex, stack){
         //console.log("checkSpriteGroupPixel: ", spriteGroupIndex);
         if(!this.spriteGroupingMap[x]){
             this.spriteGroupingMap[x] = {};
@@ -182,7 +220,7 @@ class ChaosPixelHomePage extends Component {
         }else{
             spriteGroup = this.spriteGroups[spriteGroupIndex];
         }
-        console.log(x + ',' + y, spriteGroupIndex, this.rgbToHex(c[0], c[1], c[2]), spriteGroup);
+        //console.log(x + ',' + y, spriteGroupIndex, this.rgbToHex(c[0], c[1], c[2]), spriteGroup);
         spriteGroup.pixels.push({
             x: x,
             y: y
@@ -194,18 +232,102 @@ class ChaosPixelHomePage extends Component {
         imageData.data[2] = spriteGroup.color.b;
         ctx.putImageData(imageData, x, y);
 
+        if(stack > this.state.stack_max){
+            return;
+        }
 
-        for(let _x = x - this.state.sprite_group_range; _x < x + this.state.sprite_group_range; _x++){
+        for(let _x = x - this.state.sprite_group_range; _x <= x + this.state.sprite_group_range; _x++){
 
-            for(let _y = y - this.state.sprite_group_range; _y < y + this.state.sprite_group_range; _y++){
+            for(let _y = y - this.state.sprite_group_range; _y <= y + this.state.sprite_group_range; _y++){
 
                 //if(!this.spriteGroupingMap[_x][_y]){
                 //console.log("Checking: ", spriteGroup.id);
-                   this.checkSpriteGroupPixel(_x, _y, ctx, bgColor, spriteGroup.id);
+                   this.checkSpriteGroupPixel(_x, _y, ctx, bgColor, spriteGroup.id, stack + 1);
                 //}
             }
         }
 
+    }
+
+    autoscale(){
+
+        let ctx = this.canvas.getContext("2d");
+        let lastPixelColor = null;
+        let pixelMatchCount = 0;
+        let arrPixelCounts = {};
+        let lastY = -1;
+        this.eachPixel((x, y)=>{
+            if(y < 8){
+                return;
+            }
+
+            let imageData = ctx.getImageData(x, y, 1, 1);
+
+
+            if(y != lastY){
+                lastY = y;
+                pixelMatchCount = 0;
+                lastPixelColor = null;
+            }
+            if(this.isTransparent(imageData.data)){
+                pixelMatchCount = 0;
+                lastPixelColor = null;
+                return true;
+            }
+            if(!lastPixelColor){
+                lastPixelColor = imageData.data;
+                return;
+            }
+            if(
+                lastPixelColor[0] == imageData.data[0] &&
+                lastPixelColor[1] == imageData.data[1] &&
+                lastPixelColor[2] == imageData.data[2]
+            ) {
+                //console.log("Match:", x, y);
+                pixelMatchCount += 1;
+                return;
+            }
+            //console.log("pixelMatchCount:", pixelMatchCount);
+            arrPixelCounts[pixelMatchCount] =  arrPixelCounts[pixelMatchCount] || 0;
+            arrPixelCounts[pixelMatchCount] += 1;
+            pixelMatchCount = 1;
+            lastPixelColor = imageData.data;
+
+        })
+        let sortable = [];
+        Object.keys(arrPixelCounts).forEach((pixelCount)=>{
+            sortable.push({
+                pixelCount: pixelCount,
+                occurences: arrPixelCounts[pixelCount]
+            })
+        })
+        let sortedPixelCounts = _.sortBy(sortable, 'occurences').reverse();
+        console.log("sortedPixelCounts: ", sortedPixelCounts);
+        console.log(sortedPixelCounts[1].pixelCount, " % ", sortedPixelCounts[0].pixelCount, " == ", sortedPixelCounts[1].pixelCount % sortedPixelCounts[0].pixelCount)
+        if(sortedPixelCounts[1].pixelCount % sortedPixelCounts[0].pixelCount != 0){
+            this.alert("Failed to determine a scale");
+            return;
+        }
+        /*if(sortedPixelCounts[0].pixelCount == 1){
+            this.alert("Scale is already 1. No need to scale");
+            return;
+        }*/
+        console.log("Winner: ", sortedPixelCounts[0].pixelCount);
+        this.state.scale = 1/sortedPixelCounts[0].pixelCount;
+        this.resetCanvasWithImage();
+    }
+    isTransparent(c){
+        let bgColor = this.hexToRgb(this.state.background_color);
+
+        if(
+            bgColor.r == c[0] &&
+            bgColor.g == c[1] &&
+            bgColor.b == c[2]
+        ) {
+            return true;
+
+        }
+        return false;
     }
     hexToRgb(hex) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -215,10 +337,12 @@ class ChaosPixelHomePage extends Component {
             b: parseInt(result[3], 16)
         } : null;
     }
+    componentToHex(c){
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+    }
     rgbToHex(r, g, b) {
-        if (r > 255 || g > 255 || b > 255)
-            throw "Invalid color component";
-        return ((r << 16) | (g << 8) | b).toString(16);
+        return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
     }
     render() {
         return (
@@ -246,6 +370,9 @@ class ChaosPixelHomePage extends Component {
 
                                     {/* Content Row */}
                                     <div className="row">
+                                        {this.alerts.map((item, key) =>
+                                            <div  class="alert" key={item.id}>{item.message}</div>
+                                        )}
                                         {/* Area Chart */}
                                         <div className="col-xl-8 col-lg-7">
                                             <div className="card shadow mb-4">
@@ -263,7 +390,10 @@ class ChaosPixelHomePage extends Component {
                                                                 <input type="color" name="background_color" placeholder="Background Color" value={this.state.background_color} onChange={this.handleChange} />
                                                                 <input type="button" className="btn btn-danger btn-lg" onClick={this.drawSliceLines} value="Set Background Color" />
                                                             </div>
-
+                                                            <div className="form-group">
+                                                                <label htmlFor="exampleInputEmail1">AutoSlice  Sprite Group Range Max</label>
+                                                                <input type="number" name="sprite_group_range" placeholder="Height" value={this.state.sprite_group_range} onChange={this.handleChange} />
+                                                            </div>
                                                             <div className="form-group">
                                                                 <label htmlFor="exampleInputEmail1">Sprite Height </label>
                                                                 <input type="number" name="height" placeholder="Height" value={this.state.height} onChange={this.handleChange} />
@@ -272,11 +402,32 @@ class ChaosPixelHomePage extends Component {
                                                                 <label htmlFor="exampleInputEmail1">Sprite Width </label>
                                                                 <input type="number" name="width" placeholder="Width" value={this.state.width} onChange={this.handleChange} />
                                                             </div>
+
+                                                            <div className="form-group">
+                                                                <label htmlFor="exampleInputEmail1">Zoom </label>
+                                                                <input type="number" name="zoom" placeholder="Zoom" value={this.state.zoom} onChange={this.handleChange} />
+                                                            </div>
+
+                                                            <div className="form-group">
+                                                                <label htmlFor="exampleInputEmail1">Scale </label>
+                                                                <input type="number" name="scale" placeholder="Scale" value={this.state.scale} onChange={this.handleChange} />
+                                                            </div>
                                                             <input type="button" className="btn btn-danger btn-lg" onClick={this.drawSliceLines} value="Splice" />
 
+                                                            <input type="button" className="btn btn-danger btn-lg" onClick={this.autoscale} value="Auto Scale" />
 
 
                                                             <input type="button" className="btn btn-danger btn-lg" onClick={this.autosliceSpriteGroup} value="Auto Slice" />
+                                                            <input type="button" className="btn btn-danger btn-lg" onClick={this.resetCanvasWithImage} value="Refresh" />
+
+                                                            <p>
+                                                                Pixel Count: {this.canvas ? (this.canvas.width + "x" + this.canvas.height + "->" + (this.canvas.width * this.canvas.height) ): ''}
+                                                            </p>
+                                                            <p>
+                                                                Batch Status: {this.state.batch_status ? (this.state.batch_status.completed + " / " + this.state.batch_status.total) : ""}
+                                                            </p>
+
+
 
 
                                                         </form>
@@ -346,6 +497,45 @@ class ChaosPixelHomePage extends Component {
 
             </div>
         );
+    }
+}
+class BatchPixelAction{
+    constructor(page){
+        this.page = page;
+        this.x = 0;
+        this.y = 0;
+        this.batchCycleSize = 100;
+        this.total = this.page.canvas.width * this.page.canvas.height;
+    }
+    tick(){
+        console.log("Ticking...");
+        for(let i = 0; i <  this.batchCycleSize; i++){
+            this.x += 1;
+            if(this.x > this.page.canvas.width){
+                this.y += 1;
+                this.x = 0;
+            }
+            this.run(this.x, this.y);
+        }
+    }
+    run(x, y){
+        console.error("You must override this: ", x, y);
+    }
+    getStatus(){
+        let status = {
+            completed: (this.y * this.page.canvas.width) + this.x,
+            total: this.total
+        }
+        status.percent = (status.completed / status.total) * 100;
+        return status;
+
+    }
+}
+class AutoSliceBatchAction extends BatchPixelAction{
+    run(x,y){
+        this.bgColor =  this.bgColor|| this.page.hexToRgb(this.page.state.background_color);
+        this.ctx = this.ctx || this.page.canvas.getContext("2d");
+        this.page.checkSpriteGroupPixel(x,y, this.ctx, this.bgColor, -1, 0);
     }
 }
 
