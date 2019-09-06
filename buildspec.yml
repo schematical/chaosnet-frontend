@@ -14,7 +14,7 @@ phases:
   post_build:
     commands:
       - echo Build completed on `date`
-      - cd dist
+      - cd build
       - pwd
       - ls
 artifacts:
