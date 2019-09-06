@@ -13,7 +13,8 @@ class ChaosPixelHomePage extends Component {
             sprite_group_range: 1,
             stack_max:1000,
             scale: 1,
-            zoom: 1
+            zoom: 1,
+            background_color_range: 0
         }
         this.alerts = [];
         this.currBatchAction = null;
@@ -24,14 +25,22 @@ class ChaosPixelHomePage extends Component {
         this.autosliceSpriteGroup = this.autosliceSpriteGroup.bind(this);
         this.autoscale = this.autoscale.bind(this);
         this.resetCanvasWithImage = this.resetCanvasWithImage.bind(this);
+        this.onCanvasMouseDown = this.onCanvasMouseDown.bind(this);
+
         this.tick = this.tick.bind(this);
         this.timer = setInterval(this.tick, 100);
     }
     tick(){
-
+        if(!this.previewCanvas){
+            this.previewCanvas = document.getElementById('previewCanvas');
+        }
         if(this.currBatchAction){
             this.currBatchAction.tick();
             this.state['batch_status'] = this.currBatchAction.getStatus();
+            if(this.state['batch_status'].done){
+                this.currBatchAction = null;
+                console.log("Completed: ",this.state['batch_status']);
+            }
             this.setState(this.state);
         }
     }
@@ -109,12 +118,78 @@ class ChaosPixelHomePage extends Component {
 
 
     }
+    onCanvasMouseDown(e){
+        if(!this.hoveredSpriteGroup){
+            return;
+        }
+        //draw to new canvas
+        let xMin = -1;
+        let xMax = -1;
+        let yMin = -1;
+        let yMax = -1;
+        this.hoveredSpriteGroup.pixels.forEach((pixelPos)=>{
+            if(
+                pixelPos.x < xMin ||
+                xMin == -1
+            ){
+                xMin = pixelPos.x;
+            }
+            if(
+                pixelPos.y < yMin ||
+                yMin == -1
+            ){
+                yMin = pixelPos.y;
+            }
+
+            if(
+                pixelPos.x > xMax ||
+                xMax == -1
+            ){
+                xMax = pixelPos.x;
+            }
+            if(
+                pixelPos.y > yMax ||
+                yMax == -1
+            ){
+                yMax = pixelPos.y;
+            }
+        })
+        this.previewCanvas.width = (xMax - xMin) * this.state.zoom;
+        this.previewCanvas.height = (yMax - yMin) * this.state.zoom;
+        let previewCtx = this.previewCanvas.getContext("2d");
+
+        let ctx = this.canvas.getContext("2d");
+        this.hoveredSpriteGroup.pixels.forEach((pixelPos)=> {
+            let imageData = ctx.getImageData(pixelPos.x, pixelPos.y, 1, 1);
+            let startX = pixelPos.x - xMin;
+            let startY = pixelPos.y - yMin;
+            for(let y = startY * this.state.zoom; y < ((startY+ 1) * this.state.zoom); y++) {
+                for (let x = startX * this.state.zoom; x < ((startX + 1) * this.state.zoom); x++) {
+                    previewCtx.putImageData(imageData, x, y);
+                }
+            }
+
+        });
+
+    }
     onCanvasMouseMove(e){
-        return;
+        if(!this.img){
+            return;
+        }
         if(!this.canvas){
             this.canvas  = document.getElementById('imageCanvas');
         }
-        let mousePos = this.getMousePos(e);
+        let mousePos = this.getMousePos(e)
+        if(
+            this.spriteGroupingMap &&
+            !_.isUndefined(this.spriteGroupingMap[mousePos.x]) &&
+            !_.isUndefined(this.spriteGroupingMap[mousePos.x][mousePos.y]) &&
+            this.spriteGroups[this.spriteGroupingMap[mousePos.x][mousePos.y]]
+        ){
+            this.hoveredSpriteGroup =  this.spriteGroups[this.spriteGroupingMap[mousePos.x][mousePos.y]];
+            console.log(this.hoveredSpriteGroup.id);
+        }
+        return;
         if(
             !this.lastBounds ||
             this.lastBounds.xMin != mousePos.bounds.x ||
@@ -170,7 +245,7 @@ class ChaosPixelHomePage extends Component {
         this.spriteGroupingMap = {};
         this.spriteGroups = [];
         this.currBatchAction = new AutoSliceBatchAction(this);
-        console.log("CurrBatch Added");
+
     }
     eachPixel(fun){
         for(let y = 0; y < this.canvas.height; y ++){
@@ -181,7 +256,7 @@ class ChaosPixelHomePage extends Component {
         }
     }
     checkSpriteGroupPixel(x, y, ctx, bgColor, spriteGroupIndex, stack){
-        //console.log("checkSpriteGroupPixel: ", spriteGroupIndex);
+
         if(!this.spriteGroupingMap[x]){
             this.spriteGroupingMap[x] = {};
         }
@@ -195,9 +270,7 @@ class ChaosPixelHomePage extends Component {
         let imageData = ctx.getImageData(x, y, 1, 1);
         var c = imageData.data;
         if(
-            bgColor.r == c[0] &&
-            bgColor.g == c[1] &&
-            bgColor.b == c[2]
+           this.isTransparent(c)
         ) {
             this.spriteGroupingMap[x][y] = -2;
             return;
@@ -220,7 +293,7 @@ class ChaosPixelHomePage extends Component {
         }else{
             spriteGroup = this.spriteGroups[spriteGroupIndex];
         }
-        //console.log(x + ',' + y, spriteGroupIndex, this.rgbToHex(c[0], c[1], c[2]), spriteGroup);
+
         spriteGroup.pixels.push({
             x: x,
             y: y
@@ -320,12 +393,14 @@ class ChaosPixelHomePage extends Component {
         let bgColor = this.hexToRgb(this.state.background_color);
 
         if(
-            bgColor.r == c[0] &&
-            bgColor.g == c[1] &&
-            bgColor.b == c[2]
+            bgColor.r > c[0] - this.state.background_color_range  &&
+            bgColor.r < c[0] + this.state.background_color_range &&
+            bgColor.g > c[1] - this.state.background_color_range  &&
+            bgColor.g < c[1] + this.state.background_color_range &&
+            bgColor.b > c[2] - this.state.background_color_range  &&
+            bgColor.b < c[2] + this.state.background_color_range
         ) {
             return true;
-
         }
         return false;
     }
@@ -374,7 +449,7 @@ class ChaosPixelHomePage extends Component {
                                             <div  class="alert" key={item.id}>{item.message}</div>
                                         )}
                                         {/* Area Chart */}
-                                        <div className="col-xl-8 col-lg-7">
+                                        <div className="col-xl-12 col-lg-12">
                                             <div className="card shadow mb-4">
 
                                                 {/* Card Body */}
@@ -390,6 +465,12 @@ class ChaosPixelHomePage extends Component {
                                                                 <input type="color" name="background_color" placeholder="Background Color" value={this.state.background_color} onChange={this.handleChange} />
                                                                 <input type="button" className="btn btn-danger btn-lg" onClick={this.drawSliceLines} value="Set Background Color" />
                                                             </div>
+                                                            <div className="form-group">
+                                                                <label htmlFor="exampleInputEmail1">Background Color</label>
+                                                                <input type="number" name="background_color_range" placeholder="Background Color Range" value={this.state.background_color_range} onChange={this.handleChange} />
+
+                                                            </div>
+
                                                             <div className="form-group">
                                                                 <label htmlFor="exampleInputEmail1">AutoSlice  Sprite Group Range Max</label>
                                                                 <input type="number" name="sprite_group_range" placeholder="Height" value={this.state.sprite_group_range} onChange={this.handleChange} />
@@ -426,6 +507,22 @@ class ChaosPixelHomePage extends Component {
                                                             <p>
                                                                 Batch Status: {this.state.batch_status ? (this.state.batch_status.completed + " / " + this.state.batch_status.total) : ""}
                                                             </p>
+                                                            {this.state.batch_status &&
+                                                                <div className="row no-gutters align-items-center">
+                                                                    <div className="col-auto">
+                                                                        <div
+                                                                            className="h5 mb-0 mr-3 font-weight-bold text-gray-800">{ Math.round(this.state.batch_status.completed / this.state.batch_status.total * 100) }%                                                                        </div>
+                                                                    </div>
+                                                                    <div className="col">
+                                                                        <div className="progress progress-sm mr-2">
+                                                                            <div className="progress-bar bg-info"
+                                                                                 role="progressbar" style={{width: (this.state.batch_status.completed / this.state.batch_status.total * 100) + '%'}}
+                                                                                 aria-valuenow={this.state.batch_status.completed} aria-valuemin={0}
+                                                                                 aria-valuemax={this.state.batch_status.total}/>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            }
 
 
 
@@ -437,14 +534,25 @@ class ChaosPixelHomePage extends Component {
                                         </div>
 
 
-                                        {/* Area Chart */}
+
                                         <div className="col-xl-8 col-lg-7">
                                             <div className="card shadow mb-4">
 
-                                                {/* Card Body */}
+
                                                 <div className="card-body">
                                                     <div>
-                                                        <canvas id="imageCanvas" onMouseMove={this.onCanvasMouseMove}></canvas>
+                                                        <canvas id="imageCanvas" onMouseMove={this.onCanvasMouseMove} onMouseDown={this.onCanvasMouseDown}></canvas>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="col-xl-4 col-lg-3">
+
+                                            <div className="card shadow mb-4">
+
+                                                <div className="card-body">
+                                                    <div>
+                                                        <canvas id="previewCanvas" ></canvas>
                                                     </div>
                                                 </div>
                                             </div>
@@ -504,7 +612,7 @@ class BatchPixelAction{
         this.page = page;
         this.x = 0;
         this.y = 0;
-        this.batchCycleSize = 100;
+        this.batchCycleSize = 250;
         this.total = this.page.canvas.width * this.page.canvas.height;
     }
     tick(){
@@ -516,6 +624,12 @@ class BatchPixelAction{
                 this.x = 0;
             }
             this.run(this.x, this.y);
+            if(
+                this.x >= this.page.canvas.width &&
+                this.y >= this.page.canvas.height
+            ){
+                break;
+            }
         }
     }
     run(x, y){
@@ -527,6 +641,16 @@ class BatchPixelAction{
             total: this.total
         }
         status.percent = (status.completed / status.total) * 100;
+        if(
+            this.x >= this.page.canvas.width &&
+            this.y >= this.page.canvas.height
+        ){
+            status.x = this.x;
+            status.y = this.y;
+
+            status.done = true;
+
+        }
         return status;
 
     }

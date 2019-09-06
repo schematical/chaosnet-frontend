@@ -1,0 +1,25 @@
+
+
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+  build:
+    commands:
+      - pwd
+      - echo Build started on `date`
+      - npm install
+      - npm run build --environment $NODE_ENV
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - cd dist
+      - pwd
+      - ls
+artifacts:
+  files:
+    - '**/*'
+  base-directory: 'build*'
+  discard-paths:
+    no
