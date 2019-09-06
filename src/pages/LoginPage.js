@@ -21,7 +21,7 @@ class HomePage extends Component {
         event.preventDefault();
         AuthService.login(this.state.username, this.state.password)
             .then((response)=>{
-                console.log("SUCCESS:", response);
+                document.location = "/";
             })
             .catch((err)=>{
                console.log("Error: ", err.message, err.response.status);
