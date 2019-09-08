@@ -35,7 +35,12 @@ class ChaosPixelHomePage extends Component {
             this.previewCanvas = document.getElementById('previewCanvas');
         }
         if(this.currBatchAction){
-            this.currBatchAction.tick();
+            try {
+                this.currBatchAction.tick();
+            }catch(e){
+                this.currBatchAction = null;
+                throw e;
+            }
             this.state['batch_status'] = this.currBatchAction.getStatus();
             if(this.state['batch_status'].done){
                 this.currBatchAction = null;
@@ -56,7 +61,11 @@ class ChaosPixelHomePage extends Component {
         switch(event.target.name){
             case("height"):
             case("width"):
-                state[event.target.name] = parseInt(event.target.value);
+            case("background_color_range"):
+            case("sprite_group_range"):
+            case("zoom"):
+            case("scale"):
+                state[event.target.name] = parseFloat(event.target.value);
                 break;
             default:
                 state[event.target.name] = event.target.value;
@@ -393,7 +402,7 @@ class ChaosPixelHomePage extends Component {
         let bgColor = this.hexToRgb(this.state.background_color);
         let rMin = c[0] - this.state.background_color_range;
         let rMax = c[0] + this.state.background_color_range;
-        console.log("rMin: ", rMin, "rMax: ", rMax)
+
         if(
             bgColor.r > rMin &&
             bgColor.r < rMax &&
@@ -404,6 +413,7 @@ class ChaosPixelHomePage extends Component {
         ) {
             return true;
         }
+
         return false;
     }
     hexToRgb(hex) {
