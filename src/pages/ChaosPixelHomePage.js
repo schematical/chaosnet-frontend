@@ -391,10 +391,12 @@ class ChaosPixelHomePage extends Component {
     }
     isTransparent(c){
         let bgColor = this.hexToRgb(this.state.background_color);
-
+        let rMin = c[0] - this.state.background_color_range;
+        let rMax = c[0] + this.state.background_color_range;
+        console.log("rMin: ", rMin, "rMax: ", rMax)
         if(
-            bgColor.r > c[0] - this.state.background_color_range  &&
-            bgColor.r < c[0] + this.state.background_color_range &&
+            bgColor.r > rMin &&
+            bgColor.r < rMax &&
             bgColor.g > c[1] - this.state.background_color_range  &&
             bgColor.g < c[1] + this.state.background_color_range &&
             bgColor.b > c[2] - this.state.background_color_range  &&
@@ -466,7 +468,7 @@ class ChaosPixelHomePage extends Component {
                                                                 <input type="button" className="btn btn-danger btn-lg" onClick={this.drawSliceLines} value="Set Background Color" />
                                                             </div>
                                                             <div className="form-group">
-                                                                <label htmlFor="exampleInputEmail1">Background Color</label>
+                                                                <label htmlFor="exampleInputEmail1">Background Color Range</label>
                                                                 <input type="number" name="background_color_range" placeholder="Background Color Range" value={this.state.background_color_range} onChange={this.handleChange} />
 
                                                             </div>
