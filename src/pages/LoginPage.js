@@ -1,8 +1,17 @@
 import React, {Component} from 'react';
 import AuthService from '../services/AuthService';
-class HomePage extends Component {
+import { instanceOf } from 'prop-types';
+import { withCookies, Cookies } from 'react-cookie';
+class LoginPage extends Component {
+    static propTypes = {
+        cookies: instanceOf(Cookies).isRequired
+    };
+
+
     constructor(props) {
         super(props);
+        const { cookies } = props;
+        this.cookies = cookies;
         this.state = {
             username: "",
             password:""
@@ -11,20 +20,36 @@ class HomePage extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
     handleChange(event) {
-        console.log("TARGET:" , event.target.name, event.target.value, event.target);
+        //console.log("TARGET:" , event.target.name, event.target.value, event.target);
         let state = {};
         state[event.target.name] = event.target.value;
         this.setState(state);
     }
     handleSubmit(event) {
+        let cookieOptions = {
+            path: '/'
+        };
        console.log("SUBMITT: ", this.state);
         event.preventDefault();
         AuthService.login(this.state.username, this.state.password)
             .then((response)=>{
+
+                //const { cookies } = this.props;
+                //cookieOptions.expires = new Date(response.data.expiration);
+                this.cookies.set("access_token", response.data.accessToken,
+                   cookieOptions
+                );
+                return AuthService.whoami(response.data.accessToken);
+
+            })
+            .then((response)=>{
+                console.log("response: ", response);
+                this.cookies.set("jwt", JSON.stringify(response.data), cookieOptions);
+                this.cookies.set("username", response.data.username, cookieOptions);
                 document.location = "/";
             })
             .catch((err)=>{
-               console.log("Error: ", err.message, err.response.status);
+               console.log("Error: ", err.message, err.response && err.response.status);
                this.setState({
                    error: err.message
                })
@@ -118,4 +143,4 @@ class HomePage extends Component {
         );
     }
 }
-export default HomePage;
+export default withCookies(LoginPage);

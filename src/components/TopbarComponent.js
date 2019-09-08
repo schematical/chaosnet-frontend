@@ -1,6 +1,25 @@
 import React, {Component} from 'react';
+import AuthService from '../services/AuthService';
 import SearchbarComponent from './SearchbarComponent';
+import {instanceOf} from "prop-types";
+import {Cookies, withCookies} from "react-cookie";
+
 class TopbarComponent extends Component {
+    static propTypes = {
+        cookies: instanceOf(Cookies).isRequired
+    };
+    constructor(props) {
+        super(props);
+        const {cookies} = props;
+        this.cookies = cookies;
+
+        let userDataString = this.cookies.get('jwt');
+        console.log("userDataString: ", userDataString);
+        if(userDataString){
+            AuthService.setUserData(userDataString);
+            AuthService.setAccessToken(this.cookies.get('access_token'));
+        }
+    }
     render() {
         return (
 
@@ -173,12 +192,12 @@ class TopbarComponent extends Component {
                     <div className="topbar-divider d-none d-sm-block"/>
                     {/* Nav Item - User Information */}
                     {
-                        this.props.user &&
+                        AuthService.userData &&
                         <li className="nav-item dropdown no-arrow">
                         <a className="nav-link dropdown-toggle" href="#" id="userDropdown"
                            role="button" data-toggle="dropdown" aria-haspopup="true"
                            aria-expanded="false">
-                            <span className="mr-2 d-none d-lg-inline text-gray-600 small">Valerie Luna</span>
+                            <span className="mr-2 d-none d-lg-inline text-gray-600 small">{AuthService.userData.username}</span>
                             <img className="img-profile rounded-circle"
                                  src="https://source.unsplash.com/QAB-WJcbgJk/60x60"/>
                         </a>
@@ -207,7 +226,7 @@ class TopbarComponent extends Component {
                     </li>
                     }
                     {
-                        !this.props.user &&
+                        !AuthService.userData &&
                         <li className="nav-item dropdown no-arrow">
                             <a className="nav-link dropdown-toggle" href="#" id="userDropdown"
                                role="button" data-toggle="dropdown" aria-haspopup="true"
@@ -236,4 +255,4 @@ class TopbarComponent extends Component {
     }
 }
 
-export default TopbarComponent;
+export default withCookies(TopbarComponent);

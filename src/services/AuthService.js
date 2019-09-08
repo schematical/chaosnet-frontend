@@ -1,18 +1,43 @@
+import { useCookies } from 'react-cookie';
 const axios = require('axios');
+
+
 class AuthService{
+    static userData = null;
+    static accessToken = null;
+    static setUserData(userData){
+        AuthService.userData = userData;
+    }
+    static whoami(accessToken){
+        return axios.get(
+            'https://chaosnet.schematical.com/v0/auth/whoami',
+            {
+                headers: {
+                    "Authorization":accessToken
+                }
+            }
+        );
+    }
     static signup(username, password){
         return axios.post('https://chaosnet.schematical.com/v0/auth/signup')
     }
     static login(username, password){
-        console.log(username, password);
+
 
        return axios.post('https://chaosnet.schematical.com/v0/auth/login', {
            username:username,
            password: password
        })
+       .then((userData)=>{
+           //console.log(userData);
+           return userData;
+       })
 
     }
-    static checkVerificationToken(username, password){
+    static setAccessToken(accessToken){
+        AuthService.accessToken = accessToken;
+    }
+    /*static checkVerificationToken(username, password){
         console.log(username, password);
 
         return axios.post('https://chaosnet.schematical.com/v0/auth/login', {
@@ -20,6 +45,6 @@ class AuthService{
             password: password
         })
 
-    }
+    }*/
 }
 export default AuthService;

@@ -2,6 +2,9 @@ import React, {Component} from 'react';
 import * as _ from 'underscore';
 import SidebarComponent from '../components/SidebarComponent';
 import TopbarComponent from '../components/TopbarComponent';
+import AuthService from '../services/AuthService';
+const axios = require('axios');
+
 class ChaosPixelHomePage extends Component {
 
     constructor(props) {
@@ -13,7 +16,7 @@ class ChaosPixelHomePage extends Component {
             sprite_group_range: 1,
             stack_max:1000,
             scale: 1,
-            zoom: 1,
+            zoom: 5,
             background_color_range: 0
         }
         this.alerts = [];
@@ -26,6 +29,7 @@ class ChaosPixelHomePage extends Component {
         this.autoscale = this.autoscale.bind(this);
         this.resetCanvasWithImage = this.resetCanvasWithImage.bind(this);
         this.onCanvasMouseDown = this.onCanvasMouseDown.bind(this);
+        this.saveTrainingData = this.saveTrainingData.bind(this);
 
         this.tick = this.tick.bind(this);
         this.timer = setInterval(this.tick, 100);
@@ -196,7 +200,7 @@ class ChaosPixelHomePage extends Component {
             this.spriteGroups[this.spriteGroupingMap[mousePos.x][mousePos.y]]
         ){
             this.hoveredSpriteGroup =  this.spriteGroups[this.spriteGroupingMap[mousePos.x][mousePos.y]];
-            console.log(this.hoveredSpriteGroup.id);
+            //console.log(this.hoveredSpriteGroup.id);
         }
         return;
         if(
@@ -431,6 +435,25 @@ class ChaosPixelHomePage extends Component {
     rgbToHex(r, g, b) {
         return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
     }
+    saveTrainingData(){
+        /*console.log(this.previewCanvas.toDataURL());
+        return;*/
+        let payload = [];
+        payload.push({
+            base64String: this.previewCanvas.toDataURL().replace("data:image/png;base64,", "")
+        })
+        return axios.post('https://chaosnet.schematical.com/v0/' + AuthService.userData.username + '/trainingdatas', payload[0], {
+            headers:{
+                "Authorization": AuthService.accessToken
+            }
+        })
+            .then((response)=>{
+                console.log("Saved: ", response);
+            })
+            .catch((err)=>{
+                console.error("Error: ", err.message);
+            })
+    }
     render() {
         return (
             <div>
@@ -513,6 +536,7 @@ class ChaosPixelHomePage extends Component {
                                                             <input type="button" className="btn btn-danger btn-lg" onClick={this.autosliceSpriteGroup} value="Auto Slice" />
                                                             <input type="button" className="btn btn-danger btn-lg" onClick={this.resetCanvasWithImage} value="Refresh" />
 
+
                                                             <p>
                                                                 Pixel Count: {this.canvas ? (this.canvas.width + "x" + this.canvas.height + "->" + (this.canvas.width * this.canvas.height) ): ''}
                                                             </p>
@@ -565,6 +589,7 @@ class ChaosPixelHomePage extends Component {
                                                 <div className="card-body">
                                                     <div>
                                                         <canvas id="previewCanvas" ></canvas>
+                                                        <input type="button" className="btn btn-danger btn-lg" onClick={this.saveTrainingData} value="Save" />
                                                     </div>
                                                 </div>
                                             </div>

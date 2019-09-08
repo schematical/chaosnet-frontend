@@ -6,9 +6,11 @@ import SignupPage from './pages/SignupPage.js';
 import logo from './logo.svg';
 import './App.css';
 import ChaosPixelHomePage from "./pages/ChaosPixelHomePage";
+import {useCookies} from "react-cookie";
 
 class App extends Component {
   render() {
+
     return (
         <Router.Locations>
             <Router.Location path="/" handler={HomePage} />
