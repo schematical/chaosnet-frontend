@@ -18,8 +18,8 @@ class AuthService{
             }
         );
     }
-    static signup(username, password){
-        return axios.post('https://chaosnet.schematical.com/v0/auth/signup')
+    static signup(data){
+        return axios.post('https://chaosnet.schematical.com/v0/auth/signup', data)
     }
     static login(username, password){
 
