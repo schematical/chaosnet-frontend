@@ -3,9 +3,10 @@ import * as _ from 'underscore';
 import SidebarComponent from '../components/SidebarComponent';
 import TopbarComponent from '../components/TopbarComponent';
 import AuthService from '../services/AuthService';
+import SpriteGroupComponent from "../components/SpriteGroupComponent";
 const axios = require('axios');
 
-class ChaosPixelHomePage extends Component {
+class ChaosPixelSlicerPage extends Component {
 
     constructor(props) {
         super(props);
@@ -17,7 +18,9 @@ class ChaosPixelHomePage extends Component {
             stack_max:1000,
             scale: 1,
             zoom: 5,
-            background_color_range: 0
+            background_color_range: 1,
+            selectedSpriteGroups:[],
+            alerts:[]
         }
         this.alerts = [];
         this.currBatchAction = null;
@@ -33,6 +36,7 @@ class ChaosPixelHomePage extends Component {
 
         this.tick = this.tick.bind(this);
         this.timer = setInterval(this.tick, 100);
+
     }
     tick(){
         if(!this.previewCanvas){
@@ -47,6 +51,7 @@ class ChaosPixelHomePage extends Component {
             }
             this.state['batch_status'] = this.currBatchAction.getStatus();
             if(this.state['batch_status'].done){
+                this.currBatchAction.cleanUp();
                 this.currBatchAction = null;
                 console.log("Completed: ",this.state['batch_status']);
             }
@@ -54,10 +59,11 @@ class ChaosPixelHomePage extends Component {
         }
     }
     alert(message){
-        this.alerts.push({
+        this.state.alerts.push({
             id: Math.random() * 1000,
             message: message
         })
+        this.setState(this.state);;
     }
     handleChange(event) {
         //console.log("TARGET:" , event.target.name, event.target.value, event.target);
@@ -132,57 +138,27 @@ class ChaosPixelHomePage extends Component {
 
     }
     onCanvasMouseDown(e){
+
         if(!this.hoveredSpriteGroup){
             return;
         }
-        //draw to new canvas
-        let xMin = -1;
-        let xMax = -1;
-        let yMin = -1;
-        let yMax = -1;
-        this.hoveredSpriteGroup.pixels.forEach((pixelPos)=>{
-            if(
-                pixelPos.x < xMin ||
-                xMin == -1
-            ){
-                xMin = pixelPos.x;
-            }
-            if(
-                pixelPos.y < yMin ||
-                yMin == -1
-            ){
-                yMin = pixelPos.y;
-            }
-
-            if(
-                pixelPos.x > xMax ||
-                xMax == -1
-            ){
-                xMax = pixelPos.x;
-            }
-            if(
-                pixelPos.y > yMax ||
-                yMax == -1
-            ){
-                yMax = pixelPos.y;
+        if (!e.shiftKey) {
+            this.state.selectedSpriteGroups = [];
+        }
+        let blnExists = false;
+        this.state.selectedSpriteGroups.forEach((spriteGroup)=>{
+            if(spriteGroup.id == this.hoveredSpriteGroup.id){
+                blnExists = true;
             }
         })
-        this.previewCanvas.width = (xMax - xMin) * this.state.zoom;
-        this.previewCanvas.height = (yMax - yMin) * this.state.zoom;
-        let previewCtx = this.previewCanvas.getContext("2d");
-
-        let ctx = this.canvas.getContext("2d");
-        this.hoveredSpriteGroup.pixels.forEach((pixelPos)=> {
-            let imageData = ctx.getImageData(pixelPos.x, pixelPos.y, 1, 1);
-            let startX = pixelPos.x - xMin;
-            let startY = pixelPos.y - yMin;
-            for(let y = startY * this.state.zoom; y < ((startY+ 1) * this.state.zoom); y++) {
-                for (let x = startX * this.state.zoom; x < ((startX + 1) * this.state.zoom); x++) {
-                    previewCtx.putImageData(imageData, x, y);
-                }
-            }
-
+        if(blnExists){
+            return;
+        }
+        this.state.selectedSpriteGroups.push(this.hoveredSpriteGroup);
+        this.setState({
+            selectedSpriteGroups: this.state.selectedSpriteGroups
         });
+
 
     }
     onCanvasMouseMove(e){
@@ -201,6 +177,8 @@ class ChaosPixelHomePage extends Component {
         ){
             this.hoveredSpriteGroup =  this.spriteGroups[this.spriteGroupingMap[mousePos.x][mousePos.y]];
             //console.log(this.hoveredSpriteGroup.id);
+        }else{
+            //console.log("No sprite group found: ", mousePos.x, mousePos.y, this.spriteGroupingMap[mousePos.x] &&  this.spriteGroupingMap[mousePos.x][mousePos.y]);
         }
         return;
         if(
@@ -225,8 +203,8 @@ class ChaosPixelHomePage extends Component {
     getMousePos( evt) {
         var rect = this.canvas.getBoundingClientRect();
         let response = {
-            x: evt.clientX - rect.left,
-            y: evt.clientY - rect.top,
+            x: Math.round(evt.clientX - rect.left),
+            y: Math.round(evt.clientY - rect.top),
             bounds:{}
         };
         for(let x = 0; x < this.img.width; x += this.state.width){
@@ -300,7 +278,10 @@ class ChaosPixelHomePage extends Component {
                     r: Math.random() * 255,
                     g: Math.random() * 255,
                     b: Math.random() * 255
-                }
+                },
+                tags:[
+                    'pixel'
+                ]
             }
             this.spriteGroups.push(spriteGroup);
         }else{
@@ -439,16 +420,26 @@ class ChaosPixelHomePage extends Component {
         /*console.log(this.previewCanvas.toDataURL());
         return;*/
         let payload = [];
-        payload.push({
-            base64String: this.previewCanvas.toDataURL().replace("data:image/png;base64,", "")
+
+        this.state.selectedSpriteGroups.forEach((spriteGroup)=>{
+            //TODO: Reverse zoom
+            let actualZoom = this.state.zoom;
+            this.state.zoom = 1;
+            spriteGroup._component.setupPreview();
+            payload.push({
+                tags: spriteGroup.tags,
+                base64String: spriteGroup._component.previewCanvas.toDataURL().replace("data:image/png;base64,", "")
+            })
+            this.state.zoom = actualZoom;
+            spriteGroup._component.setupPreview();
         })
-        return axios.post('https://chaosnet.schematical.com/v0/' + AuthService.userData.username + '/trainingdatas', payload[0], {
+        return axios.post('https://chaosnet.schematical.com/v0/' + AuthService.userData.username + '/trainingdatas', payload, {
             headers:{
                 "Authorization": AuthService.accessToken
             }
         })
             .then((response)=>{
-                console.log("Saved: ", response);
+               this.alert("Saved!");
             })
             .catch((err)=>{
                 console.error("Error: ", err.message);
@@ -480,7 +471,7 @@ class ChaosPixelHomePage extends Component {
 
                                     {/* Content Row */}
                                     <div className="row">
-                                        {this.alerts.map((item, key) =>
+                                        {this.state.alerts.map((item, key) =>
                                             <div  class="alert" key={item.id}>{item.message}</div>
                                         )}
                                         {/* Area Chart */}
@@ -491,70 +482,166 @@ class ChaosPixelHomePage extends Component {
                                                 <div className="card-body">
                                                     <div >
                                                         <form>
-                                                            <div className="form-group">
-                                                                <label htmlFor="exampleInputEmail1">Upload Image </label>
-                                                                <input type="file" id="imageLoader" name="imageLoader" onChange={this.handleImage}/>
+
+
+                                                            <div className="accordion" id="accordionExample">
+                                                                <div className="card">
+                                                                    <div className="card-header" id="headingOne">
+                                                                        <h2 className="mb-0">
+                                                                            <button className="btn btn-link"
+                                                                                    type="button" data-toggle="collapse"
+                                                                                    data-target="#upload"
+                                                                                    aria-expanded="true"
+                                                                                    aria-controls="upload">
+                                                                                Upload
+                                                                            </button>
+                                                                        </h2>
+                                                                    </div>
+
+                                                                    <div id="upload" className="collapse show"
+                                                                         aria-labelledby="headingOne"
+                                                                         data-parent="#accordionExample">
+                                                                        <div className="card-body">
+                                                                            <div className="form-group">
+                                                                                <label htmlFor="exampleInputEmail1">Upload Image </label>
+                                                                                <input type="file" id="imageLoader" name="imageLoader" onChange={this.handleImage}/>
+                                                                            </div>
+                                                                            <div className="form-group">
+                                                                                <label htmlFor="exampleInputEmail1">Background Color</label>
+                                                                                <input type="color" name="background_color" placeholder="Background Color" value={this.state.background_color} onChange={this.handleChange} />
+                                                                                <input type="button" className="btn btn-danger btn-lg" onClick={this.drawSliceLines} value="Set Background Color" />
+                                                                            </div>
+                                                                            <div className="form-group">
+                                                                                <label htmlFor="exampleInputEmail1">Background Color Range</label>
+                                                                                <input type="number" name="background_color_range" placeholder="Background Color Range" value={this.state.background_color_range} onChange={this.handleChange} />
+
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="card">
+                                                                    <div className="card-header" id="headingThree">
+                                                                        <h2 className="mb-0">
+                                                                            <button className="btn btn-link collapsed"
+                                                                                    type="button" data-toggle="collapse"
+                                                                                    data-target="#scale"
+                                                                                    aria-expanded="false"
+                                                                                    aria-controls="scale">
+                                                                               Scale
+                                                                            </button>
+                                                                        </h2>
+                                                                    </div>
+                                                                    <div id="scale" className="collapse"
+                                                                         aria-labelledby="headingThree"
+                                                                         data-parent="#accordionExample">
+                                                                        <div className="card-body">
+                                                                            <div className="form-group">
+                                                                                <label htmlFor="exampleInputEmail1">Zoom </label>
+                                                                                <input type="number" name="zoom" placeholder="Zoom" value={this.state.zoom} onChange={this.handleChange} />
+                                                                            </div>
+
+                                                                            <div className="form-group">
+                                                                                <label htmlFor="exampleInputEmail1">Scale </label>
+                                                                                <input type="number" name="scale" placeholder="Scale" value={this.state.scale} onChange={this.handleChange} />
+                                                                            </div>
+
+                                                                            <input type="button" className="btn btn-danger btn-lg" onClick={this.autoscale} value="Auto Scale" />
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="card">
+                                                                    <div className="card-header" id="headingTwo">
+                                                                        <h2 className="mb-0">
+                                                                            <button className="btn btn-link collapsed"
+                                                                                    type="button" data-toggle="collapse"
+                                                                                    data-target="#grid_slice"
+                                                                                    aria-expanded="false"
+                                                                                    aria-controls="grid_slice">
+                                                                                Grid Slice
+                                                                            </button>
+                                                                        </h2>
+                                                                    </div>
+                                                                    <div id="grid_slice" className="collapse"
+                                                                         aria-labelledby="headingTwo"
+                                                                         data-parent="#accordionExample">
+                                                                        <div className="card-body">
+
+                                                                            <div className="form-group">
+                                                                                <label htmlFor="exampleInputEmail1">Sprite Height </label>
+                                                                                <input type="number" name="height" placeholder="Height" value={this.state.height} onChange={this.handleChange} />
+                                                                            </div>
+                                                                            <div className="form-group">
+                                                                                <label htmlFor="exampleInputEmail1">Sprite Width </label>
+                                                                                <input type="number" name="width" placeholder="Width" value={this.state.width} onChange={this.handleChange} />
+                                                                            </div>
+                                                                            <input type="button" className="btn btn-danger btn-lg" onClick={this.drawSliceLines} value="Splice" />
+
+
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="card">
+
+
+
+                                                                    <div className="card-header" id="headingThree">
+                                                                        <h2 className="mb-0">
+                                                                            <button className="btn btn-link collapsed"
+                                                                                    type="button" data-toggle="collapse"
+                                                                                    data-target="#fancy_slice"
+                                                                                    aria-expanded="false"
+                                                                                    aria-controls="fancy_slice">
+                                                                                Fancy Slice
+                                                                            </button>
+                                                                        </h2>
+                                                                    </div>
+                                                                    <div id="fancy_slice" className="collapse"
+                                                                         aria-labelledby="headingThree"
+                                                                         data-parent="#accordionExample">
+                                                                        <div className="card-body">
+                                                                            <div className="form-group">
+                                                                                <label htmlFor="exampleInputEmail1">AutoSlice  Sprite Group Range Max</label>
+                                                                                <input type="number" name="sprite_group_range" placeholder="Height" value={this.state.sprite_group_range} onChange={this.handleChange} />
+                                                                            </div>
+                                                                            <input type="button" className="btn btn-danger btn-lg" onClick={this.autosliceSpriteGroup} value="Auto Slice" />
+                                                                        </div>
+                                                                    </div>
                                                             </div>
-                                                            <div className="form-group">
-                                                                <label htmlFor="exampleInputEmail1">Background Color</label>
-                                                                <input type="color" name="background_color" placeholder="Background Color" value={this.state.background_color} onChange={this.handleChange} />
-                                                                <input type="button" className="btn btn-danger btn-lg" onClick={this.drawSliceLines} value="Set Background Color" />
-                                                            </div>
-                                                            <div className="form-group">
-                                                                <label htmlFor="exampleInputEmail1">Background Color Range</label>
-                                                                <input type="number" name="background_color_range" placeholder="Background Color Range" value={this.state.background_color_range} onChange={this.handleChange} />
 
                                                             </div>
 
-                                                            <div className="form-group">
-                                                                <label htmlFor="exampleInputEmail1">AutoSlice  Sprite Group Range Max</label>
-                                                                <input type="number" name="sprite_group_range" placeholder="Height" value={this.state.sprite_group_range} onChange={this.handleChange} />
-                                                            </div>
-                                                            <div className="form-group">
-                                                                <label htmlFor="exampleInputEmail1">Sprite Height </label>
-                                                                <input type="number" name="height" placeholder="Height" value={this.state.height} onChange={this.handleChange} />
-                                                            </div>
-                                                            <div className="form-group">
-                                                                <label htmlFor="exampleInputEmail1">Sprite Width </label>
-                                                                <input type="number" name="width" placeholder="Width" value={this.state.width} onChange={this.handleChange} />
-                                                            </div>
-
-                                                            <div className="form-group">
-                                                                <label htmlFor="exampleInputEmail1">Zoom </label>
-                                                                <input type="number" name="zoom" placeholder="Zoom" value={this.state.zoom} onChange={this.handleChange} />
-                                                            </div>
-
-                                                            <div className="form-group">
-                                                                <label htmlFor="exampleInputEmail1">Scale </label>
-                                                                <input type="number" name="scale" placeholder="Scale" value={this.state.scale} onChange={this.handleChange} />
-                                                            </div>
-                                                            <input type="button" className="btn btn-danger btn-lg" onClick={this.drawSliceLines} value="Splice" />
-
-                                                            <input type="button" className="btn btn-danger btn-lg" onClick={this.autoscale} value="Auto Scale" />
 
 
-                                                            <input type="button" className="btn btn-danger btn-lg" onClick={this.autosliceSpriteGroup} value="Auto Slice" />
+
+
+
+
+
                                                             <input type="button" className="btn btn-danger btn-lg" onClick={this.resetCanvasWithImage} value="Refresh" />
 
 
                                                             <p>
                                                                 Pixel Count: {this.canvas ? (this.canvas.width + "x" + this.canvas.height + "->" + (this.canvas.width * this.canvas.height) ): ''}
                                                             </p>
-                                                            <p>
-                                                                Batch Status: {this.state.batch_status ? (this.state.batch_status.completed + " / " + this.state.batch_status.total) : ""}
-                                                            </p>
+
                                                             {this.state.batch_status &&
-                                                                <div className="row no-gutters align-items-center">
-                                                                    <div className="col-auto">
-                                                                        <div
-                                                                            className="h5 mb-0 mr-3 font-weight-bold text-gray-800">{ Math.round(this.state.batch_status.completed / this.state.batch_status.total * 100) }%                                                                        </div>
-                                                                    </div>
-                                                                    <div className="col">
-                                                                        <div className="progress progress-sm mr-2">
-                                                                            <div className="progress-bar bg-info"
-                                                                                 role="progressbar" style={{width: (this.state.batch_status.completed / this.state.batch_status.total * 100) + '%'}}
-                                                                                 aria-valuenow={this.state.batch_status.completed} aria-valuemin={0}
-                                                                                 aria-valuemax={this.state.batch_status.total}/>
+                                                                <div>
+                                                                    <p>
+                                                                        Batch Status: {this.state.batch_status ? (this.state.batch_status.completed + " / " + this.state.batch_status.total) : ""}
+                                                                    </p>
+                                                                    <div className="row no-gutters align-items-center">
+                                                                        <div className="col-auto">
+                                                                            <div
+                                                                                className="h5 mb-0 mr-3 font-weight-bold text-gray-800">{ Math.round(this.state.batch_status.completed / this.state.batch_status.total * 100) }%                                                                        </div>
+                                                                        </div>
+                                                                        <div className="col">
+                                                                            <div className="progress progress-sm mr-2">
+                                                                                <div className="progress-bar bg-info"
+                                                                                     role="progressbar" style={{width: (this.state.batch_status.completed / this.state.batch_status.total * 100) + '%'}}
+                                                                                     aria-valuenow={this.state.batch_status.completed} aria-valuemin={0}
+                                                                                     aria-valuemax={this.state.batch_status.total}/>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -582,15 +669,29 @@ class ChaosPixelHomePage extends Component {
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="col-xl-4 col-lg-3">
+
+                                        <div className="col-xl-12 col-lg-12">
 
                                             <div className="card shadow mb-4">
 
                                                 <div className="card-body">
-                                                    <div>
-                                                        <canvas id="previewCanvas" ></canvas>
-                                                        <input type="button" className="btn btn-danger btn-lg" onClick={this.saveTrainingData} value="Save" />
-                                                    </div>
+                                                    <table className="table">
+                                                        <thead>
+                                                        <tr>
+                                                            <th scope="col">#</th>
+
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        {
+                                                            this.state.selectedSpriteGroups.map((spriteGroup)=>{
+                                                                return <SpriteGroupComponent spriteGroup={spriteGroup} page={this}/>
+                                                            })
+                                                        }
+
+                                                        </tbody>
+                                                    </table>
+                                                    <input type="button" className="btn btn-danger btn-lg" onClick={this.saveTrainingData} value="Save" />
                                                 </div>
                                             </div>
                                         </div>
@@ -603,7 +704,7 @@ class ChaosPixelHomePage extends Component {
                             <footer className="sticky-footer bg-white">
                                 <div className="container my-auto">
                                     <div className="copyright text-center my-auto">
-                                        <span>Copyright © Your Website 2019</span>
+                                        <span>Copyright © Schematical Platform LLC</span>
                                     </div>
                                 </div>
                             </footer>
@@ -612,32 +713,8 @@ class ChaosPixelHomePage extends Component {
                         {/* End of Content Wrapper */}
                     </div>
                     {/* End of Page Wrapper */}
-                    {/* Scroll to Top Button*/}
-                    <a className="scroll-to-top rounded" href="#page-top">
-                        <i className="fas fa-angle-up"/>
-                    </a>
-                    {/* Logout Modal*/}
-                    <div className="modal fade" id="logoutModal" tabIndex={-1} role="dialog"
-                         aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div className="modal-dialog" role="document">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h5 className="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                                    <button className="close" type="button" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">×</span>
-                                    </button>
-                                </div>
-                                <div className="modal-body">Select "Logout" below if you are ready to end your current
-                                    session.
-                                </div>
-                                <div className="modal-footer">
-                                    <button className="btn btn-secondary" type="button" data-dismiss="modal">Cancel
-                                    </button>
-                                    <a className="btn btn-primary" href="login.html">Logout</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
+
                 </div>
 
             </div>
@@ -653,7 +730,7 @@ class BatchPixelAction{
         this.total = this.page.canvas.width * this.page.canvas.height;
     }
     tick(){
-        console.log("Ticking...");
+
         for(let i = 0; i <  this.batchCycleSize; i++){
             this.x += 1;
             if(this.x > this.page.canvas.width){
@@ -698,6 +775,9 @@ class AutoSliceBatchAction extends BatchPixelAction{
         this.ctx = this.ctx || this.page.canvas.getContext("2d");
         this.page.checkSpriteGroupPixel(x,y, this.ctx, this.bgColor, -1, 0);
     }
+    cleanUp(){
+        this.page.resetCanvasWithImage();
+    }
 }
 
-export default ChaosPixelHomePage;
+export default ChaosPixelSlicerPage;

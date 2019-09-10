@@ -5,8 +5,9 @@ import LoginPage from './pages/LoginPage.js';
 import SignupPage from './pages/SignupPage.js';
 import logo from './logo.svg';
 import './App.css';
-import ChaosPixelHomePage from "./pages/ChaosPixelHomePage";
+import ChaosPixelSlicerPage from "./pages/ChaosPixelSlicerPage";
 import {useCookies} from "react-cookie";
+import ChaosPixelListTrainingDatasPage from "./pages/ChaosPixelListTrainingDatasPage";
 
 class App extends Component {
   render() {
@@ -16,7 +17,8 @@ class App extends Component {
             <Router.Location path="/" handler={HomePage} />
             <Router.Location path="/login" handler={LoginPage} />
             <Router.Location path="/signup" handler={SignupPage} />
-            <Router.Location path="/chaospixel" handler={ChaosPixelHomePage} />
+            <Router.Location path="/chaospixel" handler={ChaosPixelListTrainingDatasPage} />
+            <Router.Location path="/chaospixel/slicer" handler={ChaosPixelSlicerPage} />
             <Router.NotFound handler={HomePage} />
         </Router.Locations>
     );
