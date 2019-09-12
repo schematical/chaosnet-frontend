@@ -15,7 +15,8 @@ class TagTextComponent extends Component {
         this.state = {
             taggedObjects: props.taggedObjects,
             tags:[],
-            isLoading: false
+            isLoading: false,
+            multi: props.taggedObjects.length > 1
         }
 
         this.handleTypeaheadChange = this.handleTypeaheadChange.bind(this);
@@ -52,6 +53,7 @@ class TagTextComponent extends Component {
     }
     refreshTagCount(taggedObjects){
         let  tagCounts = {};
+        this.state.multi = taggedObjects.length > 1;
         this.state.tags = [];
         this.state._tags = [];
         taggedObjects.forEach((obj)=>{
@@ -182,10 +184,10 @@ class TagTextComponent extends Component {
                         </div>
                         :
                         <div>
-                            <span className="badge badge-pill badge-info" onClick={this.onAddTag}>Add</span>
+                            <span className="badge badge-pill badge-info" onClick={this.onAddTag}>Edit Tags</span>
                             {
                                 this.state.tags.map((tagData)=>{
-                                    return <span className={"badge badge-pill " + (tagData.all ? "badge-primary" : "badge-secondary")}>{tagData.key} {tagData.count}</span>
+                                    return <span className={"badge badge-pill " + (tagData.all ? "badge-primary" : "badge-secondary")}>{tagData.key}{this.state.multi && " " + tagData.count}</span>
                                 })
                             }
                         </div>
