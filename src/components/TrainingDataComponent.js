@@ -32,7 +32,7 @@ class TrainingDataComponent extends Component {
             }
         })
             .then((response) => {
-                console.log("Loaded: ", response.data);
+
                 this.state.trainingdatas = response.data;
                 this.setState(this.state);
                 return axios.get('https://chaosnet.schematical.com/v0/' + AuthService.userData.username + '/trainingdatas/' + this.props.trainingData.namespace + "/media", {
@@ -61,12 +61,12 @@ class TrainingDataComponent extends Component {
                     let scaledHeight = this.img.height * zoom;
                     this.canvas.width = scaledWidth;
                     this.canvas.height = scaledHeight;
-                    console.log(this.img.width, this.img.height, "CANVAS: ", this.canvas.width, this.canvas.height);
 
                     let tmpCanvas = document.getElementById(this.state.canvas_id + "_tmp");
                     tmpCanvas.width =this.img.width;
                     tmpCanvas.height =this.img.height;
                     let tmpCtx = tmpCanvas.getContext("2d");
+                    tmpCtx.imageSmoothingEnabled = false;
                     tmpCtx.drawImage(this.img, 0, 0, this.img.width, this.img.height);
                     for(let x = 0; x < this.img.width; x++){
                         for(let y = 0; y < this.img.height; y++){

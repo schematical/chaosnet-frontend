@@ -4,6 +4,7 @@ import SidebarComponent from '../components/SidebarComponent';
 import TopbarComponent from '../components/TopbarComponent';
 import AuthService from '../services/AuthService';
 import SpriteGroupComponent from "../components/SpriteGroupComponent";
+import TagTextComponent from "../components/TagTextComponent";
 const axios = require('axios');
 
 class ChaosPixelSlicerPage extends Component {
@@ -33,14 +34,22 @@ class ChaosPixelSlicerPage extends Component {
         this.resetCanvasWithImage = this.resetCanvasWithImage.bind(this);
         this.onCanvasMouseDown = this.onCanvasMouseDown.bind(this);
         this.saveTrainingData = this.saveTrainingData.bind(this);
-
+        this.onTagAdd = this.onTagAdd.bind(this);
         this.tick = this.tick.bind(this);
         this.timer = setInterval(this.tick, 100);
 
     }
+    onTagAdd(selectedSpriteGroups, tag){
+        this.setState({
+            selectedSpriteGroups: selectedSpriteGroups
+        })
+    }
     tick(){
         if(!this.previewCanvas){
             this.previewCanvas = document.getElementById('previewCanvas');
+            if(this.previewCanvas){
+                this.previewCanvas.imageSmoothingEnabled = false;
+            }
         }
         if(this.currBatchAction){
             try {
@@ -86,7 +95,7 @@ class ChaosPixelSlicerPage extends Component {
 
     handleImage(e){
         this.canvas = document.getElementById('imageCanvas');
-
+        this.canvas.imageSmoothingEnabled = false;
         var reader = new FileReader();
         reader.onload = (event) =>{
             this.img = new Image();
@@ -345,11 +354,16 @@ class ChaosPixelSlicerPage extends Component {
                 lastPixelColor = imageData.data;
                 return;
             }
+
             if(
-                lastPixelColor[0] == imageData.data[0] &&
-                lastPixelColor[1] == imageData.data[1] &&
-                lastPixelColor[2] == imageData.data[2]
+                lastPixelColor[0] > imageData.data[0] -  this.state.background_color_range &&
+                lastPixelColor[0] < imageData.data[0] +  this.state.background_color_range &&
+                lastPixelColor[1] > imageData.data[1] -  this.state.background_color_range &&
+                lastPixelColor[1] < imageData.data[1] +  this.state.background_color_range &&
+                lastPixelColor[2] > imageData.data[2] -  this.state.background_color_range &&
+                lastPixelColor[2] < imageData.data[2] +  this.state.background_color_range
             ) {
+
                 //console.log("Match:", x, y);
                 pixelMatchCount += 1;
                 return;
@@ -365,10 +379,10 @@ class ChaosPixelSlicerPage extends Component {
         Object.keys(arrPixelCounts).forEach((pixelCount)=>{
             sortable.push({
                 pixelCount: pixelCount,
-                occurences: arrPixelCounts[pixelCount]
+                occurrences: arrPixelCounts[pixelCount]
             })
         })
-        let sortedPixelCounts = _.sortBy(sortable, 'occurences').reverse();
+        let sortedPixelCounts = _.sortBy(sortable, 'occurrences').reverse();
         console.log("sortedPixelCounts: ", sortedPixelCounts);
         console.log(sortedPixelCounts[1].pixelCount, " % ", sortedPixelCounts[0].pixelCount, " == ", sortedPixelCounts[1].pixelCount % sortedPixelCounts[0].pixelCount)
         if(sortedPixelCounts[1].pixelCount % sortedPixelCounts[0].pixelCount != 0){
@@ -472,7 +486,13 @@ class ChaosPixelSlicerPage extends Component {
                                     {/* Content Row */}
                                     <div className="row">
                                         {this.state.alerts.map((item, key) =>
-                                            <div  class="alert" key={item.id}>{item.message}</div>
+                                            <div className="alert alert-warning alert-dismissible fade show" key={item.id} role="alert">
+                                                {item.message}
+                                                <button type="button" className="close" data-dismiss="alert"
+                                                        aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
                                         )}
                                         {/* Area Chart */}
                                         <div className="col-xl-12 col-lg-12">
@@ -675,6 +695,7 @@ class ChaosPixelSlicerPage extends Component {
                                             <div className="card shadow mb-4">
 
                                                 <div className="card-body">
+                                                    <TagTextComponent taggedObjects={this.state.selectedSpriteGroups} onTagAdd={this.onTagAdd} />
                                                     <table className="table">
                                                         <thead>
                                                         <tr>

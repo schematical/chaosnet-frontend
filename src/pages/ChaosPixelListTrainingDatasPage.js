@@ -5,6 +5,7 @@ import TopbarComponent from '../components/TopbarComponent';
 import AuthService from '../services/AuthService';
 import SpriteGroupComponent from "../components/SpriteGroupComponent";
 import TrainingDataComponent from "../components/TrainingDataComponent";
+import TagTextComponent from "../components/TagTextComponent";
 const axios = require('axios');
 
 class ChaosPixelListTrainingDatasPage extends Component {
@@ -16,7 +17,13 @@ class ChaosPixelListTrainingDatasPage extends Component {
         }
 
         this.handleChange = this.handleChange.bind(this);
+        this.onTagAdd = this.onTagAdd.bind(this);
 
+    }
+    onTagAdd(trainingDatas, tag){
+        this.setState({
+            trainingdatas: trainingDatas
+        })
     }
 
 
@@ -86,6 +93,7 @@ class ChaosPixelListTrainingDatasPage extends Component {
                                             <div className="card shadow mb-4">
 
                                                 <div className="card-body">
+                                                    <TagTextComponent taggedObjects={this.state.trainingdatas} onTagAdd={this.onTagAdd}/>
                                                     <table className="table">
                                                         <thead>
                                                         <tr>
