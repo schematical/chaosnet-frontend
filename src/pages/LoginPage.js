@@ -29,7 +29,7 @@ class LoginPage extends Component {
         let cookieOptions = {
             path: '/'
         };
-       console.log("SUBMITT: ", this.state);
+
         event.preventDefault();
         AuthService.login(this.state.username, this.state.password)
             .then((response)=>{
@@ -49,10 +49,13 @@ class LoginPage extends Component {
                 document.location = "/";
             })
             .catch((err)=>{
-               console.log("Error: ", err.message, err.response && err.response.status);
+
+               let error = err.response && err.response.data && err.response.data.error && err.response.data.error || err;
+               error.status = err.response && err.response.status;
                this.setState({
-                   error: err.message
+                   error: error
                })
+
             })
     }
     login(event){
@@ -81,7 +84,7 @@ class LoginPage extends Component {
                                                     this.state.error &&
                                                     <div className="card mb-4 py-3  bg-danger text-white shadow">
                                                         <div className="card-body">
-                                                            Error
+                                                            Error   {this.state.error.status}
                                                             <div className="text-white-50 small">
                                                                 {this.state.error.message}
                                                             </div>
