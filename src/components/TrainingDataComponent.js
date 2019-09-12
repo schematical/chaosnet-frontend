@@ -3,6 +3,7 @@ import AuthService from '../services/AuthService';
 import SearchbarComponent from './SearchbarComponent';
 import {instanceOf} from "prop-types";
 import {Cookies, withCookies} from "react-cookie";
+import TagTextComponent from "./TagTextComponent";
 const axios = require('axios');
 
 class TrainingDataComponent extends Component {
@@ -11,12 +12,23 @@ class TrainingDataComponent extends Component {
         super(props);
 
         this.state = {
-            canvas_id: "previewCanvas_" + this.props.trainingData.namespace
+            canvas_id: "previewCanvas_" + this.props.trainingData.namespace,
+            canvas_loaded:false
         }
 
         this.handleChange = this.handleChange.bind(this);
+        this.onTagAdd = this.onTagAdd.bind(this);
     }
+    onTagAdd(trainingDatas){
+        if(trainingDatas.length != 1){
+            throw new Error("SHould only get one result here");
+        }
+        this.props.trainingData.tags = trainingDatas[0].tags;
+        this.setState({
+            tags: this.props.trainingData.tags
+        });
 
+    }
     handleChange(event) {
         //console.log("TARGET:" , event.target.name, event.target.value, event.target);
         let state = {};
@@ -79,7 +91,7 @@ class TrainingDataComponent extends Component {
                             }
                         }
                     }
-
+                    this.setState({canvas_loaded: true});
                     //
                 }
 
@@ -90,7 +102,7 @@ class TrainingDataComponent extends Component {
 
     }
     render() {
-        if(!this.state.loading){
+        if(!this.state.loading && ! this.state.canvas_loaded){
             setTimeout(()=>{
 
                 this.setupPreview();
@@ -109,19 +121,8 @@ class TrainingDataComponent extends Component {
                 </td>
                 <td>
                     {
-                        this.props.trainingData.tags && this.props.trainingData.tags.map((tag)=>{
-                            return <span className="badge badge-pill badge-primary">{tag}</span>
-                        })
-                    }
-                    {
-                        this.state.show_add_tag ?
-                        <div className="input-group">
-                            <input type="text" name="new_tag_name" placeholder="Tag" value={this.state.new_tag_name} onChange={this.handleChange} />
-                            <button className="btn btn-danger  btn-sm" onClick={this.onSaveTag} >Add Tag</button>
-                        </div>
-                        :
-                        <span className="badge badge-pill badge-secondary" onClick={this.onAddTag}>Add</span>
-
+                        this.state.canvas_loaded &&
+                        <TagTextComponent taggedObjects={[this.props.trainingData]} onTagAdd={this.onTagAdd}/>
                     }
 
                 </td>
