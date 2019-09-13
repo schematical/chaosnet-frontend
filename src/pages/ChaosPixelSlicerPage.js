@@ -15,7 +15,7 @@ class ChaosPixelSlicerPage extends Component {
             height: 16,
             width:16,
             background_color: "#ffffff",
-            sprite_group_range: 3,
+            sprite_group_range: 2,
             max_batch_tick_duration: 100,
             scale: 1,
             zoom: 5,
@@ -39,8 +39,17 @@ class ChaosPixelSlicerPage extends Component {
         this.onTagAdd = this.onTagAdd.bind(this);
         this.onKeyDown = this.onKeyDown.bind(this);
         this.tick = this.tick.bind(this);
-        this.timer = setInterval(this.tick, this.state.max_batch_tick_duration);
+        this.cancelBatchAction = this.cancelBatchAction.bind(this);
 
+    }
+
+    componentDidMount() {
+        document.addEventListener("keydown", this.onKeyDown, false);
+        this.timer = setInterval(this.tick, this.state.max_batch_tick_duration * 2);
+    }
+    componentWillUnmount() {
+        clearInterval(this.timer);
+        document.removeEventListener("keydown", this.onKeyDown, false);
     }
     onKeyDown(event){
 
@@ -54,40 +63,50 @@ class ChaosPixelSlicerPage extends Component {
             })
         }
     }
+    cancelBatchAction(event){
+        event.preventDefault();
+        this.currBatchAction = null;
+        this.setState({
+            batch_status: null
+        })
+    }
     onTagAdd(selectedSpriteGroups, tag){
         this.setState({
             selectedSpriteGroups: selectedSpriteGroups
         })
     }
     tick(){
+        if(!this.currBatchAction) {
+            return;
+        }
         if(!this.previewCanvas){
             this.previewCanvas = document.getElementById('previewCanvas');
             if(this.previewCanvas){
                 this.previewCanvas.imageSmoothingEnabled = false;
             }
         }
-        if(this.currBatchAction){
-            let tickStart = new Date().getTime();
-            while(
-                this.currBatchAction.i <  this.currBatchAction.goal &&
-                new Date().getTime() - tickStart < this.state.max_batch_tick_duration
-            ) {
-                try {
-                    this.state['batch_status'] = this.currBatchAction.tick();
 
-                } catch (e) {
-                    this.currBatchAction = null;
-                    throw e;
-                }
-            }
+        let tickStart = new Date().getTime();
+        while(
+            this.currBatchAction.i <  this.currBatchAction.goal &&
+            new Date().getTime() - tickStart < this.state.max_batch_tick_duration
+        ) {
+            try {
+                this.state['batch_status'] = this.currBatchAction.tick();
 
-            if(this.state['batch_status'].done){
-                this.currBatchAction.cleanUp();
+            } catch (e) {
                 this.currBatchAction = null;
-                console.log("Completed: ",this.state['batch_status']);
+                throw e;
             }
-            this.setState(this.state);
         }
+
+        if(this.state['batch_status'].done){
+            this.currBatchAction.cleanUp();
+            this.currBatchAction = null;
+            console.log("Completed: ",this.state['batch_status']);
+        }
+        this.setState(this.state);
+
     }
     alert(message){
         this.state.alerts.push({
@@ -116,12 +135,7 @@ class ChaosPixelSlicerPage extends Component {
 
         this.setState(state);
     }
-    componentDidMount(){
-        document.addEventListener("keydown", this.onKeyDown, false);
-    }
-    componentWillUnmount(){
-        document.removeEventListener("keydown", this.onKeyDown, false);
-    }
+
     handleImage(e){
         this.canvas = document.getElementById('imageCanvas');
         this.canvas.imageSmoothingEnabled = false;
@@ -689,12 +703,14 @@ class ChaosPixelSlicerPage extends Component {
                                                             {this.state.batch_status &&
                                                                 <div>
                                                                     <p>
+                                                                        <button className="btn btn-sm btn-primary" onClick={this.cancelBatchAction}>Cancel</button>
                                                                         Batch Status: {this.state.batch_status ? (this.state.batch_status.completed + " / " + this.state.batch_status.total) : ""}
                                                                         &nbsp;&nbsp;
                                                                         {
                                                                             this.state.batch_status._childStatus &&
                                                                             <span> Depth: {this.state.batch_status._childStatus.stack }</span>
                                                                         }
+
                                                                     </p>
                                                                     <div className="row no-gutters align-items-center">
                                                                         <div className="col-auto">
@@ -754,7 +770,7 @@ class ChaosPixelSlicerPage extends Component {
                                                         <tbody>
                                                         {
                                                             this.state.selectedSpriteGroups.map((spriteGroup)=>{
-                                                                return <SpriteGroupComponent spriteGroup={spriteGroup} page={this}/>
+                                                                return <SpriteGroupComponent key={spriteGroup.id} spriteGroup={spriteGroup} page={this}/>
                                                             })
                                                         }
 
@@ -850,7 +866,7 @@ class BatchPixelAction{
         let y = Math.floor(this.i / this.width);
         let x = this.i % this.width;
         this.i += 1;
-        if(this.stack > 0){
+       /* if(this.stack > 0){
             console.log({
                 stack: this.stack,
                 c: this.parentAction.childBatchActions.length,
@@ -861,7 +877,7 @@ class BatchPixelAction{
                 startX: this.startX,
                 startY: this.startY
             })
-        }
+        }*/
         this.run(
             this.startX + x,
             this.startY + y

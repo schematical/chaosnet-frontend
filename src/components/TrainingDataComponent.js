@@ -101,13 +101,11 @@ class TrainingDataComponent extends Component {
             })
 
     }
+    componentDidMount() {
+        this.setupPreview();
+    }
     render() {
-        if(!this.state.loading && ! this.state.canvas_loaded){
-            setTimeout(()=>{
 
-                this.setupPreview();
-            }, 100);
-        }
 
         return (
 

@@ -87,10 +87,11 @@ class SpriteGroupComponent extends Component {
 
         });
     }
+    componentDidMount() {
+        this.setupPreview();
+    }
     render() {
-        setTimeout(()=>{
-            this.setupPreview();
-        }, 100);
+
         return (
 
             <tr>
