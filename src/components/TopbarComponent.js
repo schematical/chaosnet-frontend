@@ -62,15 +62,15 @@ class TopbarComponent extends Component {
                         </div>
                     </li>
                     {/* Nav Item - Alerts */}
-                    <li className="nav-item dropdown no-arrow mx-1">
+                   {/* <li className="nav-item dropdown no-arrow mx-1">
                         <a className="nav-link dropdown-toggle" href="#" id="alertsDropdown"
                            role="button" data-toggle="dropdown" aria-haspopup="true"
                            aria-expanded="false">
                             <i className="fas fa-bell fa-fw"/>
-                            {/* Counter - Alerts */}
+                             Counter - Alerts
                             <span className="badge badge-danger badge-counter">3+</span>
                         </a>
-                        {/* Dropdown - Alerts */}
+                         Dropdown - Alerts
                         <div
                             className="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                             aria-labelledby="alertsDropdown">
@@ -115,16 +115,16 @@ class TopbarComponent extends Component {
                                 All Alerts</a>
                         </div>
                     </li>
-                    {/* Nav Item - Messages */}
+                     Nav Item - Messages
                     <li className="nav-item dropdown no-arrow mx-1">
                         <a className="nav-link dropdown-toggle" href="#" id="messagesDropdown"
                            role="button" data-toggle="dropdown" aria-haspopup="true"
                            aria-expanded="false">
                             <i className="fas fa-envelope fa-fw"/>
-                            {/* Counter - Messages */}
+                             Counter - Messages
                             <span className="badge badge-danger badge-counter">7</span>
                         </a>
-                        {/* Dropdown - Messages */}
+                         Dropdown - Messages
                         <div
                             className="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                             aria-labelledby="messagesDropdown">
@@ -188,7 +188,7 @@ class TopbarComponent extends Component {
                             <a className="dropdown-item text-center small text-gray-500" href="#">Read
                                 More Messages</a>
                         </div>
-                    </li>
+                    </li>*/}
                     <div className="topbar-divider d-none d-sm-block"/>
                     {/* Nav Item - User Information */}
                     {

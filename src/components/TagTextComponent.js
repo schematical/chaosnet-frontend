@@ -72,7 +72,7 @@ class TagTextComponent extends Component {
             })
 
         })
-        console.log("this.props.taggedObjects: ", taggedObjects, "STATE: ", this.state);
+
     }
     componentWillReceiveProps(nextProps) {
         if(!nextProps.taggedObjects){
@@ -99,7 +99,7 @@ class TagTextComponent extends Component {
             }
 
         })
-        console.log("Tag Cache: ", tagCache, tags);
+
         this.state.taggedObjects.forEach((obj)=>{
             Object.keys(tagCache).forEach((tag)=>{
                 let indexOf = _.indexOf(obj.tags, tag);
