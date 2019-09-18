@@ -3,6 +3,7 @@ import AuthService from '../services/AuthService';
 import SearchbarComponent from './SearchbarComponent';
 import {instanceOf} from "prop-types";
 import {Cookies, withCookies} from "react-cookie";
+import TagTextComponent from "./TagTextComponent";
 
 class SpriteGroupComponent extends Component {
 
@@ -12,20 +13,35 @@ class SpriteGroupComponent extends Component {
         this.state = {
             canvas_id: "previewCanvas_" + this.props.spriteGroup.id
         }
-        this.onAddTag = this.onAddTag.bind(this);
-        this.onSaveTag = this.onSaveTag.bind(this);
+
         this.handleChange = this.handleChange.bind(this);
+        this.removeMe = this.removeMe.bind(this);
+        this.onTagAdd = this.onTagAdd.bind(this);
     }
-    onAddTag(){
-        this.setState({
-            show_add_tag: true
-        })
+    removeMe(event){
+        event.preventDefault();
+        for(let i = 0; i < this.props.page.state.selectedSpriteGroups.length; i++){
+            console.log(this.props.page.state.selectedSpriteGroups[i].id + " == " + this.props.spriteGroup.id);
+            if(this.props.page.state.selectedSpriteGroups[i].id == this.props.spriteGroup.id){
+                this.props.page.state.selectedSpriteGroups.splice(i, 1);
+                this.props.page.setState({
+                    selectedSpriteGroups: this.props.page.state.selectedSpriteGroups
+                })
+                break;
+            }
+        }
     }
-    onSaveTag(){
-        this.props.spriteGroup.tags.push(this.state.new_tag_name);
+
+
+    onTagAdd(spriteGroups){
+        if(spriteGroups.length != 1){
+            throw new Error("SHould only get one result here");
+        }
+        this.props.spriteGroup.tags = spriteGroups[0].tags;
         this.setState({
-            show_add_tag: false
-        })
+            tags: this.props.spriteGroup.tags
+        });
+
     }
     handleChange(event) {
         //console.log("TARGET:" , event.target.name, event.target.value, event.target);
@@ -86,6 +102,9 @@ class SpriteGroupComponent extends Component {
             }
 
         });
+        this.setState({
+            canvas_loaded: true
+        })
     }
     componentDidMount() {
         this.setupPreview();
@@ -101,19 +120,8 @@ class SpriteGroupComponent extends Component {
                 </td>
                 <td>
                     {
-                        this.props.spriteGroup.tags.map((tag)=>{
-                            return <span className="badge badge-pill badge-primary">{tag}</span>
-                        })
-                    }
-                    {
-                        this.state.show_add_tag ?
-                        <div className="input-group">
-                            <input type="text" name="new_tag_name" placeholder="Tag" value={this.state.new_tag_name} onChange={this.handleChange} />
-                            <button className="btn btn-danger  btn-sm" onClick={this.onSaveTag} >Add Tag</button>
-                        </div>
-                        :
-                        <span className="badge badge-pill badge-secondary" onClick={this.onAddTag}>Add</span>
-
+                        this.state.canvas_loaded &&
+                        <TagTextComponent taggedObjects={[this.props.spriteGroup]} onTagAdd={this.onTagAdd}/>
                     }
 
                 </td>
@@ -127,8 +135,8 @@ class SpriteGroupComponent extends Component {
                         <div id={"spriteGroup_" + this.props.spriteGroup.id} className="collapse" aria-labelledby="headingTwo"
                              data-parent="#accordionSidebar">
                             <div className="bg-white py-2 collapse-inner rounded">
-                                <h6 className="collapse-header">ChaosPixel:</h6>
-                                <a className="collapse-item" href="/chaospixel">Slicer</a>
+
+                                <a className="collapse-item" href="#" onClick={this.removeMe}>Remove</a>
                             </div>
                         </div>
                     </div>

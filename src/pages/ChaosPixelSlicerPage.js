@@ -12,24 +12,29 @@ class ChaosPixelSlicerPage extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            height: 16,
-            width:16,
+            grid_x_offset:0,
+            grid_y_offset:0,
+            grid_height: 16,
+            grid_width:16,
             background_color: "#ffffff",
             sprite_group_range: 2,
             max_batch_tick_duration: 100,
             scale: 1,
             zoom: 5,
-            background_color_range: 8,
+            background_color_range: 16,
             max_stack_size: 1000,
             batch_size: 250,
             selectedSpriteGroups:[],
-            alerts:[]
+            alerts:[],
+            min_sprite_group_width:2,
         }
         this.alerts = [];
         this.currBatchAction = null;
+        this.handleGridChange = this.handleGridChange.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleImage = this.handleImage.bind(this);
         this.drawSliceLines = this.drawSliceLines.bind(this);
+        this.gridSlice = this.gridSlice.bind(this);
         this.onCanvasMouseMove = this.onCanvasMouseMove.bind(this);
         this.autosliceSpriteGroup = this.autosliceSpriteGroup.bind(this);
         this.autoscale = this.autoscale.bind(this);
@@ -40,7 +45,7 @@ class ChaosPixelSlicerPage extends Component {
         this.onKeyDown = this.onKeyDown.bind(this);
         this.tick = this.tick.bind(this);
         this.cancelBatchAction = this.cancelBatchAction.bind(this);
-
+        this.selectAll = this.selectAll.bind(this);
     }
 
     componentDidMount() {
@@ -56,15 +61,23 @@ class ChaosPixelSlicerPage extends Component {
         if(event.keyCode === 27) {
             //Do whatever when esc is pressed
         }
-        if(event.key == 'a'){
 
-            this.setState({
-                selectedSpriteGroups: this.spriteGroups || []
-            })
-        }
+    }
+    selectAll(){
+        this.setState({
+            selectedSpriteGroups: this.spriteGroups || []
+        })
     }
     cancelBatchAction(event){
         event.preventDefault();
+        this.currBatchAction = null;
+        this.setState({
+            batch_status: null
+        })
+    }
+    onBatchActionFinish(action){
+        console.log("Running Cleanup");
+        this.currBatchAction.cleanUp();
         this.currBatchAction = null;
         this.setState({
             batch_status: null
@@ -88,7 +101,7 @@ class ChaosPixelSlicerPage extends Component {
 
         let tickStart = new Date().getTime();
         while(
-            this.currBatchAction.i <  this.currBatchAction.goal &&
+            this.currBatchAction &&
             new Date().getTime() - tickStart < this.state.max_batch_tick_duration
         ) {
             try {
@@ -100,11 +113,7 @@ class ChaosPixelSlicerPage extends Component {
             }
         }
 
-        if(this.state['batch_status'].done){
-            this.currBatchAction.cleanUp();
-            this.currBatchAction = null;
-            console.log("Completed: ",this.state['batch_status']);
-        }
+
         this.setState(this.state);
 
     }
@@ -115,18 +124,25 @@ class ChaosPixelSlicerPage extends Component {
         })
         this.setState(this.state);;
     }
+    handleGridChange(event){
+        this.handleChange(event);
+        this.drawSliceLines();
+    }
     handleChange(event) {
         //console.log("TARGET:" , event.target.name, event.target.value, event.target);
         let state = {};
         switch(event.target.name){
-            case("height"):
-            case("width"):
+            case("grid_height"):
+            case("grid_width"):
+            case("grid_x_offset"):
+            case("grid_y_offset"):
             case("background_color_range"):
             case("sprite_group_range"):
             case("zoom"):
             case("scale"):
             case("batch_size"):
             case("max_stack_size"):
+            case("min_sprite_group_width"):
                 state[event.target.name] = parseFloat(event.target.value);
                 break;
             default:
@@ -137,6 +153,7 @@ class ChaosPixelSlicerPage extends Component {
     }
 
     handleImage(e){
+
         this.canvas = document.getElementById('imageCanvas');
         this.canvas.imageSmoothingEnabled = false;
         var reader = new FileReader();
@@ -146,6 +163,10 @@ class ChaosPixelSlicerPage extends Component {
                 this.resetCanvasWithImage();
             }
             this.img.src = event.target.result;
+            this.spriteGroups = [];
+            this.setState({
+                selectedSpriteGroups:[]
+            })
         }
         reader.readAsDataURL(e.target.files[0]);
 
@@ -155,6 +176,9 @@ class ChaosPixelSlicerPage extends Component {
 
     }
     resetCanvasWithImage(){
+        if(!this.canvas){
+            this.canvas = document.getElementById('imageCanvas');
+        }
         var ctx = this.canvas.getContext('2d');
         let scaledWidth = this.img.width * this.state.scale;
         let scaledHeight = this.img.height * this.state.scale;
@@ -162,25 +186,27 @@ class ChaosPixelSlicerPage extends Component {
         this.canvas.height = scaledHeight;
         ctx.drawImage(this.img,0,0, scaledWidth, scaledHeight);
         let imageData = ctx.getImageData(0, 0, 1, 1);
-        this.state.background_color = this.rgbToHex(
-            imageData.data[0],
-            imageData.data[1],
-            imageData.data[2]
-        );
-        console.log("Background: ", this.state.background_color);
-        this.setState(this.state);
+        let state = {
+            background_color: this.rgbToHex(
+                imageData.data[0],
+                imageData.data[1],
+                imageData.data[2]
+            )
+        };
+
+        this.setState(state);
     }
     drawSliceLines(){
         this.resetCanvasWithImage();
         var ctx = this.canvas.getContext("2d");
-
-        for(let x = 0; x < this.img.width; x += this.state.width){
+        ctx.strokeStyle = "green";
+        for(let x = this.state.grid_x_offset; x < this.img.width; x += this.state.grid_width){
             ctx.beginPath();
             ctx.moveTo(x, 0);
             ctx.lineTo(x, this.img.height);
             ctx.stroke();
         }
-        for(let y = 0; y < this.img.height; y += this.state.height){
+        for(let y = this.state.grid_y_offset; y < this.img.height; y += this.state.grid_height){
             ctx.beginPath();
             ctx.moveTo(0, y);
             ctx.lineTo(this.img.width,y);
@@ -189,24 +215,93 @@ class ChaosPixelSlicerPage extends Component {
 
 
     }
+    gridSlice(){
+        this.resetCanvasWithImage();
+        var ctx = this.canvas.getContext("2d");
+        this.spriteGroups = [];
+        for(let x = this.state.grid_x_offset; x < this.img.width; x += this.state.grid_width){
+            for(let y = this.state.grid_y_offset; y < this.img.height; y += this.state.grid_height){
+                let spriteGroup = {
+                    id: this.spriteGroups.length,
+                    pixels: [],
+                    color: {
+                        r: Math.random() * 255,
+                        g: Math.random() * 255,
+                        b: Math.random() * 255
+                    },
+                    tags: [
+                        'pixel'
+                    ],
+                    bounds:{
+                        minX: -1,
+                        minY: -1,
+                        maxX: -1,
+                        maxY: -1
+                    }
+                }
+                for(let xx = x; xx < x + this.state.grid_width; xx++){
+                    for(let yy = y; yy < y + this.state.grid_height; yy++){
+                        let imageData = ctx.getImageData(xx, yy, 1, 1);
+                        if(
+                            !this.isTransparent(imageData.data)
+                        ) {
+
+                            imageData.data[0] = spriteGroup.color.r;
+                            imageData.data[1] = spriteGroup.color.g;
+                            imageData.data[2] = spriteGroup.color.b;
+
+                            ctx.putImageData(imageData, x, y);
+                            spriteGroup.pixels.push({
+                                x: xx,
+                                y: yy
+                            })
+                        }
+
+                    }
+                }
+                //if( spriteGroup.pixels.length>5){
+                    console.log("Adding Sprite Group: ", spriteGroup);
+                    this.spriteGroups.push(spriteGroup);
+                //}
+            }
+        }
+
+    }
     onCanvasMouseDown(e){
 
         if(!this.hoveredSpriteGroup){
             return;
         }
-        if (!e.shiftKey) {
-            this.state.selectedSpriteGroups = [];
-        }
-        let blnExists = false;
-        this.state.selectedSpriteGroups.forEach((spriteGroup)=>{
+
+        let index = -1;
+        this.state.selectedSpriteGroups.forEach((spriteGroup, i)=>{
             if(spriteGroup.id == this.hoveredSpriteGroup.id){
-                blnExists = true;
+                index = i;
             }
         })
-        if(blnExists){
-            return;
+
+        if(e.ctrlKey){
+            if(index !== -1){
+                //Remove it
+                this.state.selectedSpriteGroups.splice(index, 1);
+            }else{
+                this.state.selectedSpriteGroups.push(this.hoveredSpriteGroup);
+            }
+        }if (e.shiftKey) {
+            if(index !== -1){
+                return;
+            }
+            this.state.selectedSpriteGroups.push(this.hoveredSpriteGroup);
+        }else{
+            if(index !== -1){
+                return;
+            }
+            this.state.selectedSpriteGroups = [];
+            this.state.selectedSpriteGroups.push(this.hoveredSpriteGroup);
+
         }
-        this.state.selectedSpriteGroups.push(this.hoveredSpriteGroup);
+
+
         this.setState({
             selectedSpriteGroups: this.state.selectedSpriteGroups
         });
@@ -591,6 +686,31 @@ class ChaosPixelSlicerPage extends Component {
                                                                         <h2 className="mb-0">
                                                                             <button className="btn btn-link collapsed"
                                                                                     type="button" data-toggle="collapse"
+                                                                                    data-target="#settings"
+                                                                                    aria-expanded="false"
+                                                                                    aria-controls="settings">
+                                                                                Settings
+                                                                            </button>
+                                                                        </h2>
+                                                                    </div>
+                                                                    <div id="settings" className="collapse"
+                                                                         aria-labelledby="headingThree"
+                                                                         data-parent="#accordionExample">
+                                                                        <div className="card-body">
+                                                                            <div className="form-group">
+                                                                                <label htmlFor="exampleInputEmail1">Min Sprite Group Width </label>
+                                                                                <input type="number" name="min_sprite_group_width" placeholder="Min Sprite Group Width" value={this.state.min_sprite_group_width} onChange={this.handleChange} />
+                                                                            </div>
+
+
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="card">
+                                                                    <div className="card-header" id="headingThree">
+                                                                        <h2 className="mb-0">
+                                                                            <button className="btn btn-link collapsed"
+                                                                                    type="button" data-toggle="collapse"
                                                                                     data-target="#scale"
                                                                                     aria-expanded="false"
                                                                                     aria-controls="scale">
@@ -633,16 +753,24 @@ class ChaosPixelSlicerPage extends Component {
                                                                          aria-labelledby="headingTwo"
                                                                          data-parent="#accordionExample">
                                                                         <div className="card-body">
+                                                                            <div className="form-group">
+                                                                                <label htmlFor="exampleInputEmail1">Offset X </label>
+                                                                                <input type="number" name="grid_x_offset" placeholder="X Offset" value={this.state.grid_x_offset} onChange={this.handleGridChange} />
+                                                                            </div>
+                                                                            <div className="form-group">
+                                                                                <label htmlFor="exampleInputEmail1">Offset Y </label>
+                                                                                <input type="number" name="grid_y_offset" placeholder="Y Offset" value={this.state.grid_y_offset} onChange={this.handleGridChange} />
+                                                                            </div>
 
                                                                             <div className="form-group">
                                                                                 <label htmlFor="exampleInputEmail1">Sprite Height </label>
-                                                                                <input type="number" name="height" placeholder="Height" value={this.state.height} onChange={this.handleChange} />
+                                                                                <input type="number" name="grid_height" placeholder="Height" value={this.state.grid_height} onChange={this.handleGridChange} />
                                                                             </div>
                                                                             <div className="form-group">
                                                                                 <label htmlFor="exampleInputEmail1">Sprite Width </label>
-                                                                                <input type="number" name="width" placeholder="Width" value={this.state.width} onChange={this.handleChange} />
+                                                                                <input type="number" name="grid_width" placeholder="Width" value={this.state.grid_width} onChange={this.handleGridChange} />
                                                                             </div>
-                                                                            <input type="button" className="btn btn-danger btn-lg" onClick={this.drawSliceLines} value="Splice" />
+                                                                            <input type="button" className="btn btn-danger btn-lg" onClick={this.gridSlice} value="Splice" />
 
 
                                                                         </div>
@@ -708,6 +836,13 @@ class ChaosPixelSlicerPage extends Component {
                                                                         &nbsp;&nbsp;
                                                                         {
                                                                             this.state.batch_status._childStatus &&
+                                                                            <span>
+                                                                                X,Y: ({this.state.batch_status._childStatus.x}, {this.state.batch_status._childStatus.y})
+                                                                                &nbsp;&nbsp;
+                                                                            </span>
+                                                                        }
+                                                                        {
+                                                                            this.state.batch_status._childStatus &&
                                                                             <span> Depth: {this.state.batch_status._childStatus.stack }</span>
                                                                         }
 
@@ -759,6 +894,9 @@ class ChaosPixelSlicerPage extends Component {
                                             <div className="card shadow mb-4">
 
                                                 <div className="card-body">
+                                                    <button className="btn btn-sm btn-primary" onClick={this.selectAll}>
+                                                        Select All
+                                                    </button>
                                                     <TagTextComponent taggedObjects={this.state.selectedSpriteGroups} onTagAdd={this.onTagAdd} />
                                                     <table className="table">
                                                         <thead>
@@ -860,6 +998,8 @@ class BatchPixelAction{
         if(this.i > this.goal){
             if(this.parentAction){
                 this.parentAction.onChildFinish(this);
+            }else{
+                this.page.onBatchActionFinish(this);
             }
             return ;
         }
@@ -883,12 +1023,15 @@ class BatchPixelAction{
             this.startY + y
         );
         if(
-            x > this.page.canvas.width &&
+            x < 0 ||
+            x > this.page.canvas.width ||
+            y < 0 ||
             y > this.page.canvas.height
         ){
             throw new Error("X and Y out of bounds");
         }
-
+        status.x = this.startX + x;
+        status.y = this.startY + y;
         return status;
 
 
@@ -934,8 +1077,8 @@ class AutoSliceBatchAction extends BatchPixelAction{
         }
         if(
             !_.isUndefined(this.page.spriteGroupingMap[x]) &&
-            !_.isUndefined(this.page.spriteGroupingMap[x][y]) ||
-            this.page.spriteGroupingMap[x][y] == -2
+            !_.isUndefined(this.page.spriteGroupingMap[x][y])/* ||
+            this.page.spriteGroupingMap[x][y] == -2*/
         ){
             return;
         }
@@ -960,15 +1103,44 @@ class AutoSliceBatchAction extends BatchPixelAction{
                     g: Math.random() * 255,
                     b: Math.random() * 255
                 },
-                tags:[
+                tags: [
                     'pixel'
-                ]
+                ],
+                bounds:{
+                    minX: -1,
+                    minY: -1,
+                    maxX: -1,
+                    maxY: -1
+                }
             }
             this.page.spriteGroups.push(spriteGroup);
         }else{
             spriteGroup = this.spriteGroup;
         }
-
+        if(
+            spriteGroup.bounds.minX == -1 ||
+            x < spriteGroup.bounds.minX
+        ){
+            spriteGroup.bounds.minX = x;
+        }
+        if(
+            spriteGroup.bounds.minY == -1 ||
+            y < spriteGroup.bounds.minY
+        ){
+            spriteGroup.bounds.minY = y;
+        }
+        if(
+            spriteGroup.bounds.maxX == -1 ||
+            x > spriteGroup.bounds.maxX
+        ){
+            spriteGroup.bounds.maxX = x;
+        }
+        if(
+            spriteGroup.bounds.maxY == -1 ||
+            y > spriteGroup.bounds.maxY
+        ){
+            spriteGroup.bounds.maxY = y;
+        }
         spriteGroup.pixels.push({
             x: x,
             y: y
@@ -988,12 +1160,21 @@ class AutoSliceBatchAction extends BatchPixelAction{
             this.page,
             spriteGroup
         );
-        action.setDimensions({
+        let dimensions = {
             width: this.page.state.sprite_group_range * 2,
             height: this.page.state.sprite_group_range * 2,
             startX: x - this.page.state.sprite_group_range,
             startY: y - this.page.state.sprite_group_range,
-        })
+        }
+        if(
+            dimensions.startX < 0 ||
+            dimensions.startY < 0 ||
+            dimensions.startX + dimensions.width > this.page.img.width ||
+            dimensions.startY + dimensions.height > this.page.img.height
+        ){
+            return;
+        }
+        action.setDimensions(dimensions);
         this.addChildBatchAction(
             action
         );
@@ -1002,6 +1183,28 @@ class AutoSliceBatchAction extends BatchPixelAction{
     }
     cleanUp(){
         this.page.resetCanvasWithImage();
+        let toKeep = [];
+        console.log("Cleaning Up Action: " + this.page.spriteGroups.length);
+        this.page.spriteGroups.forEach((spriteGroup, index)=>{
+           let width = spriteGroup.bounds.maxX - spriteGroup.bounds.minX;
+           let height = spriteGroup.bounds.maxY - spriteGroup.bounds.minY;
+           console.log(index + " --->   " +
+               width + " < " + this.page.state.min_sprite_group_width + " && " +
+               height + " < " +this.page.state.min_sprite_group_width
+           );
+           if(
+               width < this.page.state.min_sprite_group_width &&
+               height < this.page.state.min_sprite_group_width
+           ){
+
+               return;
+           }
+           toKeep.push(spriteGroup);
+        })
+        this.page.spriteGroups = toKeep;
+        /*this.page.setState({
+            spriteGroups: this.page.spriteGroups
+        });*/
     }
 }
 

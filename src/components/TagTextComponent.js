@@ -187,7 +187,7 @@ class TagTextComponent extends Component {
                             <span className="badge badge-pill badge-info" onClick={this.onAddTag}>Edit Tags</span>
                             {
                                 this.state.tags.map((tagData)=>{
-                                    return <span className={"badge badge-pill " + (tagData.all ? "badge-primary" : "badge-secondary")}>{tagData.key}{this.state.multi && " " + tagData.count}</span>
+                                    return <span key={tagData.key} className={"badge badge-pill " + (tagData.all ? "badge-primary" : "badge-secondary")}>{tagData.key}{this.state.multi && " " + tagData.count}</span>
                                 })
                             }
                         </div>
