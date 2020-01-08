@@ -1,9 +1,38 @@
 import React, {Component} from 'react';
-import SidebarComponent from '../components/SidebarComponent';
-import TopbarComponent from '../components/TopbarComponent';
-import FooterComponent from "../components/FooterComponent";
-class HomePage extends Component {
+import SidebarComponent from '../../components/SidebarComponent';
+import TopbarComponent from '../../components/TopbarComponent';
+import AuthService from "../../services/AuthService";
+import TrainingRoomListComponent from "../../components/chaosnet/TrainingRoomListComponent";
+import FooterComponent from "../../components/FooterComponent";
+const axios = require('axios');
+class TrainingRoomListPage extends Component {
+    constructor(props) {
+        super(props);
+        console.log("Username: ", props.username, props);
+        this.state = {
+            trainingrooms:[]
+        }
+    }
     render() {
+
+        if(!this.state.loaded) {
+            setTimeout(() => {
+                return axios.get('https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms', {
+                    headers: {
+                        "Authorization": AuthService.accessToken
+                    }
+                })
+                    .then((response) => {
+                        console.log("Loaded: ", response.data);
+                        this.state.trainingrooms = response.data;
+                        this.state.loaded = true;
+                        this.setState(this.state);
+                    })
+                    .catch((err) => {
+                        console.error("Error: ", err.message);
+                    })
+            }, 1000);
+        }
         return (
             <div>
                 <div>
@@ -25,6 +54,40 @@ class HomePage extends Component {
                                         {/*<a href="#"
                                            className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                                             className="fas fa-download fa-sm text-white-50"/> Generate Report</a>*/}
+                                    </div>
+                                    <div className="row">
+
+
+
+
+                                        <div className="col-xl-12 col-lg-12">
+
+                                            <div className="card shadow mb-4">
+
+                                                <div className="card-body">
+
+                                                    <table className="table">
+                                                        <thead>
+                                                        <tr>
+                                                            <th scope="col">#</th>
+
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        {
+                                                            this.state.trainingrooms.map((trainingRoom)=>{
+                                                                return <TrainingRoomListComponent trainingRoom={trainingRoom} page={this}/>
+                                                            })
+                                                        }
+
+                                                        </tbody>
+                                                    </table>
+                                                    <input type="button" className="btn btn-danger btn-lg" onClick={this.saveTrainingData} value="Save" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+
                                     </div>
 
                                 </div>
@@ -71,4 +134,4 @@ class HomePage extends Component {
     }
 }
 
-export default HomePage;
+export default TrainingRoomListPage;
