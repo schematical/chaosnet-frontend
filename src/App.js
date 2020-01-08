@@ -10,8 +10,25 @@ import './App.css';
 import ChaosPixelSlicerPage from "./pages/ChaosPixelSlicerPage";
 import {useCookies} from "react-cookie";
 import ChaosPixelListTrainingDatasPage from "./pages/ChaosPixelListTrainingDatasPage";
-
+import AuthService from "./services/AuthService";
+import {Cookies, withCookies} from "react-cookie";
+import {instanceOf} from "prop-types";
 class App extends Component {
+    static propTypes = {
+        cookies: instanceOf(Cookies).isRequired
+    };
+    constructor(props) {
+        super(props);
+        const {cookies} = props;
+        this.cookies = cookies;
+        console.log("   this.cookies: ",    this.cookies);
+        let userDataString = this.cookies.get('jwt');
+        console.log("userDataString: ", userDataString);
+        if(userDataString){
+            AuthService.setUserData(userDataString);
+            AuthService.setAccessToken(this.cookies.get('access_token'));
+        }
+    }
   render() {
 
     return (
@@ -29,4 +46,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withCookies(App);

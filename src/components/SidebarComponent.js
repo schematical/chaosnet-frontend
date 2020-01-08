@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import AuthService from "../services/AuthService";
 
 class SidebarComponent extends Component {
     render() {
@@ -12,7 +13,7 @@ class SidebarComponent extends Component {
                     <div className="sidebar-brand-icon rotate-n-15">
                         <i className="fas fa-laugh-wink"/>
                     </div>
-                    <div className="sidebar-brand-text mx-3">ChaosNet <sup>v1</sup></div>
+                    <div className="sidebar-brand-text mx-3">ChaosNet <sup>v0</sup></div>
                 </a>
                 {/* Divider */}
                 <hr className="sidebar-divider my-0"/>
@@ -31,6 +32,24 @@ class SidebarComponent extends Component {
                 </div>
                 {/* Nav Item - Pages Collapse Menu */}
                 <li className="nav-item">
+                    <a className="nav-link collapsed" href="#" data-toggle="collapse"
+                       data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        <i className="fas fa-fw fa-cog"/>
+                        <span>ChaosNet</span>
+                    </a>
+                    <div id="collapseOne" className="collapse" aria-labelledby="headingOne"
+                         data-parent="#accordionSidebar">
+                        <div className="bg-white py-2 collapse-inner rounded">
+                            <h6 className="collapse-header">ChaosNet:</h6>
+                            {
+                                AuthService.userData ?
+                                <a className="collapse-item" href={"/" + AuthService.userData.username + "/trainingrooms"}>Training Rooms</a> :
+                                <a className="collapse-item" href="/login">Training Rooms</a>
+                            }
+                        </div>
+                    </div>
+
+
                     <a className="nav-link collapsed" href="#" data-toggle="collapse"
                        data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
                         <i className="fas fa-fw fa-cog"/>

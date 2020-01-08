@@ -5,21 +5,7 @@ import {instanceOf} from "prop-types";
 import {Cookies, withCookies} from "react-cookie";
 
 class TopbarComponent extends Component {
-    static propTypes = {
-        cookies: instanceOf(Cookies).isRequired
-    };
-    constructor(props) {
-        super(props);
-        const {cookies} = props;
-        this.cookies = cookies;
 
-        let userDataString = this.cookies.get('jwt');
-        console.log("userDataString: ", userDataString);
-        if(userDataString){
-            AuthService.setUserData(userDataString);
-            AuthService.setAccessToken(this.cookies.get('access_token'));
-        }
-    }
     render() {
         return (
 
@@ -255,4 +241,4 @@ class TopbarComponent extends Component {
     }
 }
 
-export default withCookies(TopbarComponent);
+export default TopbarComponent;
