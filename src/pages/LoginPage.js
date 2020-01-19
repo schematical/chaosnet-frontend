@@ -39,6 +39,9 @@ class LoginPage extends Component {
                 this.cookies.set("access_token", response.data.accessToken,
                    cookieOptions
                 );
+                this.cookies.set("refresh_token", response.data.refreshToken,
+                    cookieOptions
+                );
                 return AuthService.whoami(response.data.accessToken);
 
             })

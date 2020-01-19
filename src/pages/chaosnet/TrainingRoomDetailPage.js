@@ -64,16 +64,9 @@ class TrainingRoomDetailPage extends Component {
 
                                         <div className="col-xl-12 col-lg-12">
                                             <div className="card shadow mb-4">
-                                                <h2 className="h3 mb-0 text-gray-800">
-                                                    Fitness Rules
-                                                </h2>
-                                                {/* Card Body */}
-                                                <div className="card-body">
-                                                    <textarea className="form-control" id="exampleFormControlTextarea1"
-                                                              rows="3">
-                                                        {this.state.fitnessRules}
-                                                    </textarea>
-                                                </div>
+                                                <a
+                                                    href={"/" + this.state.trainingroom.partitionNamespace +  "/trainingrooms/" + this.state.trainingroom.namespace + "/fitnessrules"}>Fitness Rules</a>
+
                                             </div>
 
                                             <div className="card shadow mb-4">

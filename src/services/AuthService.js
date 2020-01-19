@@ -34,6 +34,18 @@ class AuthService{
        })
 
     }
+    static async refreshAccessToken(username, refreshToken){
+
+
+        let response = await axios.post('https://chaosnet.schematical.com/v0/auth/token', {
+            refreshToken:refreshToken,
+            username: username
+        });
+        console.log("newAccessToken:" + response.data.accessToken);
+        this.setAccessToken(response.data.accessToken);
+        return response;
+
+    }
     static setAccessToken(accessToken){
         AuthService.accessToken = accessToken;
     }

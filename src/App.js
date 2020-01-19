@@ -14,11 +14,12 @@ import AuthService from "./services/AuthService";
 import {Cookies, withCookies} from "react-cookie";
 import {instanceOf} from "prop-types";
 import TrainingRoomNewPage from "./pages/chaosnet/TrainingRoomNewPage";
+import TrainingRoomFitnessRuleListPage from "./pages/chaosnet/TrainingRoomFitnessRuleListPage";
 class App extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired
     };
-    constructor(props) {
+     constructor(props) {
         super(props);
         const {cookies} = props;
         this.cookies = cookies;
@@ -27,7 +28,9 @@ class App extends Component {
         console.log("userDataString: ", userDataString);
         if(userDataString){
             AuthService.setUserData(userDataString);
-            AuthService.setAccessToken(this.cookies.get('access_token'));
+            //AuthService.setAccessToken(this.cookies.get('access_token'));
+            AuthService.refreshAccessToken(AuthService.userData.username, this.cookies.get('refresh_token'));
+
         }
     }
   render() {
@@ -40,6 +43,7 @@ class App extends Component {
             <Router.Location path="/:username/trainingrooms" handler={TrainingRoomListPage} />
             <Router.Location path="/:username/trainingrooms/new" handler={TrainingRoomNewPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace" handler={TrainingRoomDetailPage} />
+            <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/fitnessrules" handler={TrainingRoomFitnessRuleListPage} />
             <Router.Location path="/chaospixel" handler={ChaosPixelListTrainingDatasPage} />
             <Router.Location path="/chaospixel/slicer" handler={ChaosPixelSlicerPage} />
             <Router.NotFound handler={HomePage} />
