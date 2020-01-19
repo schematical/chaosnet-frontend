@@ -13,6 +13,7 @@ import ChaosPixelListTrainingDatasPage from "./pages/ChaosPixelListTrainingDatas
 import AuthService from "./services/AuthService";
 import {Cookies, withCookies} from "react-cookie";
 import {instanceOf} from "prop-types";
+import TrainingRoomNewPage from "./pages/chaosnet/TrainingRoomNewPage";
 class App extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired
@@ -37,6 +38,7 @@ class App extends Component {
             <Router.Location path="/login" handler={LoginPage} />
             <Router.Location path="/signup" handler={SignupPage} />
             <Router.Location path="/:username/trainingrooms" handler={TrainingRoomListPage} />
+            <Router.Location path="/:username/trainingrooms/new" handler={TrainingRoomNewPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace" handler={TrainingRoomDetailPage} />
             <Router.Location path="/chaospixel" handler={ChaosPixelListTrainingDatasPage} />
             <Router.Location path="/chaospixel/slicer" handler={ChaosPixelSlicerPage} />

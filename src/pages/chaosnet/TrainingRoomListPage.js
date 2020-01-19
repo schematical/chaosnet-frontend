@@ -12,6 +12,7 @@ class TrainingRoomListPage extends Component {
         this.state = {
             trainingrooms:[]
         }
+
     }
     render() {
 
@@ -82,7 +83,7 @@ class TrainingRoomListPage extends Component {
 
                                                         </tbody>
                                                     </table>
-                                                    <input type="button" className="btn btn-danger btn-lg" onClick={this.saveTrainingData} value="Save" />
+                                                    <a  href={"/" + this.props.username + "/trainingrooms/new"} className="btn btn-danger btn-lg" onClick={this.createNewTrainingRoom}>Create New</a>
                                                 </div>
                                             </div>
                                         </div>
