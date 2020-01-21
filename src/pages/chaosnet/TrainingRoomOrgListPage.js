@@ -4,13 +4,14 @@ import TopbarComponent from '../../components/TopbarComponent';
 import AuthService from "../../services/AuthService";
 import TrainingRoomListComponent from "../../components/chaosnet/TrainingRoomListComponent";
 import FooterComponent from "../../components/FooterComponent";
+import OrgListComponent from "../../components/chaosnet/OrgListComponent";
 const axios = require('axios');
-class TrainingRoomListPage extends Component {
+class TrainingRoomOrgListPage extends Component {
     constructor(props) {
         super(props);
-        console.log("Username: ", props.username, props);
+
         this.state = {
-            trainingrooms:[]
+            organisms:[]
         }
 
     }
@@ -18,14 +19,14 @@ class TrainingRoomListPage extends Component {
 
         if(!this.state.loaded) {
             setTimeout(() => {
-                return axios.get('https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms', {
+                return axios.get('https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/organisms', {
                     headers: {
                         "Authorization": AuthService.accessToken
                     }
                 })
                     .then((response) => {
                         console.log("Loaded: ", response.data);
-                        this.state.trainingrooms = response.data;
+                        this.state.organisms = response.data;
                         this.state.loaded = true;
                         this.setState(this.state);
                     })
@@ -54,9 +55,16 @@ class TrainingRoomListPage extends Component {
                                     {/* Page Heading */}
                                     <div className="d-sm-flex align-items-center justify-content-between mb-4">
                                         <h1 className="h3 mb-0 text-gray-800">ChaosNet</h1>
-                                        {/*<a href="#"
-                                           className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                                            className="fas fa-download fa-sm text-white-50"/> Generate Report</a>*/}
+                                        <div className="d-sm-flex align-items-center justify-content-between mb-4">
+                                            <h1 className="h3 mb-0 text-gray-800">
+                                                /<a href={"/" + this.props.username}>{this.props.username}</a>
+                                                /<a href={"/" + this.props.username + "/trainingrooms"}>trainingrooms</a>
+                                                /<a
+                                                href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace}>{this.props.trainingRoomNamespace}</a>
+                                                /organisms
+                                            </h1>
+
+                                        </div>
                                     </div>
                                     <div className="row">
 
@@ -68,6 +76,7 @@ class TrainingRoomListPage extends Component {
                                             <div className="card shadow mb-4">
 
                                                 <div className="card-body">
+
                                                     {
                                                         this.state.error &&
                                                         <div className="card mb-4 py-3  bg-danger text-white shadow">
@@ -88,14 +97,14 @@ class TrainingRoomListPage extends Component {
                                                         </thead>
                                                         <tbody>
                                                         {
-                                                            this.state.trainingrooms.map((trainingRoom)=>{
-                                                                return <TrainingRoomListComponent trainingRoom={trainingRoom} page={this}/>
+                                                            this.state.organisms.map((organism)=>{
+                                                                return <OrgListComponent organism={organism} page={this}/>
                                                             })
                                                         }
 
                                                         </tbody>
                                                     </table>
-                                                    <a  href={"/" + this.props.username + "/trainingrooms/new"} className="btn btn-danger btn-lg" onClick={this.createNewTrainingRoom}>Create New</a>
+                                                    {/*<a  href={"/" + this.props.username + "/trainingrooms/new"} className="btn btn-danger btn-lg" onClick={this.createNewTrainingRoom}>Create New</a>*/}
                                                 </div>
                                             </div>
                                         </div>
@@ -118,28 +127,7 @@ class TrainingRoomListPage extends Component {
                     <a className="scroll-to-top rounded" href="#page-top">
                         <i className="fas fa-angle-up"/>
                     </a>
-                    {/* Logout Modal*/}
-                    <div className="modal fade" id="logoutModal" tabIndex={-1} role="dialog"
-                         aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div className="modal-dialog" role="document">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h5 className="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                                    <button className="close" type="button" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">×</span>
-                                    </button>
-                                </div>
-                                <div className="modal-body">Select "Logout" below if you are ready to end your current
-                                    session.
-                                </div>
-                                <div className="modal-footer">
-                                    <button className="btn btn-secondary" type="button" data-dismiss="modal">Cancel
-                                    </button>
-                                    <a className="btn btn-primary" href="login.html">Logout</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
 
             </div>
@@ -147,4 +135,4 @@ class TrainingRoomListPage extends Component {
     }
 }
 
-export default TrainingRoomListPage;
+export default TrainingRoomOrgListPage;

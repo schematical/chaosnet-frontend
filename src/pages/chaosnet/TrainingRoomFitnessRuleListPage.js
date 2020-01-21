@@ -74,6 +74,8 @@ class TrainingRoomFitnessRuleListPage extends Component {
 
                     })
                     .catch((err) => {
+                        this.state.error = err;
+                        this.setState(this.state);
                         console.error("Error: ", err.message);
                     })
             }, 1000);

@@ -30,8 +30,10 @@ class TrainingRoomDetailPage extends Component {
                         this.setState(this.state);
                     })
                     .catch((err) => {
+                        this.state.error = err;
+                        this.setState(this.state);
                         console.error("Error: ", err.message);
-                    })
+                    });
             }, 1000);
         }
         return (
@@ -64,8 +66,28 @@ class TrainingRoomDetailPage extends Component {
 
                                         <div className="col-xl-12 col-lg-12">
                                             <div className="card shadow mb-4">
-                                                <a
-                                                    href={"/" + this.state.trainingroom.partitionNamespace +  "/trainingrooms/" + this.state.trainingroom.namespace + "/fitnessrules"}>Fitness Rules</a>
+
+                                                {
+                                                    this.state.error &&
+                                                    <div className="card mb-4 py-3  bg-danger text-white shadow">
+                                                        <div className="card-body">
+                                                            Error   {this.state.error.status}
+                                                            <div className="text-white-50 small">
+                                                                {this.state.error.message}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                <a class="btn btn-primary btn-sm"  href={"/" + this.state.trainingroom.partitionNamespace +  "/trainingrooms/" + this.state.trainingroom.namespace + "/fitnessrules"}>Fitness Rules</a>
+                                                <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.partitionNamespace + "/trainingrooms/" + this.state.trainingroom.namespace + "/organisms"}>
+                                                    Organisms
+                                                </a>
+                                                <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.partitionNamespace + "/trainingrooms/" + this.state.trainingroom.namespace + "/tranks"}>
+                                                    Taxonomic Ranks
+                                                </a>
+                                                <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.partitionNamespace + "/trainingrooms/" + this.state.trainingroom.namespace + "/sessions"}>
+                                                    Sessions
+                                                </a>
 
                                             </div>
 
@@ -100,28 +122,7 @@ class TrainingRoomDetailPage extends Component {
                     <a className="scroll-to-top rounded" href="#page-top">
                         <i className="fas fa-angle-up"/>
                     </a>
-                    {/* Logout Modal*/}
-                    <div className="modal fade" id="logoutModal" tabIndex={-1} role="dialog"
-                         aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div className="modal-dialog" role="document">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h5 className="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                                    <button className="close" type="button" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">×</span>
-                                    </button>
-                                </div>
-                                <div className="modal-body">Select "Logout" below if you are ready to end your current
-                                    session.
-                                </div>
-                                <div className="modal-footer">
-                                    <button className="btn btn-secondary" type="button" data-dismiss="modal">Cancel
-                                    </button>
-                                    <a className="btn btn-primary" href="login.html">Logout</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
 
             </div>

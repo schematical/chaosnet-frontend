@@ -15,6 +15,11 @@ import {Cookies, withCookies} from "react-cookie";
 import {instanceOf} from "prop-types";
 import TrainingRoomNewPage from "./pages/chaosnet/TrainingRoomNewPage";
 import TrainingRoomFitnessRuleListPage from "./pages/chaosnet/TrainingRoomFitnessRuleListPage";
+import TrainingRoomOrgListPage from "./pages/chaosnet/TrainingRoomOrgListPage";
+import TrainingRoomTRanksListPage from "./pages/chaosnet/TrainingRoomTRanksListPage";
+import TrainingRoomSessionsListPage from "./pages/chaosnet/TrainingRoomSessionsListPage";
+import TrainingRoomTRanksDetailPage from "./pages/chaosnet/TrainingRoomTRanksDetailPage";
+import TrainingRoomTRanksChildrenListPage from "./pages/chaosnet/TrainingRoomTRanksChildrenListPage";
 class App extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired
@@ -44,6 +49,12 @@ class App extends Component {
             <Router.Location path="/:username/trainingrooms/new" handler={TrainingRoomNewPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace" handler={TrainingRoomDetailPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/fitnessrules" handler={TrainingRoomFitnessRuleListPage} />
+            <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/organisms" handler={TrainingRoomOrgListPage} />
+            <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/tranks" handler={TrainingRoomTRanksListPage} />
+            <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/tranks/:trank" handler={TrainingRoomTRanksDetailPage} />
+            <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/tranks/:trank/children" handler={TrainingRoomTRanksChildrenListPage} />
+            <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/tranks/:trank/organisms" handler={TrainingRoomTRanksChildrenListPage} />
+            <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/sessions" handler={TrainingRoomSessionsListPage} />
             <Router.Location path="/chaospixel" handler={ChaosPixelListTrainingDatasPage} />
             <Router.Location path="/chaospixel/slicer" handler={ChaosPixelSlicerPage} />
             <Router.NotFound handler={HomePage} />
