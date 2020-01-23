@@ -21,7 +21,7 @@ class TrainingRoomSessionsListPage extends Component {
 
         if(!this.state.loaded) {
             setTimeout(() => {
-                return axios.get('https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks', {
+                return axios.get('https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions', {
                     headers: {
                         "Authorization": AuthService.accessToken
                     }
@@ -63,7 +63,7 @@ class TrainingRoomSessionsListPage extends Component {
                                                 /<a href={"/" + this.props.username + "/trainingrooms"}>trainingrooms</a>
                                                 /<a
                                                 href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace}>{this.props.trainingRoomNamespace}</a>
-                                                /tranks
+                                                /sessions
                                             </h1>
 
                                         </div>

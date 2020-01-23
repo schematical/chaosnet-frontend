@@ -32,7 +32,18 @@ class TRankListComponent extends Component {
                     </a>
 
                 </th>
-
+                <a href={"/" + this.props.page.props.username + "/trainingrooms/" + this.props.page.props.trainingRoomNamespace + "/tranks/" +this.state.trank.namespace }>
+                    {this.state.trank.name}
+                </a>
+                <td>
+                    {this.state.trank.age}
+                </td>
+                <td>
+                    {this.state.trank.currentScore}
+                </td>
+                <td>
+                    {this.state.trank.highScore}
+                </td>
                 <td>
                     <div className="dropdown">
                         <a className="btn btn-sm btn-secondary nav-link collapsed" href="#" data-toggle="collapse"

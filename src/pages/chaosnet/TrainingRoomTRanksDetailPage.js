@@ -103,6 +103,24 @@ class TrainingRoomTRanksDetailPage extends Component {
                                                     <h3>
                                                         Class: {this.state.trank.trankClass}
                                                     </h3>
+                                                    <h3>
+                                                        Age: {this.state.trank.age}
+                                                    </h3>
+                                                    <h3>
+                                                        Current Score: {this.state.trank.currentScore}
+                                                    </h3>
+                                                    <h3>
+                                                        High Score: {this.state.trank.highScore}
+                                                    </h3>
+                                                    <h3>
+                                                        Children Spawned This Gen: {this.state.trank.childrenSpawnedThisGen}
+                                                    </h3>
+                                                    <h3>
+                                                        Children Reported This Gen: {this.state.trank.childrenReportedThisGen}
+                                                    </h3>
+                                                    <h3>
+                                                        Gens Since Last Improvement: {this.state.trank.gensSinceLastImprovement}
+                                                    </h3>
                                                     {
                                                         this.state.trank.parentNamespace &&
                                                         <h3>
@@ -120,6 +138,46 @@ class TrainingRoomTRanksDetailPage extends Component {
                                                     <a className="btn btn-primary btn-sm" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/organisms"}>
                                                         Organisms
                                                     </a>
+
+                                                    {this.state.trank.historicalScores &&
+                                                        <div>
+                                                        <h2>Historical Scores: </h2>
+                                                        <table>
+                                                            <tr>
+                                                                <th>
+                                                                    Top Avg:
+                                                                </th>
+                                                                <th>
+                                                                    Top Max:
+                                                                </th>
+                                                                <th>
+                                                                    Gen Avg:
+                                                                </th>
+                                                                <th>
+                                                                    Parent Age:
+                                                                </th>
+                                                            </tr>
+                                                            {
+                                                                this.state.trank.historicalScores.map((scoreData) => {
+                                                                    return <tr>
+                                                                        <td>
+                                                                            {scoreData.topAvg}
+                                                                        </td>
+                                                                        <td>
+                                                                            {scoreData.topMax}
+                                                                        </td>
+                                                                        <td>
+                                                                            {scoreData.genAvg}
+                                                                        </td>
+                                                                        <td>
+                                                                            {scoreData.parentAge}
+                                                                        </td>
+                                                                    </tr>
+                                                                })
+                                                            }
+                                                        </table>
+                                                        </div>
+                                                        }
                                                 </div>
                                             </div>
                                         </div>

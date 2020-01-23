@@ -27,8 +27,8 @@ class TrainingRoomSessionListComponent extends Component {
 
             <tr>
                 <th scope="row">
-                    <a href={"/" + this.props.page.props.username + "/trainingrooms/" + this.props.page.props.traininRoomNamespace + "/sessions/" +this.state.session.namespace }>
-                        {this.state.session.owner_username}
+                    <a href={"/" + this.props.page.props.username + "/trainingrooms/" + this.props.page.props.trainingRoomNamespace + "/sessions/" +this.state.session.namespace }>
+                        {this.state.session.owner_username}{/* - {this.state.session.namespace}*/}
                     </a>
 
                 </th>
