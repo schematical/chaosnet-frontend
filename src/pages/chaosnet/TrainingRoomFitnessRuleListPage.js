@@ -3,7 +3,6 @@ import SidebarComponent from '../../components/SidebarComponent';
 import TopbarComponent from '../../components/TopbarComponent';
 import AuthService from "../../services/AuthService";
 import FooterComponent from "../../components/FooterComponent";
-import TrainingRoomListComponent from "../../components/chaosnet/TrainingRoomListComponent";
 import FitnessRuleComponent from "../../components/chaosnet/FitnessRuleComponent";
 const axios = require('axios');
 class TrainingRoomFitnessRuleListPage extends Component {

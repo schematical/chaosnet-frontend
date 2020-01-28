@@ -12009,6 +12009,53 @@ body.sidebar-toggled footer.sticky-footer {
 
 
 
+#selectedNode { position:fixed; top:12%; right:0; height:33%; width:12% }
+
+#ageInfo { position:fixed; top:24%; right:0; height:12%; width:12% }
+
+.node_circle{
+  fill-opacity:0.4;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+.output_node{
+  fill:#6faa78;
+}
+.input_node{
+  fill:#5ca4aa
+}
+.middle_node{
+  fill:#b8b8b8;
+}
+.selected_node .middle_node{
+  stroke: #6eb1ff;
+}
+
+.selected_node .node_circle {
+  fill-opacity: 1;
+  #stroke: black;
+}
+.firing_node .node_circle {
+  fill-opacity: 1;
+  stroke: #ff6973;
+}
+.textClass{
+  fill-opacity: .3;
+}
+.selected_node .textClass{
+  fill-opacity: 1;
+}
+
+.link {
+  stroke: #999;
+  stroke-opacity: .3;
+}
+.hightlighted_link {
+  stroke: #3a993e;
+  stroke-width: 1;
+}
+
+
 
 
 

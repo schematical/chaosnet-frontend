@@ -5,6 +5,10 @@
   "dependencies": {
     "axios": "^0.18.0",
     "bootstrap": "^4.3.1",
+    "d3": "^4.13.0",
+    "d3-drag": "^1.2.5",
+    "d3-force": "^2.0.1",
+    "d3-zoom": "^1.8.3",
     "jquery": "^3.4.1",
     "jquery-thin": "^3.2.3",
     "jquery.easing": "^1.4.1",

@@ -27,7 +27,7 @@ class OrgListComponent extends Component {
 
             <tr>
                 <th scope="row">
-                    <a href={"/" + this.props.page.props.username + "/trainingrooms/" + this.props.page.props.traininRoomNamespace + "/organisms/" +this.state.organism.namespace }>
+                    <a href={"/" + this.props.page.props.username + "/trainingrooms/" + this.props.page.props.trainingRoomNamespace + "/organisms/" +this.state.organism.namespace }>
                         {this.state.organism.namespace}
                     </a>
 
