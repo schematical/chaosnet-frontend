@@ -5,6 +5,7 @@ import AuthService from "../../services/AuthService";
 import FooterComponent from "../../components/FooterComponent";
 import FitnessRuleComponent from "../../components/chaosnet/FitnessRuleComponent";
 const axios = require('axios');
+const _ = require('underscore');
 class TrainingRoomFitnessRuleListPage extends Component {
     constructor(props) {
         super(props);
@@ -12,11 +13,34 @@ class TrainingRoomFitnessRuleListPage extends Component {
         this.state = {
 
         }
+        this.createNewRule = this.createNewRule.bind(this);
 
+    }
+    createNewRule(){
+        this.state.trainingroom.fitnessRules.push({
+            _isNew: true
+        })
+        this.setState(this.state);
+    }
+    removeRule(fitnessRule){
+
+        this.state.trainingroom.fitnessRules = _.reject(this.state.trainingroom.fitnessRules,
+            function(_fitnessRule){
+            if(fitnessRule._isNew && _fitnessRule._isNew){
+                return true;
+            }else if(fitnessRule.id == _fitnessRule.id){
+                return true;
+            }
+        });
+
+        this.setState(this.state);
     }
     save(fitnessRule, ele){
         this.state.trainingroom.fitnessRules.forEach((_fitnessRule, i)=>{
-            if(fitnessRule.id == _fitnessRule.id){
+            if(ele.state.isNew && _fitnessRule._isNew){
+                fitnessRule._isNew = false;
+                this.state.trainingroom.fitnessRules[i] = fitnessRule;
+            }else if(fitnessRule.id == _fitnessRule.id){
                 this.state.trainingroom.fitnessRules[i] = fitnessRule;
             }
         })
@@ -125,6 +149,8 @@ class TrainingRoomFitnessRuleListPage extends Component {
                                                     <h2 className="h3 mb-0 text-gray-800">
                                                         Fitness Rules
                                                     </h2>
+
+
                                                     <table className="table">
                                                         <thead>
                                                         <tr>
@@ -166,6 +192,10 @@ class TrainingRoomFitnessRuleListPage extends Component {
 
                                                         </tbody>
                                                     </table>
+
+                                                    <button className="btn btn-danger btn-sm" onClick={this.createNewRule}>
+                                                        New Rule
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>

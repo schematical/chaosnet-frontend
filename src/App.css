@@ -12054,7 +12054,10 @@ body.sidebar-toggled footer.sticky-footer {
   stroke: #3a993e;
   stroke-width: 1;
 }
-
+.error_link {
+  stroke: #ff0000;
+  stroke-width: 1;
+}
 
 
 

@@ -28,7 +28,7 @@ class TrainingRoomSessionDetailPage extends Component {
             }
         })
             .then((response) => {
-                console.log("Repaired: ", response.data, this.state);
+                console.log("Reset: ", response.data, this.state);
                 this.state.session = response.data;
 
                 this.setState(this.state);

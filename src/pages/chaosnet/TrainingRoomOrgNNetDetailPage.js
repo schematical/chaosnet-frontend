@@ -82,7 +82,8 @@ class TrainingRoomOrgNNetDetailPage extends Component {
                             node.dependencies.forEach((neuronDep)=>{
                                 this.state.links.push({
                                     source: node.id,
-                                    target: neuronDep.neuronId
+                                    target: neuronDep.neuronId,
+                                    neuronDep: neuronDep
                                    /* {
                                         "neuronId": "neuron-1",
                                         "weight": 0.3,
@@ -181,7 +182,25 @@ class TrainingRoomOrgNNetDetailPage extends Component {
                     <a className="scroll-to-top rounded" href="#page-top">
                         <i className="fas fa-angle-up"/>
                     </a>
+                    {
+                        this.state.selectedNeuron &&
+                        <div className="modal fade show" id="neuronDetailModal" tabIndex={-1} role="dialog"
+                             aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div className="modal-dialog" role="document">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        {this.state.selectedNeuron.id}
+                                    </div>
 
+                                    <div className="modal-footer">
+                                        <button className="btn btn-secondary" type="button" data-dismiss="modal">Cancel
+                                        </button>
+                                        <a className="btn btn-primary" href="login.html">Logout</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
                 </div>
 
             </div>
@@ -216,15 +235,12 @@ class TrainingRoomOrgNNetDetailPage extends Component {
         this.updateY();
 
 
-        console.log("!!!!!!!!!!!");
-
 
     }
 
     updateY(){
         this.inputNodeYHight = ((parseInt(this.svgParent.style('height')) - (this.padding * 2))/this.inputCount);
         this.nodeYHight = ((parseInt(this.svgParent.style('height')) - (this.padding*2))/this.state.nNet.neurons.length);
-console.log("this.inputNodeYHight: ", this.inputNodeYHight, "this.nodeYHight: ", this.nodeYHight, "this.inputCount: ", this.inputCount, " this.state.nNet.neurons.length: ", this.state.nNet.neurons.length, " this.padding: ", this.padding)
         this.simulation.force('Y', d3Force.forceY()
             .y((d) => {
                 let y = null;
@@ -302,11 +318,11 @@ console.log("this.inputNodeYHight: ", this.inputNodeYHight, "this.nodeYHight: ",
         this.simulation = d3Force.forceSimulation()
             .force("link", d3Force.forceLink().id(function(d) { return d.id; }))
             .force("collide", d3Force.forceCollide().radius((d)=> {
-                console.log("this.nodeYHight : " + this.nodeYHight );
-                if(this.nodeYHight < 20){
+                return 20;
+                /*if(this.nodeYHight < 20){
                     return 20;
                 }
-                return this.nodeYHight * 2;
+                return this.nodeYHight * 2;*/
             }).iterations(2))
 
             .force('x', d3Force.forceX()
@@ -406,12 +422,35 @@ console.log("this.inputNodeYHight: ", this.inputNodeYHight, "this.nodeYHight: ",
             .attr("y1", function(d) { return d.source.y; })
             .attr("x2", function(d) { return d.target.x; })
             .attr("y2", function(d) { return d.target.y; })
+            .style('stroke-width', function(d){
+
+                return d.neuronDep.weight * 2;
+            })
+            .style('stroke-width', function(d){
+
+                return d.neuronDep.weight * 2;
+            })
+            .style('stroke', function(d){
+                if(d.neuronDep._error){
+                    return "#ff0000";
+                }
+                if(d.neuronDep.weight > 0){
+                    return "#000066";
+                }
+                return "#660000";
+            })
             .classed('hightlighted_link', function(d){
                 if(!d.source.node){
                     return false;
                 }
                 return d.source.node.classed('selected_node');
             })
+            .classed('error_link', function(d){
+                if(!d.neuronDep._error){
+                    return false;
+                }
+                return true;
+            });
 
         this.links.exit().remove();
     }
@@ -429,6 +468,21 @@ console.log("this.inputNodeYHight: ", this.inputNodeYHight, "this.nodeYHight: ",
             .attr("class", "node")
 
             .each(function(d) { d.node = this; })
+            .on("mousedown", (d)=>{
+                let state = {}
+                state.selectedNeuron = {};
+                Object.keys(d).forEach((key)=>{
+                    if(
+                        _.isString(d[key]) /*||
+                        !_.isNaN(d[key])*/
+                    ){
+                        state.selectedNeuron[key] = d[key];
+                    }
+                })
+                this.setState(state);
+                window._$('#neuronDetailModal').modal('show');
+
+            })
             .on("mouseover", (d)=>{
 
 

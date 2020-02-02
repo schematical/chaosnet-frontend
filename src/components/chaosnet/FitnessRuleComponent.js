@@ -30,6 +30,7 @@ class FitnessRuleComponent extends Component {
         this.handleChange = this.handleChange.bind(this);
         this.debugFitnessRule = this.debugFitnessRule.bind(this);
         this.save = this.save.bind(this);
+        this.delete = this.delete.bind(this);
     }
 
     handleChange(event) {
@@ -51,7 +52,16 @@ class FitnessRuleComponent extends Component {
         console.log("fitnessRule: ", (this.state.fitnessRule));
     }
     save(){
+        if(this.state.eventType && this.state.eventType.attributeId){
+            this.state.fitnessRule.attributeId = this.state.eventType.attributeId;
+        }else{
+            this.state.fitnessRule.attributeId = null;
+        }
+        this.setState(this.state);
         this.state.page.save(this.state.fitnessRule, this);
+    }
+    delete(){
+        this.state.page.removeRule(this.state.fitnessRule);
     }
     markClean(){
         let state = {};
@@ -69,7 +79,7 @@ class FitnessRuleComponent extends Component {
                 <td>
 
                     <input type="text" className="form-control form-control-user"
-                           id="fitnessRuleId" name="fitnessRuleId" aria-describedby="fitnessRuleId"
+                           id="fitnessRuleId" name="id" aria-describedby="fitnessRuleId"
                            readOnly={this.state.isNew}
                            placeholder="Training Room Name..."  value={this.state.fitnessRule.id} onChange={this.handleChange}
                     />
@@ -113,10 +123,10 @@ class FitnessRuleComponent extends Component {
                         <div className="input-group mb-3">
 
                             <input id="attributeId" name="attributeId"  type="text" className="form-control" placeholder="Attribute Id" aria-label="Attribute Id"
-                                aria-describedby="basic-addon1" value={this.state.eventType.attributeId} />
+                                aria-describedby="basic-addon1" value={this.state.eventType.attributeId}  onChange={this.handleChange} />
 
                             <input id="attributeValue" name="attributeValue"  type="text" className="form-control" placeholder="Attribute Value" aria-label="Attribute Value"
-                                   aria-describedby="basic-addon1" value={this.state.fitnessRule.attributeValue} />
+                                   aria-describedby="basic-addon1" value={this.state.fitnessRule.attributeValue}  onChange={this.handleChange} />
                         </div>
                     }
                 </td>
@@ -126,6 +136,7 @@ class FitnessRuleComponent extends Component {
                         this.state.dirty &&
                         <button className="btn btn-sm btn-primary " onClick={this.save}>Save</button>
                     }
+                    <button className="btn btn-sm btn-danger " onClick={this.delete}>X</button>
                 </td>
 
             </tr>
