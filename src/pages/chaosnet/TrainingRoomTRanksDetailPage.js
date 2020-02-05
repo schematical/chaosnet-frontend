@@ -7,6 +7,7 @@ import FooterComponent from "../../components/FooterComponent";
 import OrgListComponent from "../../components/chaosnet/OrgListComponent";
 import TRankListComponent from "../../components/chaosnet/TRankListComponent";
 const axios = require('axios');
+const _ = require('underscore');
 class TrainingRoomTRanksDetailPage extends Component {
     constructor(props) {
         super(props);
@@ -138,46 +139,90 @@ class TrainingRoomTRanksDetailPage extends Component {
                                                     <a className="btn btn-primary btn-sm" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/organisms"}>
                                                         Organisms
                                                     </a>
+                                                    <a className="btn btn-primary btn-sm" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/organisms/top"}>
+                                                        Top Organisms
+                                                    </a>
 
                                                     {this.state.trank.historicalScores &&
                                                         <div>
-                                                        <h2>Historical Scores: </h2>
-                                                        <table>
-                                                            <tr>
-                                                                <th>
-                                                                    Top Avg:
-                                                                </th>
-                                                                <th>
-                                                                    Top Max:
-                                                                </th>
-                                                                <th>
-                                                                    Gen Avg:
-                                                                </th>
-                                                                <th>
-                                                                    Parent Age:
-                                                                </th>
-                                                            </tr>
-                                                            {
-                                                                this.state.trank.historicalScores.map((scoreData) => {
-                                                                    return <tr>
-                                                                        <td>
-                                                                            {scoreData.topAvg}
-                                                                        </td>
-                                                                        <td>
-                                                                            {scoreData.topMax}
-                                                                        </td>
-                                                                        <td>
-                                                                            {scoreData.genAvg}
-                                                                        </td>
-                                                                        <td>
-                                                                            {scoreData.parentAge}
-                                                                        </td>
-                                                                    </tr>
-                                                                })
-                                                            }
-                                                        </table>
+                                                            <h2>Historical Scores: </h2>
+                                                            <table>
+                                                                <tr>
+                                                                    <th>
+                                                                        Top Avg:
+                                                                    </th>
+                                                                    <th>
+                                                                        Top Max:
+                                                                    </th>
+                                                                    <th>
+                                                                        Gen Avg:
+                                                                    </th>
+                                                                    <th>
+                                                                        Parent Age:
+                                                                    </th>
+                                                                </tr>
+                                                                {
+                                                                    this.state.trank.historicalScores.map((scoreData) => {
+                                                                        return <tr>
+                                                                            <td>
+                                                                                {scoreData.topAvg}
+                                                                            </td>
+                                                                            <td>
+                                                                                {scoreData.topMax}
+                                                                            </td>
+                                                                            <td>
+                                                                                {scoreData.genAvg}
+                                                                            </td>
+                                                                            <td>
+                                                                                {scoreData.parentAge}
+                                                                            </td>
+                                                                        </tr>
+                                                                    })
+                                                                }
+                                                            </table>
                                                         </div>
                                                         }
+
+                                                        <h3>Brain Maker Config Data</h3>
+                                                        <div>
+                                                            <table>
+                                                                {
+                                                                    Object.keys(this.state.trank.brainMakerConfigData || {}).map((key) => {
+                                                                        if(!_.isObject(this.state.trank.brainMakerConfigData[key])) {
+                                                                            return <tr>
+                                                                                <td>
+                                                                                    {key} {this.state.trank.brainMakerConfigData[key]}
+                                                                                </td>
+                                                                            </tr>
+                                                                        }else{
+                                                                            return <tr>
+                                                                                <td>
+                                                                                    {key}
+                                                                                    <ul>
+                                                                                        {
+                                                                                            Object.keys(this.state.trank.brainMakerConfigData[key]).map((key2)=>{
+                                                                                               return <li>
+                                                                                                   {key2}: {this.state.trank.brainMakerConfigData[key][key2]}
+                                                                                               </li>
+                                                                                            })
+
+                                                                                        }
+                                                                                    </ul>
+                                                                                </td>
+                                                                            </tr>
+
+
+                                                                        }
+
+
+
+
+
+                                                                    })
+                                                                }
+
+                                                            </table>
+                                                        </div>
                                                 </div>
                                             </div>
                                         </div>

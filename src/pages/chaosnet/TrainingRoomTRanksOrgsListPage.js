@@ -6,7 +6,7 @@ import TrainingRoomListComponent from "../../components/chaosnet/TrainingRoomLis
 import FooterComponent from "../../components/FooterComponent";
 import OrgListComponent from "../../components/chaosnet/OrgListComponent";
 const axios = require('axios');
-class TrainingRoomTRanksChildrenListPage extends Component {
+class TrainingRoomTRanksOrgsListPage extends Component {
     constructor(props) {
         super(props);
 
@@ -20,7 +20,11 @@ class TrainingRoomTRanksChildrenListPage extends Component {
 
         if(!this.state.loaded) {
             setTimeout(() => {
-                return axios.get('https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks/' + this.props.trank + '/organisms', {
+                let url = 'https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks/' + this.props.trank + '/organisms';
+                if(this.props.selector && this.props.selector.length > 0){
+                    url += "/" + this.props.selector;
+                }
+                return axios.get(url, {
                     headers: {
                         "Authorization": AuthService.accessToken
                     }
@@ -66,7 +70,7 @@ class TrainingRoomTRanksChildrenListPage extends Component {
                                                     href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + '/tranks'}>/tranks</a>
                                                /<a
                                                 href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + '/tranks/' + this.props.trank}>{this.props.trank}</a>
-                                                /children
+                                                /organisms{ this.props.selector && "/" + this.props.selector}
                                             </h1>
 
                                         </div>
@@ -104,7 +108,9 @@ class TrainingRoomTRanksChildrenListPage extends Component {
                                                                 Names
                                                             </th>
 
-
+                                                            <th>
+                                                                Score
+                                                            </th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
@@ -147,4 +153,4 @@ class TrainingRoomTRanksChildrenListPage extends Component {
     }
 }
 
-export default TrainingRoomTRanksChildrenListPage;
+export default TrainingRoomTRanksOrgsListPage;
