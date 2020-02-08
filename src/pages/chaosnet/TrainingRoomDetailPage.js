@@ -28,7 +28,7 @@ class TrainingRoomDetailPage extends Component {
             "minecraft:lava",
             "minecraft:stone"
         ].forEach((strAttr)=>{
-            for(let i = 0; i < 7; i++){
+            for(let i = 0; i < 10; i++){
                 this.state.trainingroom.config.presetNeurons.push({
 
                     "$TYPE":"IsLookingAtInput",
@@ -39,7 +39,16 @@ class TrainingRoomDetailPage extends Component {
 
                 })
             }
-        })*/
+        })
+        for(let i = 0; i < 10; i++){
+            this.state.trainingroom.config.presetNeurons.push({
+                "$TYPE":"IsLookingAtInput",
+                "attributeId":"BLOCK_TOUCH_STATE",
+                "attributeValue": "HAS_TOUCHED_BLOCK",
+                "eye":"Eye_" + i,
+                "_base_type":"input"
+            })
+        }*/
         event.preventDefault();
         return axios.put('https://chaosnet.schematical.com/v0/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace,
             this.state.trainingroom,

@@ -13,13 +13,20 @@ class TrainingRoomSessionDetailPage extends Component {
 
         this.state = {
             session:{},
+            showHardReset: false,
             loaded:false
         }
         this.repairSession = this.repairSession.bind(this);
         this.hardReset = this.hardReset.bind(this);
+        this.showHardResetButton = this.showHardResetButton.bind(this);
+    }
+    showHardResetButton(){
+        this.state.showHardReset = true;
+        this.setState(this.state);
     }
     hardReset(){
-        let url = 'https://chaosnet.schematical.com/v0/'  + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/start"
+        alert("Hit");
+        /*let url = 'https://chaosnet.schematical.com/v0/'  + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/start"
         return axios.post(url, {
             reset: true
         }, {
@@ -37,7 +44,7 @@ class TrainingRoomSessionDetailPage extends Component {
                 this.state.error = err;
                 this.setState(this.state);
                 console.error("Error: ", err.message);
-            })
+            })*/
     }
     repairSession(){
         let url = 'https://chaosnet.schematical.com/v0/'  + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/" +  this.props.session + "/repair"
@@ -162,9 +169,24 @@ class TrainingRoomSessionDetailPage extends Component {
                                                     <button className="btn btn-primary btn-sm" onClick={this.repairSession}>
                                                         Repair
                                                     </button>
-                                                    <button className="btn btn-danger btn-sm" onClick={this.hardReset}>
-                                                        Hard Reset
-                                                    </button>
+
+                                                    {
+                                                        !this.state.showHardReset ?
+                                                        <button className="btn btn-primary btn-sm" onClick={this.showHardResetButton}>
+                                                            Hard Reset
+                                                        </button> :
+                                                        <button className="btn btn-danger btn-sm" onClick={this.hardReset}>
+                                                            Hard Reset
+                                                        </button>
+                                                    }
+
+
+                                                    <h3>
+
+                                                    </h3>
+                                                    <a className="btn btn-primary btn-sm" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/" + this.props.session + "/species"}>
+                                                        Species
+                                                    </a>
                                                     <h3>
                                                         Organisms
                                                     </h3>

@@ -39,10 +39,13 @@ class TRankListComponent extends Component {
                     {this.state.trank.age}
                 </td>
                 <td>
-                    {this.state.trank.currentScore}
+                    {this.state.trank.currScore}
                 </td>
                 <td>
                     {this.state.trank.highScore}
+                </td>
+                <td>
+                    {this.state.trank.lifeState}
                 </td>
                 <td>
                     <div className="dropdown">

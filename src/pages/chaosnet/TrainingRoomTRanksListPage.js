@@ -12,15 +12,30 @@ class TrainingRoomTRanksListPage extends Component {
         super(props);
 
         this.state = {
-            tranks:[]
+            tranks:[],
+            _lifeState: "Active"
         }
+        this.handleChange = this.handleChange.bind(this);
 
+    }
+    handleChange(event) {
+        console.log("TARGET:" , event.target.name, event.target.value, event.target);
+        let state = {};
+        state[event.target.name] = event.target.value;
+        this.state.loaded = false;
+        this.state.tranks = [];
+        this.setState(state);
     }
     render() {
 
         if(!this.state.loaded) {
             setTimeout(() => {
-                return axios.get('https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks', {
+                let qs = "state=" +this.state._lifeState;
+                let url = 'https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks?' + qs;
+                if(this.props.session){
+                    url = 'https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions/' + this.props.session + '/species?' + qs;
+                }
+                return axios.get(url, {
                     headers: {
                         "Authorization": AuthService.accessToken
                     }
@@ -88,11 +103,21 @@ class TrainingRoomTRanksListPage extends Component {
                                                             </div>
                                                         </div>
                                                     }
+                                                    <select id="_lifeState" name="_lifeState" value={this.state._lifeState} onChange={this.handleChange}>
+                                                        <option value="Active">Active</option>
+                                                        <option value="StalledOut">StalledOut</option>
+                                                        <option value="MarkedForColdStorage">MarkedForColdStorage</option>
+                                                    </select>
                                                     <table className="table">
                                                         <thead>
                                                         <tr>
                                                             <th scope="col">Count {this.state.tranks.length}</th>
+                                                            <th scope="col">Name</th>
+                                                            <th scope="col">Age</th>
+                                                            <th scope="col">Current Score</th>
+                                                            <th scope="col">High Score</th>
 
+                                                            <th scope="col">Life State</th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>

@@ -99,6 +99,9 @@ class TrainingRoomTRanksDetailPage extends Component {
                                                         {this.state.trank.namespace}
                                                     </h1>
                                                     <h3>
+                                                        State: {this.state.trank.lifeState}
+                                                    </h3>
+                                                    <h3>
                                                         Children: {this.state.trank.children}
                                                     </h3>
                                                     <h3>
