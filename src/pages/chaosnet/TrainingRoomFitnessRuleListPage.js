@@ -22,11 +22,12 @@ class TrainingRoomFitnessRuleListPage extends Component {
         })
         this.setState(this.state);
     }
-    removeRule(fitnessRule){
+    removeRule(component){
 
+        let fitnessRule  = component.state.fitnessRule
         this.state.trainingroom.fitnessRules = _.reject(this.state.trainingroom.fitnessRules,
             function(_fitnessRule){
-            if(fitnessRule._isNew && _fitnessRule._isNew){
+            if(component.state.isNew && _fitnessRule.isNew){
                 return true;
             }else if(fitnessRule.id == _fitnessRule.id){
                 return true;

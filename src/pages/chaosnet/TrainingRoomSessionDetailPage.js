@@ -14,7 +14,8 @@ class TrainingRoomSessionDetailPage extends Component {
         this.state = {
             session:{},
             showHardReset: false,
-            loaded:false
+            loaded:false,
+            canEdit: (AuthService.userData && this.props.username == AuthService.userData.username)
         }
         this.repairSession = this.repairSession.bind(this);
         this.hardReset = this.hardReset.bind(this);
@@ -25,8 +26,8 @@ class TrainingRoomSessionDetailPage extends Component {
         this.setState(this.state);
     }
     hardReset(){
-        alert("Hit");
-        /*let url = 'https://chaosnet.schematical.com/v0/'  + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/start"
+        //alert("Hit");
+        let url = 'https://chaosnet.schematical.com/v0/'  + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/start"
         return axios.post(url, {
             reset: true
         }, {
@@ -37,14 +38,14 @@ class TrainingRoomSessionDetailPage extends Component {
             .then((response) => {
                 console.log("Reset: ", response.data, this.state);
                 this.state.session = response.data;
-
+                this.state.message = response.data.message  || "success";;
                 this.setState(this.state);
             })
             .catch((err) => {
                 this.state.error = err;
                 this.setState(this.state);
                 console.error("Error: ", err.message);
-            })*/
+            })
     }
     repairSession(){
         let url = 'https://chaosnet.schematical.com/v0/'  + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/" +  this.props.session + "/repair"
@@ -165,21 +166,25 @@ class TrainingRoomSessionDetailPage extends Component {
                                                             {this.state.session.genusNamespace}
                                                         </a>
                                                     </h3>
-
-                                                    <button className="btn btn-primary btn-sm" onClick={this.repairSession}>
-                                                        Repair
-                                                    </button>
-
                                                     {
-                                                        !this.state.showHardReset ?
-                                                        <button className="btn btn-primary btn-sm" onClick={this.showHardResetButton}>
-                                                            Hard Reset
-                                                        </button> :
-                                                        <button className="btn btn-danger btn-sm" onClick={this.hardReset}>
-                                                            Hard Reset
-                                                        </button>
-                                                    }
+                                                        this.state.canEdit &&
+                                                        <div>
+                                                            <button className="btn btn-primary btn-sm"
+                                                                    onClick={this.repairSession}>
+                                                                Repair
+                                                            </button>
 
+                                                            {
+                                                                !this.state.showHardReset ?
+                                                                <button className="btn btn-primary btn-sm" onClick={this.showHardResetButton}>
+                                                                Hard Reset
+                                                                </button> :
+                                                                <button className="btn btn-danger btn-sm" onClick={this.hardReset}>
+                                                                Hard Reset
+                                                                </button>
+                                                            }
+                                                        </div>
+                                                    }
 
                                                     <h3>
 

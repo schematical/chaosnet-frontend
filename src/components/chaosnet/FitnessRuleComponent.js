@@ -61,7 +61,7 @@ class FitnessRuleComponent extends Component {
         this.state.page.save(this.state.fitnessRule, this);
     }
     delete(){
-        this.state.page.removeRule(this.state.fitnessRule);
+        this.state.page.removeRule(this);
     }
     markClean(){
         let state = {};
@@ -81,7 +81,7 @@ class FitnessRuleComponent extends Component {
                     <input type="text" className="form-control form-control-user"
                            id="fitnessRuleId" name="id" aria-describedby="fitnessRuleId"
                            readOnly={this.state.isNew}
-                           placeholder="Training Room Name..."  value={this.state.fitnessRule.id} onChange={this.handleChange}
+                           placeholder="Rule Unique ID"  value={this.state.fitnessRule.id} onChange={this.handleChange}
                     />
                 </td>
 
