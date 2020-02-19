@@ -45,6 +45,7 @@ class TrainingRoomOrgNNetDetailPage extends Component {
             
         }
         this.padding = 30;
+        this.downloadNNet = this.downloadNNet.bind(this);
     }
     render() {
 
@@ -60,6 +61,7 @@ class TrainingRoomOrgNNetDetailPage extends Component {
 
                         this.state.nNet = response.data.nNet;
 
+                        this.state.nNet_clean = JSON.stringify(response.data.nNet);
                         this.state.loaded = true;
 
 
@@ -138,7 +140,7 @@ class TrainingRoomOrgNNetDetailPage extends Component {
                                             /<a
                                             href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace}>{this.props.trainingRoomNamespace}</a>
                                         </h1>
-
+                                        <button className="btn btn-primary" onClick={this.downloadNNet}>Download</button>
                                     </div>
                                     <div className="row">
 
@@ -406,6 +408,19 @@ class TrainingRoomOrgNNetDetailPage extends Component {
 
 
 
+
+    }
+    downloadNNet(){
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(/*JSON.stringify*/(this.state.nNet_clean)));
+        element.setAttribute('download', this.props.organism);
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
 
     }
     drawLink() {

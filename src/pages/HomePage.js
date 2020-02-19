@@ -19,14 +19,41 @@ class HomePage extends Component {
                                 {/* End of Topbar */}
                                 {/* Begin Page Content */}
                                 <div className="container-fluid">
-                                    {/* Page Heading */}
-                                    <div className="d-sm-flex align-items-center justify-content-between mb-4">
-                                        <h1 className="h3 mb-0 text-gray-800">ChaosNet</h1>
-                                        {/*<a href="#"
-                                           className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
-                                            className="fas fa-download fa-sm text-white-50"/> Generate Report</a>*/}
-                                    </div>
 
+                                    <div className="row">
+
+                                        <div className="col-xl-8 col-lg-7">
+                                            <div className="card shadow mb-4">
+                                                <div className="card-header py-3">
+                                                    <h1 className="h3 mb-0 text-gray-800">ChaosNet</h1>
+                                                </div>
+                                                <div className="card-body">
+                                                    <iframe width="560" height="315"
+                                                            src="https://www.youtube.com/embed/videoseries?list=PLLkpLgU9B5xJ7Qy4kOyBJl5J6zsDIMceH"
+                                                            frameBorder="0"
+                                                            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                                                            allowFullScreen></iframe>
+                                                </div>
+                                            </div>
+                                            <div className="card shadow mb-4">
+                                                <div className="card-header py-3">
+                                                    <h1 className="h3 mb-0 text-gray-800">Featured Room</h1>
+                                                </div>
+                                                <div className="card-body">
+                                                    <ul>
+                                                        <li>
+                                                            <a href="/schematical/trainingrooms/chickenhunt">Chicken Hunt</a>
+                                                        </li>
+                                                        <li>
+                                                            <a href="/schematical/trainingrooms/maze">Maze</a>
+                                                        </li>
+                                                    </ul>
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
                                 </div>
                                 {/* /.container-fluid */}
                             </div>
