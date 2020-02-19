@@ -24,6 +24,7 @@ import TrainingRoomSessionDetailPage from "./pages/chaosnet/TrainingRoomSessionD
 import TrainingRoomOrgDetailPage from "./pages/chaosnet/TrainingRoomOrgDetailPage";
 import TrainingRoomOrgNNetDetailPage from "./pages/chaosnet/TrainingRoomOrgNNetDetailPage";
 import TrainingRoomTRanksOrgsListPage from "./pages/chaosnet/TrainingRoomTRanksOrgsListPage";
+import TrainingRoomPresetNeuronListPage from "./pages/chaosnet/TrainingRoomPresetNeuronListPage";
 class App extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired
@@ -53,6 +54,7 @@ class App extends Component {
             <Router.Location path="/:username/trainingrooms/new" handler={TrainingRoomNewPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace" handler={TrainingRoomDetailPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/fitnessrules" handler={TrainingRoomFitnessRuleListPage} />
+            <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/presetneurons" handler={TrainingRoomPresetNeuronListPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/organisms" handler={TrainingRoomOrgListPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/organisms/:organism" handler={TrainingRoomOrgDetailPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/organisms/:organism/nnet" handler={TrainingRoomOrgNNetDetailPage} />

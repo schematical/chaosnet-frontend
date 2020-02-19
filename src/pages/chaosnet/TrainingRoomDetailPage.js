@@ -23,32 +23,7 @@ class TrainingRoomDetailPage extends Component {
         this.setState( this.state);
     }
     handleSubmit(event) {
-        /*this.state.trainingroom.config.presetNeurons = [];
-        [
-            "minecraft:lava",
-            "minecraft:stone"
-        ].forEach((strAttr)=>{
-            for(let i = 0; i < 10; i++){
-                this.state.trainingroom.config.presetNeurons.push({
 
-                    "$TYPE":"IsLookingAtInput",
-                    "attributeId":"BLOCK_ID",
-                    "attributeValue": strAttr,
-                    "eye":"Eye_" + i,
-                    "_base_type":"input"
-
-                })
-            }
-        })
-        for(let i = 0; i < 10; i++){
-            this.state.trainingroom.config.presetNeurons.push({
-                "$TYPE":"IsLookingAtInput",
-                "attributeId":"BLOCK_TOUCH_STATE",
-                "attributeValue": "HAS_TOUCHED_BLOCK",
-                "eye":"Eye_" + i,
-                "_base_type":"input"
-            })
-        }*/
         event.preventDefault();
         return axios.put('https://chaosnet.schematical.com/v0/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace,
             this.state.trainingroom,
@@ -71,9 +46,11 @@ class TrainingRoomDetailPage extends Component {
             })
     }
     isOwner(){
+
         if(!AuthService.userData){
             return false;
         }
+        //console.log("IsOwner: ", this.props.username + " == " + AuthService.userData.username,  " => " , this.props.username == AuthService.userData.username);
         return this.props.username == AuthService.userData.username;
     }
     render() {
@@ -152,6 +129,9 @@ class TrainingRoomDetailPage extends Component {
                                                 <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.partitionNamespace + "/trainingrooms/" + this.state.trainingroom.namespace + "/sessions"}>
                                                     Sessions
                                                 </a>
+                                                <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.partitionNamespace + "/trainingrooms/" + this.state.trainingroom.namespace + "/presetneurons"}>
+                                                    Preset Neurons
+                                                </a>
 
                                             </div>
 
@@ -167,7 +147,7 @@ class TrainingRoomDetailPage extends Component {
                                                             <label>
                                                                 Top TRank
                                                             </label>
-                                                            <input type="text" className="form-control form-control-user" readOnly={this.isOwner()}
+                                                            <input type="text" className="form-control form-control-user" readOnly={!this.isOwner()}
                                                                    id="topTRank" name="topTRank" aria-describedby="trainingRoomName"
                                                                    placeholder="Top TRank"  value={this.state.trainingroom.config.topTRank} onChange={this.handleConfigChange}
                                                             />
@@ -176,7 +156,7 @@ class TrainingRoomDetailPage extends Component {
                                                             <label>
                                                                 Min Species Count
                                                             </label>
-                                                            <input type="number" className="form-control form-control-user" readOnly={this.isOwner()}
+                                                            <input type="number" className="form-control form-control-user" readOnly={!this.isOwner()}
                                                                    id="minSpeciesCount" name="minSpeciesCount" aria-describedby="trainingRoomName"
                                                                    placeholder="Min Species Count"  value={this.state.trainingroom.config.minSpeciesCount} onChange={this.handleConfigChange}
                                                             />
@@ -185,7 +165,7 @@ class TrainingRoomDetailPage extends Component {
                                                             <label>
                                                                 Max Surviving Species Per Generation
                                                             </label>
-                                                            <input type="number" className="form-control form-control-user" readOnly={this.isOwner()}
+                                                            <input type="number" className="form-control form-control-user" readOnly={!this.isOwner()}
                                                                    id="maxSurvivngSpeciesPerGeneration" name="maxSurvivngSpeciesPerGeneration" aria-describedby="trainingRoomName"
                                                                    placeholder="Max Surviving Species Per Generation"  value={this.state.trainingroom.config.maxSurvivngSpeciesPerGeneration} onChange={this.handleConfigChange}
                                                             />
@@ -194,7 +174,7 @@ class TrainingRoomDetailPage extends Component {
                                                             <label>
                                                                 Min Organisms Per Species Per Generation
                                                             </label>
-                                                            <input type="number" className="form-control form-control-user" readOnly={this.isOwner()}
+                                                            <input type="number" className="form-control form-control-user" readOnly={!this.isOwner()}
                                                                    id="minOrganisimsPerSpeciesPerGeneration" name="minOrganisimsPerSpeciesPerGeneration" aria-describedby="trainingRoomName"
                                                                    placeholder="Min Organisms Per Species Per Generation"  value={this.state.trainingroom.config.minOrganisimsPerSpeciesPerGeneration} onChange={this.handleConfigChange}
                                                             />
@@ -203,7 +183,7 @@ class TrainingRoomDetailPage extends Component {
                                                             <label>
                                                                 Max Surviving Organisms Per Species Per Generation
                                                             </label>
-                                                            <input type="number" className="form-control form-control-user" readOnly={this.isOwner()}
+                                                            <input type="number" className="form-control form-control-user" readOnly={!this.isOwner()}
                                                                    id="maxSurvivingOrganisimsPerSpeciesPerGeneration" name="maxSurvivingOrganisimsPerSpeciesPerGeneration" aria-describedby="trainingRoomName"
                                                                    placeholder="Max Surviving Organisms Per Species Per Generation"  value={this.state.trainingroom.config.maxSurvivingOrganisimsPerSpeciesPerGeneration} onChange={this.handleConfigChange}
                                                             />
@@ -221,7 +201,7 @@ class TrainingRoomDetailPage extends Component {
                                                             <label>
                                                                 Species Gen To Improve
                                                             </label>
-                                                            <input type="number" className="form-control form-control-user" readOnly={this.isOwner()}
+                                                            <input type="number" className="form-control form-control-user" readOnly={!this.isOwner()}
                                                                    id="speciesGenToImprove" name="speciesGenToImprove" aria-describedby="speciesGenToImprove"
                                                                    placeholder="Species Gen To Improve"  value={this.state.trainingroom.config.speciesGenToImprove} onChange={this.handleConfigChange}
                                                             />
@@ -239,7 +219,7 @@ class TrainingRoomDetailPage extends Component {
                                                             <label>
                                                                 Preset Observed Attributes
                                                             </label>
-                                                            <input type="text" className="form-control form-control-user" readOnly={this.isOwner()}
+                                                            <input type="text" className="form-control form-control-user" readOnly={!this.isOwner()}
                                                                    id="presetObservedAttributes" name="presetObservedAttributes" aria-describedby="presetObservedAttributes"
                                                                    placeholder="Preset Observed Attributes"  value={this.state.trainingroom.config.presetObservedAttributes} onChange={this.handleConfigChange}
                                                             />
@@ -248,7 +228,7 @@ class TrainingRoomDetailPage extends Component {
                                                             <label>
                                                                 Accelerate Mutation As Species Gets Stale Rate
                                                             </label>
-                                                            <input type="number" className="form-control form-control-user" readOnly={this.isOwner()}
+                                                            <input type="number" className="form-control form-control-user" readOnly={!this.isOwner()}
                                                                    id="accellerateMutationAsSpeciesGetsStaleRate" name="accellerateMutationAsSpeciesGetsStaleRate" aria-describedby="accellerateMutationAsSpeciesGetsStaleRate"
                                                                    placeholder="accellerateMutationAsSpeciesGetsStaleRate"  value={this.state.trainingroom.config.accellerateMutationAsSpeciesGetsStaleRate} onChange={this.handleConfigChange}
                                                             />
@@ -270,7 +250,7 @@ class TrainingRoomDetailPage extends Component {
                                                                 Use Binary Neuron Output
                                                             </label>
                                                             <input type="checkbox"
-                                                                   className="form-control form-control-user" readOnly={this.isOwner()}
+                                                                   className="form-control form-control-user" readOnly={!this.isOwner()}
                                                                    id="useBinaryNeuronOutput" name="useBinaryNeuronOutput" aria-describedby="useBinaryNeuronOutput"
                                                                    placeholder="useBinaryNeuronOutput"  checked={this.state.trainingroom.config.useBinaryNeuronOutput} onChange={this.handleConfigChange}
                                                             />
@@ -292,7 +272,7 @@ class TrainingRoomDetailPage extends Component {
                                                                 Fire Only Top Neuron
                                                             </label>
                                                             <input type="checkbox"
-                                                                   className="form-control form-control-user" readOnly={this.isOwner()}
+                                                                   className="form-control form-control-user" readOnly={!this.isOwner()}
                                                                    id="fireOnlyTopNeuron" name="fireOnlyTopNeuron" aria-describedby="fireOnlyTopNeuron"
                                                                    placeholder="fireOnlyTopNeuron"  checked={this.state.trainingroom.config.fireOnlyTopNeuron} onChange={this.handleConfigChange}
                                                             />
