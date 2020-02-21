@@ -70,6 +70,7 @@ class PresetNeuronComponent extends Component {
         console.log("this.state.neuronType keys:" + key);
 
         switch(key){
+            case("_base_type"):
             case("$TYPE"):
                 return;
 
@@ -92,7 +93,7 @@ class PresetNeuronComponent extends Component {
                 return ;
             default:
                 return <td key={key} className="form-group">
-                    <input type="number" className="form-control form-control-user"
+                    <input type="text" className="form-control form-control-user"
                            id={key} name={key} aria-describedby={key}
                            placeholder={key}  value={this.state.presetNeuron[key]} onChange={this.handleChange}
                     />

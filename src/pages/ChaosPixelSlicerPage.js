@@ -105,7 +105,7 @@ class ChaosPixelSlicerPage extends Component {
             new Date().getTime() - tickStart < this.state.max_batch_tick_duration
         ) {
             try {
-                this.state['batch_status'] = this.currBatchAction.tick();
+                this.state.batch_status = this.currBatchAction.tick();
 
             } catch (e) {
                 this.currBatchAction = null;

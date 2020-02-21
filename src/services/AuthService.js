@@ -1,4 +1,4 @@
-import { useCookies } from 'react-cookie';
+
 const axios = require('axios');
 
 
@@ -41,7 +41,6 @@ class AuthService{
             refreshToken:refreshToken,
             username: username
         });
-        console.log("newAccessToken:" + response.data.accessToken);
         this.setAccessToken(response.data.accessToken);
         return response;
 

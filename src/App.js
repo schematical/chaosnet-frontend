@@ -26,6 +26,7 @@ import TrainingRoomOrgNNetDetailPage from "./pages/chaosnet/TrainingRoomOrgNNetD
 import TrainingRoomTRanksOrgsListPage from "./pages/chaosnet/TrainingRoomTRanksOrgsListPage";
 import TrainingRoomPresetNeuronListPage from "./pages/chaosnet/TrainingRoomPresetNeuronListPage";
 import TrainingRoomTRanksImportPage from "./pages/chaosnet/TrainingRoomTRanksImportPage";
+import ConfigService from "./services/ConfigService";
 class App extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired
@@ -34,10 +35,11 @@ class App extends Component {
         super(props);
         const {cookies} = props;
         this.cookies = cookies;
-        console.log("   this.cookies: ",    this.cookies);
+        ConfigService.init();
+
         let userDataString = this.cookies.get('jwt');
-        console.log("userDataString: ", userDataString);
         if(userDataString){
+            AuthService.cookies = this.cookies;
             AuthService.setUserData(userDataString);
             //AuthService.setAccessToken(this.cookies.get('access_token'));
             AuthService.refreshAccessToken(AuthService.userData.username, this.cookies.get('refresh_token'));

@@ -18,7 +18,7 @@ class TrainingRoomListPage extends Component {
 
         if(!this.state.loaded) {
             setTimeout(() => {
-                return axios.get('https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms', {
+                return axios.get('https://chaosnet.schematical.com/v0/' + "/" + this.props.username+ '/trainingrooms', {
                     headers: {
                         "Authorization": AuthService.accessToken
                     }

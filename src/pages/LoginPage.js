@@ -4,14 +4,14 @@ import { instanceOf } from 'prop-types';
 import { withCookies, Cookies } from 'react-cookie';
 class LoginPage extends Component {
     static propTypes = {
-        cookies: instanceOf(Cookies).isRequired
+        //cookies: instanceOf(Cookies).isRequired
     };
 
 
     constructor(props) {
         super(props);
-        const { cookies } = props;
-        this.cookies = cookies;
+       /* const { cookies } = props;
+        this.cookies = cookies;*/
         this.state = {
             username: "",
             password:""
@@ -149,4 +149,4 @@ class LoginPage extends Component {
         );
     }
 }
-export default withCookies(LoginPage);
+export default LoginPage;
