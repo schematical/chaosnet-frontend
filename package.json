@@ -12,6 +12,7 @@
     "jquery": "^3.4.1",
     "jquery-thin": "^3.2.3",
     "jquery.easing": "^1.4.1",
+    "path-to-regexp": "^6.1.0",
     "react": "^16.8.6",
     "react-bootstrap-typeahead": "^3.4.7",
     "react-cookie": "^4.0.1",

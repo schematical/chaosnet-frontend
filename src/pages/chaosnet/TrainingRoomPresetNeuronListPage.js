@@ -94,7 +94,7 @@ class TrainingRoomPresetNeuronListPage extends Component {
                 this.state.trainingroom.config.presetNeurons[i] = presetNeuron;
             }
         })
-        return axios.put('https://chaosnet.schematical.com/v0/' + this.state.trainingroom.partitionNamespace + '/trainingrooms/' + this.state.trainingroom.namespace,
+        return axios.put('https://chaosnet.schematical.com/v0/' + this.state.trainingroom.owner_username + '/trainingrooms/' + this.state.trainingroom.namespace,
             this.state.trainingroom,
             {
                 headers: {

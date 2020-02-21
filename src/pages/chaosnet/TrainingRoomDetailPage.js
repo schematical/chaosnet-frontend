@@ -119,17 +119,17 @@ class TrainingRoomDetailPage extends Component {
                                                         </div>
                                                     </div>
                                                 }
-                                                <a class="btn btn-primary btn-sm"  href={"/" + this.state.trainingroom.partitionNamespace +  "/trainingrooms/" + this.state.trainingroom.namespace + "/fitnessrules"}>Fitness Rules</a>
-                                                <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.partitionNamespace + "/trainingrooms/" + this.state.trainingroom.namespace + "/organisms"}>
+                                                <a class="btn btn-primary btn-sm"  href={"/" + this.state.trainingroom.owner_username +  "/trainingrooms/" + this.state.trainingroom.namespace + "/fitnessrules"}>Fitness Rules</a>
+                                                <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/organisms"}>
                                                     Organisms
                                                 </a>
-                                                <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.partitionNamespace + "/trainingrooms/" + this.state.trainingroom.namespace + "/tranks"}>
+                                                <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/tranks"}>
                                                     Taxonomic Ranks
                                                 </a>
-                                                <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.partitionNamespace + "/trainingrooms/" + this.state.trainingroom.namespace + "/sessions"}>
+                                                <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/sessions"}>
                                                     Sessions
                                                 </a>
-                                                <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.partitionNamespace + "/trainingrooms/" + this.state.trainingroom.namespace + "/presetneurons"}>
+                                                <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/presetneurons"}>
                                                     Preset Neurons
                                                 </a>
 

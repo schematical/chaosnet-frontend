@@ -49,7 +49,7 @@ class TrainingRoomNewPage extends Component {
                 this.state.trainingroom = response.data;
 
                 this.setState(this.state);
-                document.location.href = ("/" + this.state.trainingroom.partitionNamespace + "/trainingrooms/" + this.state.trainingroom.namespace);
+                document.location.href = ("/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace);
             })
             .catch((err) => {
                 this.state.error = err;
