@@ -15,7 +15,6 @@ class PresetNeuronComponent extends Component {
             isNew: props.fitnessRule ? false : true
         }
         if(!this.state.neuronType) {
-            console.log("NEURON TYPE: " + this.state.presetNeuron['$TYPE'], this.state.neuronType, Object.keys(props.simModel._neuronCache));
             this.state.neuronType = {}
         }
 
@@ -43,12 +42,9 @@ class PresetNeuronComponent extends Component {
         }
         this.state.dirty = true;
         this.setState(this.state);
-        console.log("TARGET:" , event.target.name, event.target.value, this.state.presetNeuron);
+
     }
 
-    debugFitnessRule(){
-        console.log("fitnessRule: ", (this.state.presetNeuron));
-    }
     save(){
         /*if(this.state.neuronType && this.state.neuronType.attributeId){
             this.state.fitnessRule.attributeId = this.state.neuronType.attributeId;
@@ -67,7 +63,7 @@ class PresetNeuronComponent extends Component {
         this.setState(state);
     }
     renderInputs(key){
-        console.log("this.state.neuronType keys:" + key);
+
 
         switch(key){
             case("_base_type"):
@@ -76,7 +72,7 @@ class PresetNeuronComponent extends Component {
 
                 break;
             case('attributeId'):
-                console.log("HIT: attributeId");
+
 
                 return <td key={key} className="form-group">
                         <div className="input-group mb-3">

@@ -9,7 +9,7 @@ const _ = require('underscore');
 class TrainingRoomFitnessRuleListPage extends Component {
     constructor(props) {
         super(props);
-        console.log("Username: ", props.username, props);
+
         this.state = {
 
         }
@@ -73,7 +73,7 @@ class TrainingRoomFitnessRuleListPage extends Component {
                     }
                 })
                     .then((response) => {
-                        console.log("Loaded: ", response.data);
+
                         this.state.trainingroom = response.data;
 
 
@@ -86,7 +86,7 @@ class TrainingRoomFitnessRuleListPage extends Component {
                         })
                     })
                     .then((response) => {
-                        console.log("Loaded SimModel: ", response.data);
+
                         this.state.simModel = response.data;
                         this.state.simModel._fitnessCache = {};
                         this.state.simModel.fitness.forEach((fitnessModel)=>{

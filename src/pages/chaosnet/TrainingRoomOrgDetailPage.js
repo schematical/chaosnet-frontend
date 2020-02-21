@@ -7,7 +7,7 @@ const axios = require('axios');
 class TrainingRoomOrgDetailPage extends Component {
     constructor(props) {
         super(props);
-        console.log("Username: ", props.username, props);
+
         this.state = {
             trainingrooms:[]
         }
@@ -22,7 +22,7 @@ class TrainingRoomOrgDetailPage extends Component {
                     }
                 })
                     .then((response) => {
-                        console.log("Loaded: ", response.data);
+
                         this.state.organism = response.data;
                         this.state.loaded = true;
 

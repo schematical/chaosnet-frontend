@@ -27,7 +27,7 @@ class TrainingRoomSessionsListPage extends Component {
                     }
                 })
                     .then((response) => {
-                        console.log("Loaded: ", response.data);
+
                         this.state.sessions = response.data;
                         this.state.loaded = true;
                         this.setState(this.state);

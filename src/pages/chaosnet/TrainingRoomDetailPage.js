@@ -3,11 +3,12 @@ import SidebarComponent from '../../components/SidebarComponent';
 import TopbarComponent from '../../components/TopbarComponent';
 import AuthService from "../../services/AuthService";
 import FooterComponent from "../../components/FooterComponent";
+import HTTPService from "../../services/HTTPService";
 const axios = require('axios');
 class TrainingRoomDetailPage extends Component {
     constructor(props) {
         super(props);
-        console.log("Username: ", props.username, props);
+
         this.state = {
             trainingroom:null
         }
@@ -16,7 +17,6 @@ class TrainingRoomDetailPage extends Component {
         this.isOwner = this.isOwner.bind(this);
     }
     handleConfigChange(event) {
-        console.log("TARGET:" , event.target.name, event.target.value, event.target);
         //let state = {};
         this.state.trainingroom.config[event.target.name] = event.target.value;
 
@@ -34,14 +34,15 @@ class TrainingRoomDetailPage extends Component {
             }
         )
             .then((response) => {
-                console.log("Loaded: ", response.data);
-                this.state.trainingroom = response.data;
+                let state = {};
+                state.trainingroom = response.data;
 
-                this.setState(this.state);
+                this.setState(state);
             })
             .catch((err) => {
-                this.state.error = err;
-                this.setState(this.state);
+                let state = {};
+                state.error = err;
+                this.setState(state);
                 console.error("Error: ", err.message);
             })
     }
@@ -50,29 +51,25 @@ class TrainingRoomDetailPage extends Component {
         if(!AuthService.userData){
             return false;
         }
-        //console.log("IsOwner: ", this.props.username + " == " + AuthService.userData.username,  " => " , this.props.username == AuthService.userData.username);
-        return this.props.username == AuthService.userData.username;
+        return this.props.username === AuthService.userData.username;
     }
     render() {
 
         if(!this.state.loaded) {
             setTimeout(() => {
-                return axios.get('https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace , {
-                    headers: {
-                        "Authorization": AuthService.accessToken
-                    }
-                })
+                return HTTPService.get('/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace )
                     .then((response) => {
-                        console.log("Loaded: ", response.data);
-                        this.state.trainingroom = response.data;
-                        this.state.loaded = true;
-                        this.state.fitnessRules = JSON.stringify(this.state.trainingroom.fitnessRules, 0, 3);
-                        this.state.config = JSON.stringify(this.state.trainingroom.config, 0, 3);
-                        this.setState(this.state);
+                        let state = {};
+                        state.trainingroom = response.data;
+                        state.loaded = true;
+                        state.fitnessRules = JSON.stringify(state.trainingroom.fitnessRules, 0, 3);
+                        state.config = JSON.stringify(state.trainingroom.config, 0, 3);
+                        this.setState(state);
                     })
                     .catch((err) => {
-                        this.state.error = err;
-                        this.setState(this.state);
+                        let state = {};
+                        state.error = err;
+                        this.setState(state);
                         console.error("Error: ", err.message);
                     });
             }, 1000);
@@ -119,7 +116,7 @@ class TrainingRoomDetailPage extends Component {
                                                         </div>
                                                     </div>
                                                 }
-                                                <a class="btn btn-primary btn-sm"  href={"/" + this.state.trainingroom.owner_username +  "/trainingrooms/" + this.state.trainingroom.namespace + "/fitnessrules"}>Fitness Rules</a>
+                                                <a className="btn btn-primary btn-sm"  href={"/" + this.state.trainingroom.owner_username +  "/trainingrooms/" + this.state.trainingroom.namespace + "/fitnessrules"}>Fitness Rules</a>
                                                 <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/organisms"}>
                                                     Organisms
                                                 </a>

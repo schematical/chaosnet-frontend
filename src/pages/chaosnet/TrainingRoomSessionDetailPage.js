@@ -36,7 +36,7 @@ class TrainingRoomSessionDetailPage extends Component {
             }
         })
             .then((response) => {
-                console.log("Reset: ", response.data, this.state);
+
                 this.state.session = response.data;
                 this.state.message = response.data.message  || "success";;
                 this.setState(this.state);
@@ -55,7 +55,7 @@ class TrainingRoomSessionDetailPage extends Component {
             }
         })
         .then((response) => {
-            console.log("Repaired: ", response.data, this.state);
+
             this.state.message = response.data.message  || "success";;
 
             this.setState(this.state);
@@ -79,7 +79,6 @@ class TrainingRoomSessionDetailPage extends Component {
                     }
                 })
                     .then((response) => {
-                        console.log("Loaded: ", response.data, this.state);
                         this.state.session = response.data
                         this.state.loaded = true;
                         this.setState(this.state);

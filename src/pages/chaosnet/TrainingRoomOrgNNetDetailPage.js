@@ -39,7 +39,7 @@ class TrainingRoomOrgNNetDetailPage extends Component {
 
     constructor(props) {
         super(props);
-        console.log("Username: ", props.username, props);
+
         this.state = {
 
             
@@ -57,7 +57,7 @@ class TrainingRoomOrgNNetDetailPage extends Component {
                     }
                 })
                     .then((response) => {
-                        console.log("Loaded: ", response.data);
+
 
                         this.state.nNet = response.data.nNet;
 
@@ -67,7 +67,7 @@ class TrainingRoomOrgNNetDetailPage extends Component {
 
                         this.nodeAgeTotals = {};
                         this.nodeAgeTotals.total = 0;
-                        console.log(Object.keys(this.state.nNet));
+
                         this.state.links = [];
                         this.state.nNet.neurons.forEach((node)=>{
                             /*{
@@ -285,7 +285,7 @@ class TrainingRoomOrgNNetDetailPage extends Component {
         if(!this.svgParent){
             throw new Error("Missing `this.svGParent`");
         }
-        console.log("svgParent:")
+
         this.svg = this.svgParent.append("svg:g");
         /*this.svgParent.attr('height', () => {
           return this.state.nNet.nodes.length * 20 + 100;

@@ -8,7 +8,7 @@ const axios = require('axios');
 class TrainingRoomListPage extends Component {
     constructor(props) {
         super(props);
-        console.log("Username: ", props.username, props);
+
         this.state = {
             trainingrooms:[]
         }
@@ -24,7 +24,7 @@ class TrainingRoomListPage extends Component {
                     }
                 })
                     .then((response) => {
-                        console.log("Loaded: ", response.data);
+
                         this.state.trainingrooms = response.data;
                         this.state.loaded = true;
                         this.setState(this.state);
@@ -89,7 +89,7 @@ class TrainingRoomListPage extends Component {
                                                         <tbody>
                                                         {
                                                             this.state.trainingrooms.map((trainingRoom)=>{
-                                                                return <TrainingRoomListComponent trainingRoom={trainingRoom} page={this}/>
+                                                                return <TrainingRoomListComponent key={trainingRoom.namespace} trainingRoom={trainingRoom} page={this}/>
                                                             })
                                                         }
 

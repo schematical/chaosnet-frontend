@@ -275,7 +275,7 @@ class ChaosPixelSlicerPage extends Component {
 
         let index = -1;
         this.state.selectedSpriteGroups.forEach((spriteGroup, i)=>{
-            if(spriteGroup.id == this.hoveredSpriteGroup.id){
+            if(spriteGroup.id === this.hoveredSpriteGroup.id){
                 index = i;
             }
         })
@@ -330,8 +330,8 @@ class ChaosPixelSlicerPage extends Component {
         return;
         if(
             !this.lastBounds ||
-            this.lastBounds.xMin != mousePos.bounds.x ||
-            this.lastBounds.yMin != mousePos.bounds.y
+            this.lastBounds.xMin !== mousePos.bounds.x ||
+            this.lastBounds.yMin !== mousePos.bounds.y
         ){
             this.lastBounds = mousePos.bounds;
             this.drawSliceLines();
@@ -405,7 +405,7 @@ class ChaosPixelSlicerPage extends Component {
         if(
             !_.isUndefined(this.spriteGroupingMap[x]) &&
             !_.isUndefined(this.spriteGroupingMap[x][y]) ||
-            this.spriteGroupingMap[x][y] == -2
+            this.spriteGroupingMap[x][y] === -2
         ){
             return;
         }
@@ -420,7 +420,7 @@ class ChaosPixelSlicerPage extends Component {
         //Check pixels before and after
 
         let spriteGroup = null;
-        if(spriteGroupIndex == -1){
+        if(spriteGroupIndex === -1){
             //Create a new sprite group
             spriteGroup = {
                 id: this.spriteGroups.length,
@@ -482,7 +482,7 @@ class ChaosPixelSlicerPage extends Component {
             let imageData = ctx.getImageData(x, y, 1, 1);
 
 
-            if(y != lastY){
+            if(y !== lastY){
                 lastY = y;
                 pixelMatchCount = 0;
                 lastPixelColor = null;
@@ -526,12 +526,12 @@ class ChaosPixelSlicerPage extends Component {
         })
         let sortedPixelCounts = _.sortBy(sortable, 'occurrences').reverse();
         console.log("sortedPixelCounts: ", sortedPixelCounts);
-        console.log(sortedPixelCounts[1].pixelCount, " % ", sortedPixelCounts[0].pixelCount, " == ", sortedPixelCounts[1].pixelCount % sortedPixelCounts[0].pixelCount)
-        /*if(sortedPixelCounts[1].pixelCount % sortedPixelCounts[0].pixelCount != 0){
+        console.log(sortedPixelCounts[1].pixelCount, " % ", sortedPixelCounts[0].pixelCount, " === ", sortedPixelCounts[1].pixelCount % sortedPixelCounts[0].pixelCount)
+        /*if(sortedPixelCounts[1].pixelCount % sortedPixelCounts[0].pixelCount !=== 0){
             this.alert("Failed to determine a scale");
             return;
         }*/
-        /*if(sortedPixelCounts[0].pixelCount == 1){
+        /*if(sortedPixelCounts[0].pixelCount === 1){
             this.alert("Scale is already 1. No need to scale");
             return;
         }*/
@@ -567,7 +567,7 @@ class ChaosPixelSlicerPage extends Component {
     }
     componentToHex(c){
         var hex = c.toString(16);
-        return hex.length == 1 ? "0" + hex : hex;
+        return hex.length === 1 ? "0" + hex : hex;
     }
     rgbToHex(r, g, b) {
         return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
@@ -1039,7 +1039,7 @@ class BatchPixelAction{
     onChildFinish(action){
         let blnFound = false;
         for(let i = 0; i < this.childBatchActions.length; i++){
-            if(this.childBatchActions[i].id == action.id){
+            if(this.childBatchActions[i].id === action.id){
                 this.childBatchActions.splice(i,1);
                 blnFound = true;
                 break;
@@ -1078,7 +1078,7 @@ class AutoSliceBatchAction extends BatchPixelAction{
         if(
             !_.isUndefined(this.page.spriteGroupingMap[x]) &&
             !_.isUndefined(this.page.spriteGroupingMap[x][y])/* ||
-            this.page.spriteGroupingMap[x][y] == -2*/
+            this.page.spriteGroupingMap[x][y] === -2*/
         ){
             return;
         }
@@ -1118,25 +1118,25 @@ class AutoSliceBatchAction extends BatchPixelAction{
             spriteGroup = this.spriteGroup;
         }
         if(
-            spriteGroup.bounds.minX == -1 ||
+            spriteGroup.bounds.minX === -1 ||
             x < spriteGroup.bounds.minX
         ){
             spriteGroup.bounds.minX = x;
         }
         if(
-            spriteGroup.bounds.minY == -1 ||
+            spriteGroup.bounds.minY === -1 ||
             y < spriteGroup.bounds.minY
         ){
             spriteGroup.bounds.minY = y;
         }
         if(
-            spriteGroup.bounds.maxX == -1 ||
+            spriteGroup.bounds.maxX === -1 ||
             x > spriteGroup.bounds.maxX
         ){
             spriteGroup.bounds.maxX = x;
         }
         if(
-            spriteGroup.bounds.maxY == -1 ||
+            spriteGroup.bounds.maxY === -1 ||
             y > spriteGroup.bounds.maxY
         ){
             spriteGroup.bounds.maxY = y;

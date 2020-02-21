@@ -22,7 +22,6 @@ class FitnessRuleComponent extends Component {
             isNew: props.fitnessRule ? false : true
         }
         if(!this.state.eventType) {
-            console.log("EVENT TYPE: " + this.state.fitnessRule.eventType, this.state.eventType, Object.keys(props.simModel._fitnessCache));
             this.state.eventType = {}
         }
 
@@ -45,7 +44,6 @@ class FitnessRuleComponent extends Component {
         }
         this.state.dirty = true;
         this.setState(this.state);
-        console.log("TARGET:" , event.target.name, event.target.value, this.state.fitnessRule);
     }
 
     debugFitnessRule(){

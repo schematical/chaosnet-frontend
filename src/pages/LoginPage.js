@@ -46,7 +46,7 @@ class LoginPage extends Component {
 
             })
             .then((response)=>{
-                console.log("response: ", response);
+
                 this.cookies.set("jwt", JSON.stringify(response.data), cookieOptions);
                 this.cookies.set("username", response.data.username, cookieOptions);
                 document.location = "/";

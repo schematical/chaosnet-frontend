@@ -22,14 +22,13 @@ class TrainingRoomTRanksDetailPage extends Component {
         if(!this.state.loaded) {
             setTimeout(() => {
                 let url = 'https://chaosnet.schematical.com/v0/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks/' + this.props.trank;
-               console.log(this.props);
+
                 return axios.get(url, {
                     headers: {
                         "Authorization": AuthService.accessToken
                     }
                 })
                     .then((response) => {
-                        console.log("Loaded: ", response.data);
                         this.state.trank = response.data;
                         this.state.loaded = true;
                         this.setState(this.state);

@@ -30,7 +30,6 @@ class TrainingDataComponent extends Component {
 
     }
     handleChange(event) {
-        //console.log("TARGET:" , event.target.name, event.target.value, event.target);
         let state = {};
         state[event.target.name] = event.target.value;
         this.setState(state);

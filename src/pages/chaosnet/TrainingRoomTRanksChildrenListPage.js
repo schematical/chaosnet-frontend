@@ -26,7 +26,6 @@ class TrainingRoomTRanksChildrenListPage extends Component {
                     }
                 })
                     .then((response) => {
-                        console.log("Loaded: ", response.data);
                         this.state.organisms = response.data;
                         this.state.loaded = true;
                         this.setState(this.state);

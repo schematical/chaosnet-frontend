@@ -21,7 +21,7 @@ class SpriteGroupComponent extends Component {
     removeMe(event){
         event.preventDefault();
         for(let i = 0; i < this.props.page.state.selectedSpriteGroups.length; i++){
-            console.log(this.props.page.state.selectedSpriteGroups[i].id + " == " + this.props.spriteGroup.id);
+
             if(this.props.page.state.selectedSpriteGroups[i].id == this.props.spriteGroup.id){
                 this.props.page.state.selectedSpriteGroups.splice(i, 1);
                 this.props.page.setState({
@@ -44,7 +44,7 @@ class SpriteGroupComponent extends Component {
 
     }
     handleChange(event) {
-        //console.log("TARGET:" , event.target.name, event.target.value, event.target);
+
         let state = {};
         state[event.target.name] = event.target.value;
         this.setState(state);

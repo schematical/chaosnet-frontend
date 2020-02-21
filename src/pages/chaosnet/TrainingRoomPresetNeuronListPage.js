@@ -85,7 +85,7 @@ class TrainingRoomPresetNeuronListPage extends Component {
         this.setState(this.state);
     }
     save(presetNeuron, ele){
-        console.log("Starting Save: ", presetNeuron);
+
         this.state.trainingroom.config.presetNeurons.forEach((_presetNeuron, i)=>{
             if(ele.state.isNew && _presetNeuron._isNew){
                 presetNeuron._isNew = false;
@@ -122,7 +122,7 @@ class TrainingRoomPresetNeuronListPage extends Component {
                     }
                 })
                     .then((response) => {
-                        console.log("Loaded: ", response.data);
+
                         this.state.trainingroom = response.data;
 
                         this.state.trainingroom.config = this.state.trainingroom.config ||{};
@@ -136,7 +136,7 @@ class TrainingRoomPresetNeuronListPage extends Component {
                         })
                     })
                     .then((response) => {
-                        console.log("Loaded SimModel: ", response.data);
+
                         this.state.simModel = response.data;
                         this.state.simModel._neuronCache = {};
                         this.state.simModel.outputNeurons.forEach((neuron)=>{

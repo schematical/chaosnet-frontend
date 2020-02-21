@@ -19,7 +19,6 @@ class TrainingRoomTRanksListPage extends Component {
 
     }
     handleChange(event) {
-        console.log("TARGET:" , event.target.name, event.target.value, event.target);
         let state = {};
         state[event.target.name] = event.target.value;
         this.state.loaded = false;
@@ -41,7 +40,7 @@ class TrainingRoomTRanksListPage extends Component {
                     }
                 })
                     .then((response) => {
-                        console.log("Loaded: ", response.data);
+
                         this.state.tranks = response.data;
                         this.state.loaded = true;
                         this.setState(this.state);

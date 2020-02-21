@@ -18,7 +18,7 @@ class TrainingRoomNewPage extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
     handleChange(event) {
-        console.log("TARGET:" , event.target.name, event.target.value, event.target);
+
         let state = {};
         state[event.target.name] = event.target.value;
         switch(event.target.name){
@@ -45,7 +45,7 @@ class TrainingRoomNewPage extends Component {
             }
         )
             .then((response) => {
-                console.log("Loaded: ", response.data);
+
                 this.state.trainingroom = response.data;
 
                 this.setState(this.state);

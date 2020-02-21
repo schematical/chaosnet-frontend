@@ -22,13 +22,12 @@ class TrainingRoomListComponent extends Component {
     }
 
     render() {
-console.log("Rendering: " + this.props.trainingRoom.namespace);
 
         return (
 
             <tr>
                 <th scope="row">
-                    <a href={"/" + this.props.trainingRoom.partitionNamespace + "/trainingrooms/" + this.props.trainingRoom.namespace}>
+                    <a href={"/" + this.props.trainingRoom.owner_username + "/trainingrooms/" + this.props.trainingRoom.namespace}>
                         {this.props.trainingRoom.namespace}
                     </a>
 
