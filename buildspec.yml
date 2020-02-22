@@ -15,7 +15,7 @@ phases:
     commands:
       - echo Build completed on `date`
       - node bin/buildLambda.js
-      - lambda deploy chaosnet-frontend-lambda-v1-prod.lambda
+      - ./node_modules/aws-lambda/bin/lambda deploy chaosnet-frontend-lambda-v1-prod.lambda
 artifacts:
   files:
     - '**/*'
