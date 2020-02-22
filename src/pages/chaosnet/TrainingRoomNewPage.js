@@ -3,6 +3,7 @@ import SidebarComponent from '../../components/SidebarComponent';
 import TopbarComponent from '../../components/TopbarComponent';
 import AuthService from "../../services/AuthService";
 import FooterComponent from "../../components/FooterComponent";
+import HTTPService from "../../services/HTTPService";
 const axios = require('axios');
 class TrainingRoomNewPage extends Component {
     constructor(props) {
@@ -32,16 +33,13 @@ class TrainingRoomNewPage extends Component {
 
 
         event.preventDefault();
-        return axios.post('https://chaosnet.schematical.com/v0/trainingrooms' ,
+        return HTTPService.post('/trainingrooms' ,
             {
                 namespace: this.state.trainingRoomNamespace,
                 name: this.state.trainingRoomName,
                 simModelNamespace: this.state.simModelNamespace
             },
             {
-                headers: {
-                    "Authorization": AuthService.accessToken
-                }
             }
         )
             .then((response) => {
@@ -52,38 +50,15 @@ class TrainingRoomNewPage extends Component {
                 document.location.href = ("/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace);
             })
             .catch((err) => {
-                this.state.error = err;
-                this.setState(this.state);
+                let state = {}
+                state.error = err;
+                this.setState(state);
                 console.error("Error: ", err.message);
             })
     }
     render() {
 
-        /*if(!this.state.loaded) {
-            setTimeout(() => {
-                return axios.get('https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms' + this.props.trainingRoomNamespace , {
-                    headers: {
-                        "Authorization": AuthService.accessToken
-                    },
-                    body:{
-                        namespace: this.state.trainingRoomNamespace,
-                        name: this.state.trainingRoomName,
-                        simModelNamespace: this.state.simModelNamespace
-                    }
-                })
-                    .then((response) => {
-                        console.log("Loaded: ", response.data);
-                        this.state.trainingroom = response.data;
-                        this.state.loaded = true;
-                        this.state.fitnessRules = JSON.stringify(this.state.trainingroom.fitnessRules, 0, 3);
-                        this.state.config = JSON.stringify(this.state.trainingroom.config, 0, 3);
-                        this.setState(this.state);
-                    })
-                    .catch((err) => {
-                        console.error("Error: ", err.message);
-                    })
-            }, 1000);
-        }*/
+
         return (
             <div>
                 <div>

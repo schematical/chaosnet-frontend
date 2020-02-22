@@ -6,6 +6,7 @@ import TrainingRoomListComponent from "../../components/chaosnet/TrainingRoomLis
 import FooterComponent from "../../components/FooterComponent";
 import OrgListComponent from "../../components/chaosnet/OrgListComponent";
 import TRankListComponent from "../../components/chaosnet/TRankListComponent";
+import HTTPService from "../../services/HTTPService";
 const axios = require('axios');
 const _ = require('underscore');
 class TrainingRoomTRanksDetailPage extends Component {
@@ -21,21 +22,21 @@ class TrainingRoomTRanksDetailPage extends Component {
 
         if(!this.state.loaded) {
             setTimeout(() => {
-                let url = 'https://chaosnet.schematical.com/v0/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks/' + this.props.trank;
+                let url = '/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks/' + this.props.trank;
 
-                return axios.get(url, {
-                    headers: {
-                        "Authorization": AuthService.accessToken
-                    }
+                return HTTPService.get(url, {
+
                 })
                     .then((response) => {
-                        this.state.trank = response.data;
-                        this.state.loaded = true;
-                        this.setState(this.state);
+                        let state = {};
+                        state.trank = response.data;
+                        state.loaded = true;
+                        this.setState(state);
                     })
                     .catch((err) => {
-                        this.state.error = err;
-                        this.setState(this.state);
+                        let state = {};
+                        state.error = err;
+                        this.setState(state);
                         console.error("Error: ", err.message);
                     })
             }, 1000);

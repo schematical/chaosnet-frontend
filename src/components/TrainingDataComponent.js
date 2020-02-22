@@ -4,6 +4,7 @@ import SearchbarComponent from './SearchbarComponent';
 import {instanceOf} from "prop-types";
 import {Cookies, withCookies} from "react-cookie";
 import TagTextComponent from "./TagTextComponent";
+import HTTPService from "../services/HTTPService";
 const axios = require('axios');
 
 class TrainingDataComponent extends Component {
@@ -37,19 +38,12 @@ class TrainingDataComponent extends Component {
     setupPreview(){
 
         this.state.loading = true;
-        return axios.get('https://chaosnet.schematical.com/v0/' + AuthService.userData.username + '/trainingdatas/' + this.props.trainingData.namespace, {
-            headers: {
-                "Authorization": AuthService.accessToken
-            }
-        })
+        return HTTPService.get('/' + AuthService.userData.username + '/trainingdatas/' + this.props.trainingData.namespace)
             .then((response) => {
 
                 this.state.trainingdatas = response.data;
                 this.setState(this.state);
-                return axios.get('https://chaosnet.schematical.com/v0/' + AuthService.userData.username + '/trainingdatas/' + this.props.trainingData.namespace + "/media", {
-                    headers: {
-                        "Authorization": AuthService.accessToken
-                    },
+                return HTTPService.get('/' + AuthService.userData.username + '/trainingdatas/' + this.props.trainingData.namespace + "/media", {
                     responseType: 'arraybuffer'
 
                 })

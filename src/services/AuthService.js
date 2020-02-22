@@ -5,7 +5,6 @@ const axios = require('axios');
 
 class AuthService{
     static userData = null;
-    static accessToken = null;
     static cookies = null;
     static init(cookies){
         AuthService.cookies = cookies;
@@ -91,7 +90,10 @@ class AuthService{
         let response = await HTTPService.post('/auth/token', {
             refreshToken:refreshToken,
             username: username
-        });
+        },
+            {
+                _skipAuth: true
+            });
         this.setAccessToken(response.data.accessToken);
         return response;
 
@@ -102,6 +104,21 @@ class AuthService{
         AuthService.cookies.set("access_token", accessToken,
             cookieOptions
         );
+    }
+    static getAccessToken(){
+        let accessToken = AuthService.cookies.get("access_token");
+        if(accessToken) {
+            return accessToken;
+        }
+        let refreshToken = AuthService.cookies.get("refresh_token");
+        if(refreshToken){
+            return AuthService.refreshAccessToken(
+                AuthService.cookies.get("username"),
+                refreshToken
+            );
+        }
+        return null;
+
     }
 
 

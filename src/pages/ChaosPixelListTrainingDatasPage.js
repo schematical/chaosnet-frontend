@@ -3,10 +3,10 @@ import * as _ from 'underscore';
 import SidebarComponent from '../components/SidebarComponent';
 import TopbarComponent from '../components/TopbarComponent';
 import AuthService from '../services/AuthService';
-import SpriteGroupComponent from "../components/SpriteGroupComponent";
 import TrainingDataComponent from "../components/TrainingDataComponent";
 import TagTextComponent from "../components/TagTextComponent";
-const axios = require('axios');
+import HTTPService from "../services/HTTPService";
+
 
 class ChaosPixelListTrainingDatasPage extends Component {
 
@@ -45,19 +45,19 @@ class ChaosPixelListTrainingDatasPage extends Component {
     render() {
         if(!this.state.loaded) {
             setTimeout(() => {
-                return axios.get('https://chaosnet.schematical.com/v0/' + AuthService.userData.username + '/trainingdatas', {
-                    headers: {
-                        "Authorization": AuthService.accessToken
-                    }
-                })
+                return HTTPService.get('/' + AuthService.userData.username + '/trainingdatas', )
                     .then((response) => {
-                        console.log("Loaded: ", response.data);
-                        this.state.trainingdatas = response.data;
-                        this.state.loaded = true;
-                        this.setState(this.state);
+                        let state = {};
+                        state.trainingdatas = response.data;
+                        state.loaded = true;
+                        this.setState(state);
                     })
                     .catch((err) => {
                         console.error("Error: ", err.message);
+                        let state = {
+                            error: err
+                        }
+                        this.setState(state);
                     })
             }, 1000);
         }
@@ -81,7 +81,17 @@ class ChaosPixelListTrainingDatasPage extends Component {
                                         <h1 className="h3 mb-0 text-gray-800">ChaosNet</h1>
 
                                     </div>
-
+                                    {
+                                        this.state.error &&
+                                        <div className="card mb-4 py-3  bg-danger text-white shadow">
+                                            <div className="card-body">
+                                                Error   {this.state.error.status}
+                                                <div className="text-white-50 small">
+                                                    {this.state.error.message}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
                                     {/* Content Row */}
                                     <div className="row">
 

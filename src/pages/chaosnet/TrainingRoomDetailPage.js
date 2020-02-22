@@ -25,12 +25,10 @@ class TrainingRoomDetailPage extends Component {
     handleSubmit(event) {
 
         event.preventDefault();
-        return axios.put('https://chaosnet.schematical.com/v0/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace,
+        return HTTPService.put('/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace,
             this.state.trainingroom,
             {
-                headers: {
-                    "Authorization": AuthService.accessToken
-                }
+
             }
         )
             .then((response) => {

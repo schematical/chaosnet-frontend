@@ -10,9 +10,10 @@ import * as d3Zoom from 'd3-zoom';
 import * as d3Force from 'd3-force';
 import SidebarComponent from '../../components/SidebarComponent';
 import TopbarComponent from '../../components/TopbarComponent';
-import AuthService from "../../services/AuthService";
+
 import FooterComponent from "../../components/FooterComponent";
-const axios = require('axios');
+import HTTPService from "../../services/HTTPService";
+import $ from 'jquery';
 class TrainingRoomOrgNNetDetailPage extends Component {
 /*    selectedNodeJSON = null;
     svgParent;
@@ -41,77 +42,127 @@ class TrainingRoomOrgNNetDetailPage extends Component {
         super(props);
 
         this.state = {
-
+            hasHitRegularUrl: !this.props.neuron
             
         }
         this.padding = 30;
         this.downloadNNet = this.downloadNNet.bind(this);
+        this.onPopState = this.onPopState.bind(this);
+        this.setSelectedNeuron = this.setSelectedNeuron.bind(this);
+        window.onpopstate = this.onPopState;
+    }
+    onPopState(e){
+        if(e.state){
+           // document.getElementById("content").innerHTML = e.state.html;
+            document.title = e.state.pageTitle;
+        }
+    }
+    getNNetUrl(){
+       return '/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + "/organisms/" + this.props.organism + "/nnet";
+    }
+    setSelectedNeuron(_selectedNeuron){
+        let selectedNeuron = {};
+        Object.keys(_selectedNeuron).forEach((key)=>{
+            if(
+                _.isString(_selectedNeuron[key]) /*||
+                        !_.isNaN(d[key])*/
+            ){
+                selectedNeuron[key] = _selectedNeuron[key];
+            }
+        })
+        let state = {
+            selectedNeuron: selectedNeuron
+        }
+        this.setState(state);
+        document.title = selectedNeuron.id;
+
+        if(
+            this.state.hasHitRegularUrl
+        ){
+            window.history.pushState(
+                {"url": this.getNNetUrl(),"pageTitle":selectedNeuron.id},
+                this.props.organism + " NNet",
+                this.getNNetUrl() + "/neurons/" + selectedNeuron.id
+            );
+        }
+
+        $('#neuronDetailModal').modal('show');
+        $('#neuronDetailModal').on('hidden.bs.modal',  (e)=> {
+
+
+            if(
+                this.state.hasHitRegularUrl
+            ) {
+                window.history.back()
+            }else{
+                window.history.pushState(
+                    {"url": this.getNNetUrl() + "/neurons/" + selectedNeuron.id,"pageTitle":selectedNeuron.id},
+                    this.props.organism + " NNet",
+                    this.getNNetUrl()
+                );
+            }
+        })
     }
     render() {
 
         if(!this.state.loaded) {
             setTimeout(() => {
-                return axios.get('https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + "/organisms/" + this.props.organism + "/nnet" , {
-                    headers: {
-                        "Authorization": AuthService.accessToken
-                    }
+                return HTTPService.get('/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + "/organisms/" + this.props.organism + "/nnet" , {
+
                 })
                     .then((response) => {
+                        let state = {};
 
+                        state.nNet = response.data.nNet;
 
-                        this.state.nNet = response.data.nNet;
-
-                        this.state.nNet_clean = JSON.stringify(response.data.nNet);
+                        state.nNet_clean = JSON.stringify(response.data.nNet);
                         this.state.loaded = true;
 
 
                         this.nodeAgeTotals = {};
                         this.nodeAgeTotals.total = 0;
 
-                        this.state.links = [];
-                        this.state.nNet.neurons.forEach((node)=>{
-                            /*{
-                                "$TYPE": "BiasInput",
-                                "$DEFAULT": true,
-                                "weight": "-4.047003962281124",
-                                "_base_type": "input",
-                                "dependencies": [],
-                                "_uniqueString": null,
-                                "_originNaturalGen": 0,
-                                "_originGen": 0,
-                                "id": "neuron-0"
-                            },*/
+                        state.links = [];
+                        state.nNet.neurons.forEach((node)=>{
+
                             node.dependencies.forEach((neuronDep)=>{
                                 this.state.links.push({
                                     source: node.id,
                                     target: neuronDep.neuronId,
                                     neuronDep: neuronDep
-                                   /* {
-                                        "neuronId": "neuron-1",
-                                        "weight": 0.3,
-                                        "_originNaturalGen": 0,
-                                        "_originGen": 0
-                                    }*/
+
                                 })
                             });
                             this.nodeAgeTotals[node._originGen] = this.nodeAgeTotals[node._originGen] || 0;
                             this.nodeAgeTotals[node._originGen] += 1;
                             this.nodeAgeTotals.total += 1;
 
-                            this.setState(this.state);
+                            this.setState(state);
                         })
                         //this.selectedNodeJSON = JSON.stringify(this.nodeAgeTotals);
 
 
                         setTimeout(()=>{
                             this.startDrawing();
+
+                            if(this.props.neuron){
+                                let selectedNeuron = null;
+                                state.nNet.neurons.forEach((neuron)=>{
+                                    if(neuron.id === this.props.neuron){
+                                        selectedNeuron = neuron;
+                                    }
+                                });
+
+                                this.setSelectedNeuron(selectedNeuron);
+                            }
                         }, 100)
 
 
                     })
                     .catch((err) => {
-                        this.state.error = err;
-                        this.setState(this.state);
+                        let state = {};
+                        state.error = err;
+                        this.setState(state);
                         console.error("Error: ", err.message);
                     });
             }, 1000);
@@ -193,11 +244,23 @@ class TrainingRoomOrgNNetDetailPage extends Component {
                                     <div className="modal-header">
                                         {this.state.selectedNeuron.id}
                                     </div>
-
+                                    <div className="modal-body">
+                                        {
+                                            Object.keys(this.state.selectedNeuron).map((key)=>{
+                                                switch(key){
+                                                    default:
+                                                        return <p key={key}>
+                                                            {key}: {this.state.selectedNeuron[key]}
+                                                        </p>
+                                                }
+                                            })
+                                        }
+                                    </div>
                                     <div className="modal-footer">
-                                        <button className="btn btn-secondary" type="button" data-dismiss="modal">Cancel
+                                        <button className="btn btn-secondary" type="button" data-dismiss="modal">
+                                            Close
                                         </button>
-                                        <a className="btn btn-primary" href="login.html">Logout</a>
+                                        {/*<a className="btn btn-primary" href="login.html">Logout</a>*/}
                                     </div>
                                 </div>
                             </div>
@@ -483,19 +546,11 @@ class TrainingRoomOrgNNetDetailPage extends Component {
             .attr("class", "node")
 
             .each(function(d) { d.node = this; })
-            .on("mousedown", (d)=>{
-                let state = {}
-                state.selectedNeuron = {};
-                Object.keys(d).forEach((key)=>{
-                    if(
-                        _.isString(d[key]) /*||
-                        !_.isNaN(d[key])*/
-                    ){
-                        state.selectedNeuron[key] = d[key];
-                    }
-                })
-                this.setState(state);
-                window._$('#neuronDetailModal').modal('show');
+            .on("mousedown", (selectedNeuron)=>{
+
+
+                this.setSelectedNeuron(selectedNeuron);
+
 
             })
             .on("mouseover", (d)=>{

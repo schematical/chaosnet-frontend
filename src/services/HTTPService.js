@@ -37,8 +37,15 @@ class HTTPService{
     static authRequest(options){
         options = options || {};
         options.headers = options.headers || {};
-        if(AuthService.accessToken && !options.headers.Authorization){
-            options.headers.Authorization = AuthService.accessToken;
+        if(!options._skipAuth){
+
+            let accessToken = AuthService.getAccessToken();
+            if(accessToken && !options.headers.Authorization){
+                options.headers.Authorization = accessToken;
+            }
+
+        }else{
+            delete(options._skipAuth);
         }
         return options;
     }

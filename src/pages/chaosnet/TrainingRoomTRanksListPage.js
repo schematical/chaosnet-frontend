@@ -6,6 +6,7 @@ import TrainingRoomListComponent from "../../components/chaosnet/TrainingRoomLis
 import FooterComponent from "../../components/FooterComponent";
 import OrgListComponent from "../../components/chaosnet/OrgListComponent";
 import TRankListComponent from "../../components/chaosnet/TRankListComponent";
+import HTTPService from "../../services/HTTPService";
 const axios = require('axios');
 class TrainingRoomTRanksListPage extends Component {
     constructor(props) {
@@ -30,24 +31,23 @@ class TrainingRoomTRanksListPage extends Component {
         if(!this.state.loaded) {
             setTimeout(() => {
                 let qs = "state=" +this.state._lifeState;
-                let url = 'https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks?' + qs;
+                let url = '/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks?' + qs;
                 if(this.props.session){
-                    url = 'https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions/' + this.props.session + '/species?' + qs;
+                    url = '/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions/' + this.props.session + '/species?' + qs;
                 }
-                return axios.get(url, {
-                    headers: {
-                        "Authorization": AuthService.accessToken
-                    }
+                return HTTPService.get(url, {
+
                 })
                     .then((response) => {
-
-                        this.state.tranks = response.data;
-                        this.state.loaded = true;
-                        this.setState(this.state);
+                        let state = {};
+                        state.tranks = response.data;
+                        state.loaded = true;
+                        this.setState(state);
                     })
                     .catch((err) => {
-                        this.state.error = err;
-                        this.setState(this.state);
+                        let state = {};
+                        state.error = err;
+                        this.setState(state);
                         console.error("Error: ", err.message);
                     })
             }, 1000);

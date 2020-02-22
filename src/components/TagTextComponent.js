@@ -4,6 +4,7 @@ import {AsyncTypeahead} from 'react-bootstrap-typeahead';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import AuthService from "../services/AuthService";
 import * as _ from "underscore";
+import HTTPService from "../services/HTTPService";
 
 const axios = require('axios');
 
@@ -35,11 +36,7 @@ class TagTextComponent extends Component {
     }
     _handleSearch = (query) => {
         this.setState({isLoading: true});
-        return axios.get('https://chaosnet.schematical.com/v0/chaospixel/tags?q=' + query, {
-            headers: {
-                "Authorization": AuthService.accessToken
-            }
-        })
+        return HTTPService('/chaospixel/tags?q=' + query, )
         .then((response) => {
 
             this.setState({

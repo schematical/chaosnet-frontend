@@ -4,6 +4,7 @@ import TopbarComponent from '../../components/TopbarComponent';
 import AuthService from "../../services/AuthService";
 import FooterComponent from "../../components/FooterComponent";
 import FitnessRuleComponent from "../../components/chaosnet/FitnessRuleComponent";
+import HTTPService from "../../services/HTTPService";
 const axios = require('axios');
 const _ = require('underscore');
 class TrainingRoomFitnessRuleListPage extends Component {
@@ -45,12 +46,9 @@ class TrainingRoomFitnessRuleListPage extends Component {
                 this.state.trainingroom.fitnessRules[i] = fitnessRule;
             }
         })
-        return axios.put('https://chaosnet.schematical.com/v0/' + this.state.trainingroom.owner_username + '/trainingrooms/' + this.state.trainingroom.namespace,
+        return HTTPService.put('/' + this.state.trainingroom.owner_username + '/trainingrooms/' + this.state.trainingroom.namespace,
             this.state.trainingroom,
             {
-                headers: {
-                    "Authorization": AuthService.accessToken
-                }
             }
         )
             .then((response) => {
@@ -67,10 +65,8 @@ class TrainingRoomFitnessRuleListPage extends Component {
 
         if(!this.state.loaded) {
             setTimeout(() => {
-                return axios.get('https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace , {
-                    headers: {
-                        "Authorization": AuthService.accessToken
-                    }
+                return HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace , {
+
                 })
                     .then((response) => {
 
@@ -79,10 +75,8 @@ class TrainingRoomFitnessRuleListPage extends Component {
 
                         this.setState(this.state);
 
-                        return axios.get('https://chaosnet.schematical.com/v0/simmodels/' + this.state.trainingroom.simModelNamespace , {
-                            headers: {
-                                "Authorization": AuthService.accessToken
-                            }
+                        return HTTPService.get('/simmodels/' + this.state.trainingroom.simModelNamespace , {
+
                         })
                     })
                     .then((response) => {

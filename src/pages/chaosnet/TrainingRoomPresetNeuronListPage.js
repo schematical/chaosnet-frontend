@@ -5,6 +5,7 @@ import AuthService from "../../services/AuthService";
 import FooterComponent from "../../components/FooterComponent";
 import FitnessRuleComponent from "../../components/chaosnet/FitnessRuleComponent";
 import PresetNeuronComponent from "../../components/chaosnet/PresetNeuronComponent";
+import HTTPService from "../../services/HTTPService";
 const axios = require('axios');
 const _ = require('underscore');
 class TrainingRoomPresetNeuronListPage extends Component {
@@ -94,12 +95,10 @@ class TrainingRoomPresetNeuronListPage extends Component {
                 this.state.trainingroom.config.presetNeurons[i] = presetNeuron;
             }
         })
-        return axios.put('https://chaosnet.schematical.com/v0/' + this.state.trainingroom.owner_username + '/trainingrooms/' + this.state.trainingroom.namespace,
+        return HTTPService.put('/' + this.state.trainingroom.owner_username + '/trainingrooms/' + this.state.trainingroom.namespace,
             this.state.trainingroom,
             {
-                headers: {
-                    "Authorization": AuthService.accessToken
-                }
+
             }
         )
             .then((response) => {
@@ -107,8 +106,9 @@ class TrainingRoomPresetNeuronListPage extends Component {
 
             })
             .catch((err) => {
-                this.state.error = err;
-                this.setState(this.state);
+                let state = {};
+                state.error = err;
+                this.setState(state);
                 console.error("Error: ", err.message);
             })
     }
@@ -116,45 +116,42 @@ class TrainingRoomPresetNeuronListPage extends Component {
 
         if(!this.state.loaded) {
             setTimeout(() => {
-                return axios.get('https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace , {
-                    headers: {
-                        "Authorization": AuthService.accessToken
-                    }
+                return HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace , {
+
                 })
                     .then((response) => {
+                        let state = {};
+                        state.trainingroom = response.data;
 
-                        this.state.trainingroom = response.data;
+                        state.trainingroom.config = state.trainingroom.config ||{};
+                        state.trainingroom.config.presetNeurons = state.trainingroom.config.presetNeurons || [];
+                        this.setState(state);
 
-                        this.state.trainingroom.config = this.state.trainingroom.config ||{};
-                        this.state.trainingroom.config.presetNeurons = this.state.trainingroom.config.presetNeurons || [];
-                        this.setState(this.state);
+                        return HTTPService.get('/simmodels/' + this.state.trainingroom.simModelNamespace , {
 
-                        return axios.get('https://chaosnet.schematical.com/v0/simmodels/' + this.state.trainingroom.simModelNamespace , {
-                            headers: {
-                                "Authorization": AuthService.accessToken
-                            }
                         })
                     })
                     .then((response) => {
-
-                        this.state.simModel = response.data;
-                        this.state.simModel._neuronCache = {};
-                        this.state.simModel.outputNeurons.forEach((neuron)=>{
+                        let state = {};
+                        state.simModel = response.data;
+                        state.simModel._neuronCache = {};
+                        state.simModel.outputNeurons.forEach((neuron)=>{
                             neuron._base_type = "output";
-                            this.state.simModel._neuronCache[neuron["$TYPE"]] = neuron;
+                            state.simModel._neuronCache[neuron["$TYPE"]] = neuron;
                         })
-                        this.state.simModel.inputNeurons.forEach((neuron)=>{
+                        state.simModel.inputNeurons.forEach((neuron)=>{
                             neuron._base_type = "input";
-                            this.state.simModel._neuronCache[neuron["$TYPE"]] = neuron;
+                            state.simModel._neuronCache[neuron["$TYPE"]] = neuron;
                         })
-                        this.state.loaded = true;
+                        state.loaded = true;
 
                         this.setState(this.state);
 
                     })
                     .catch((err) => {
-                        this.state.error = err;
-                        this.setState(this.state);
+                        let state = {};
+                        state.error = err;
+                        this.setState(state);
                         console.error("Error: ", err.message);
                     })
             }, 1000);

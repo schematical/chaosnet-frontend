@@ -7,6 +7,7 @@ import FooterComponent from "../../components/FooterComponent";
 import OrgListComponent from "../../components/chaosnet/OrgListComponent";
 import TRankListComponent from "../../components/chaosnet/TRankListComponent";
 import TrainingRoomSessionListComponent from "../../components/chaosnet/TrainingRoomSessionListComponent";
+import HTTPService from "../../services/HTTPService";
 const axios = require('axios');
 class TrainingRoomSessionsListPage extends Component {
     constructor(props) {
@@ -21,20 +22,19 @@ class TrainingRoomSessionsListPage extends Component {
 
         if(!this.state.loaded) {
             setTimeout(() => {
-                return axios.get('https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions', {
-                    headers: {
-                        "Authorization": AuthService.accessToken
-                    }
+                return HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions', {
+
                 })
                     .then((response) => {
-
-                        this.state.sessions = response.data;
-                        this.state.loaded = true;
-                        this.setState(this.state);
+                        let state = {};
+                        state.sessions = response.data;
+                        state.loaded = true;
+                        this.setState(state);
                     })
                     .catch((err) => {
-                        this.state.error = err;
-                        this.setState(this.state);
+                        let state = {};
+                        state.error = err;
+                        this.setState(state);
                         console.error("Error: ", err.message);
                     })
             }, 1000);

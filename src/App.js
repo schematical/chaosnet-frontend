@@ -58,6 +58,7 @@ class App extends Component {
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/organisms" handler={TrainingRoomOrgListPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/organisms/:organism" handler={TrainingRoomOrgDetailPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/organisms/:organism/nnet" handler={TrainingRoomOrgNNetDetailPage} />
+            <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/organisms/:organism/nnet/neurons/:neuron" handler={TrainingRoomOrgNNetDetailPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/tranks" handler={TrainingRoomTRanksListPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/tranks/import" handler={TrainingRoomTRanksImportPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/tranks/:trank" handler={TrainingRoomTRanksDetailPage} />

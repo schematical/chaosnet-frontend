@@ -2,11 +2,8 @@ import React, {Component} from 'react';
 import SidebarComponent from '../../components/SidebarComponent';
 import TopbarComponent from '../../components/TopbarComponent';
 import AuthService from "../../services/AuthService";
-import TrainingRoomListComponent from "../../components/chaosnet/TrainingRoomListComponent";
 import FooterComponent from "../../components/FooterComponent";
-import OrgListComponent from "../../components/chaosnet/OrgListComponent";
-import TRankListComponent from "../../components/chaosnet/TRankListComponent";
-const axios = require('axios');
+import HTTPService from "../../services/HTTPService";
 class TrainingRoomSessionDetailPage extends Component {
     constructor(props) {
         super(props);
@@ -15,54 +12,53 @@ class TrainingRoomSessionDetailPage extends Component {
             session:{},
             showHardReset: false,
             loaded:false,
-            canEdit: (AuthService.userData && this.props.username == AuthService.userData.username)
+            canEdit: (AuthService.userData && this.props.username === AuthService.userData.username)
         }
         this.repairSession = this.repairSession.bind(this);
         this.hardReset = this.hardReset.bind(this);
         this.showHardResetButton = this.showHardResetButton.bind(this);
     }
     showHardResetButton(){
-        this.state.showHardReset = true;
+        let state = {};
+        state.showHardReset = true;
         this.setState(this.state);
     }
     hardReset(){
-        //alert("Hit");
-        let url = 'https://chaosnet.schematical.com/v0/'  + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/start"
-        return axios.post(url, {
+        let url = '/'  + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/start"
+        return HTTPService.post(url, {
             reset: true
         }, {
-            headers: {
-                "Authorization": AuthService.accessToken
-            }
+
         })
             .then((response) => {
-
-                this.state.session = response.data;
-                this.state.message = response.data.message  || "success";;
-                this.setState(this.state);
+                let state = {};
+                state.session = response.data;
+                state.message = response.data.message  || "success";;
+                this.setState(state);
             })
             .catch((err) => {
-                this.state.error = err;
-                this.setState(this.state);
+                let state = {};
+                state.error = err;
+                this.setState(state);
                 console.error("Error: ", err.message);
             })
     }
     repairSession(){
-        let url = 'https://chaosnet.schematical.com/v0/'  + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/" +  this.props.session + "/repair"
-        return axios.post(url, {}, {
-            headers: {
-                "Authorization": AuthService.accessToken
-            }
+        let url = '/'  + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/" +  this.props.session + "/repair"
+        return HTTPService.post(url, {}, {
+
         })
         .then((response) => {
+            let state  = {};
+            state.message = response.data.message  || "success";;
 
-            this.state.message = response.data.message  || "success";;
-
-            this.setState(this.state);
+            this.setState(state);
         })
         .catch((err) => {
-            this.state.error = err;
-            this.setState(this.state);
+
+            let state  = {};
+            state.error = err;
+            this.setState(state);
             console.error("Error: ", err.message);
         })
 
@@ -71,21 +67,21 @@ class TrainingRoomSessionDetailPage extends Component {
 
         if(!this.state.loaded) {
             setTimeout(() => {
-                let url = 'https://chaosnet.schematical.com/v0/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions/' + this.props.session;
+                let url = '/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions/' + this.props.session;
 
-                return axios.get(url, {
-                    headers: {
-                        "Authorization": AuthService.accessToken
-                    }
+                return HTTPService.get(url, {
+
                 })
                     .then((response) => {
-                        this.state.session = response.data
-                        this.state.loaded = true;
-                        this.setState(this.state);
+                        let state = {};
+                        state.session = response.data
+                        state.loaded = true;
+                        this.setState(state);
                     })
                     .catch((err) => {
-                        this.state.error = err;
-                        this.setState(this.state);
+                        let state = {};
+                        state.error = err;
+                        this.setState(state);
                         console.error("Error: ", err.message);
                     })
             }, 1000);

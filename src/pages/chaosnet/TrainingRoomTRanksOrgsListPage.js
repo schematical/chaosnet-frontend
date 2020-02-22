@@ -5,6 +5,7 @@ import AuthService from "../../services/AuthService";
 import TrainingRoomListComponent from "../../components/chaosnet/TrainingRoomListComponent";
 import FooterComponent from "../../components/FooterComponent";
 import OrgListComponent from "../../components/chaosnet/OrgListComponent";
+import HTTPService from "../../services/HTTPService";
 const axios = require('axios');
 class TrainingRoomTRanksOrgsListPage extends Component {
     constructor(props) {
@@ -20,23 +21,23 @@ class TrainingRoomTRanksOrgsListPage extends Component {
 
         if(!this.state.loaded) {
             setTimeout(() => {
-                let url = 'https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks/' + this.props.trank + '/organisms';
+                let url = '/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks/' + this.props.trank + '/organisms';
                 if(this.props.selector && this.props.selector.length > 0){
                     url += "/" + this.props.selector;
                 }
-                return axios.get(url, {
-                    headers: {
-                        "Authorization": AuthService.accessToken
-                    }
+                return HTTPService.get(url, {
+
                 })
                     .then((response) => {
-                        this.state.organisms = response.data;
-                        this.state.loaded = true;
-                        this.setState(this.state);
+                        let state = {};
+                        state.organisms = response.data;
+                        state.loaded = true;
+                        this.setState(state);
                     })
                     .catch((err) => {
-                        this.state.error = err;
-                        this.setState(this.state);
+                        let state = {};
+                        state.error = err;
+                        this.setState(state);
                         console.error("Error: ", err.message);
                     })
             }, 1000);

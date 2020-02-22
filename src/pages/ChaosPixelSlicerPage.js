@@ -5,6 +5,7 @@ import TopbarComponent from '../components/TopbarComponent';
 import AuthService from '../services/AuthService';
 import SpriteGroupComponent from "../components/SpriteGroupComponent";
 import TagTextComponent from "../components/TagTextComponent";
+import HTTPService from "../services/HTTPService";
 const axios = require('axios');
 
 class ChaosPixelSlicerPage extends Component {
@@ -589,16 +590,16 @@ class ChaosPixelSlicerPage extends Component {
             this.state.zoom = actualZoom;
             spriteGroup._component.setupPreview();
         })
-        return axios.post('https://chaosnet.schematical.com/v0/' + AuthService.userData.username + '/trainingdatas', payload, {
-            headers:{
-                "Authorization": AuthService.accessToken
-            }
-        })
+        return HTTPService.get('/' + AuthService.userData.username + '/trainingdatas', payload, )
             .then((response)=>{
                this.alert("Saved!");
             })
             .catch((err)=>{
                 console.error("Error: ", err.message);
+                let state = {
+                    error: err
+                }
+                this.setState(state);
             })
     }
     render() {
@@ -624,7 +625,17 @@ class ChaosPixelSlicerPage extends Component {
                                            className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
                                             className="fas fa-download fa-sm text-white-50"/> Generate Report</a>*/}
                                     </div>
-
+                                    {
+                                        this.state.error &&
+                                        <div className="card mb-4 py-3  bg-danger text-white shadow">
+                                            <div className="card-body">
+                                                Error   {this.state.error.status}
+                                                <div className="text-white-50 small">
+                                                    {this.state.error.message}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
                                     {/* Content Row */}
                                     <div className="row">
                                         {this.state.alerts.map((item, key) =>
