@@ -1,17 +1,13 @@
 import React, {Component} from 'react';
 import AuthService from '../services/AuthService';
-import {instanceOf} from "prop-types";
-import {Cookies} from "react-cookie";
+
 class SignupPage extends Component {
-    static propTypes = {
-        cookies: instanceOf(Cookies).isRequired
-    };
+
 
 
     constructor(props) {
         super(props);
-        const { cookies } = props;
-        this.cookies = cookies;
+
         this.state = {
             username: "",
             password:"",
@@ -36,10 +32,10 @@ class SignupPage extends Component {
                 })
             })
             .catch((err, response)=>{
-
+                console.error(err);
 
                 this.setState({
-                    error: err.response.data.error
+                    error: err.response && err.response.data.error && err.response.data.error.message || err.message
                 })
             })
     }
@@ -59,11 +55,11 @@ class SignupPage extends Component {
                                     </div>
                                     {
                                         this.state.error &&
-                                        <div class="alert alert-danger">{this.state.error.message}</div>
+                                        <div className="alert alert-danger">{this.state.error.message}</div>
                                     }
                                     {
                                         this.state.message &&
-                                        <div class="alert alert-info">
+                                        <div className="alert alert-info">
                                             {this.state.message} then <a href="/login"> Login</a>
                                         </div>
                                     }

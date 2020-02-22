@@ -1,3 +1,4 @@
+import HTTPService from "./HTTPService";
 
 const axios = require('axios');
 
@@ -28,8 +29,8 @@ class AuthService{
     }
 
     static whoami(accessToken){
-        return axios.get(
-            'https://chaosnet.schematical.com/v0/auth/whoami',
+        return HTTPService.get(
+            '/auth/whoami',
             {
                 headers: {
                     "Authorization":accessToken
@@ -38,12 +39,15 @@ class AuthService{
         );
     }
     static signup(data){
-        return axios.post('https://chaosnet.schematical.com/v0/auth/signup', data)
+        return HTTPService.post('/auth/signup', data)
             .then((response)=>{
                 this.setAccessToken(response.data.accessToken);
                 AuthService.cookies.set("refresh_token", response.data.refreshToken,
                     {
-                        expires: (new Date()).getTime() * 3600 * 24 * 30
+                        expires: new Date(Date.now()* 3600 * 1000 * 24 * 30)
+                    },
+                    {
+                       // _skipAuth: true
                     }
                 );
                 return response;
@@ -54,10 +58,13 @@ class AuthService{
             expires: new Date(Date.now() * 3600 * 24 * 30 * 1000)
         };
 
-       return axios.post('https://chaosnet.schematical.com/v0/auth/login', {
+       return HTTPService.post('/auth/login', {
            username:username,
            password: password
-       })
+       },
+           {
+              // _skipAuth: true
+           })
        .then((response)=>{
            this.setAccessToken(response.data.accessToken);
            AuthService.cookies.set("refresh_token", response.data.refreshToken,
@@ -81,7 +88,7 @@ class AuthService{
     static async refreshAccessToken(username, refreshToken){
 
 
-        let response = await axios.post('https://chaosnet.schematical.com/v0/auth/token', {
+        let response = await HTTPService.post('/auth/token', {
             refreshToken:refreshToken,
             username: username
         });

@@ -15,10 +15,7 @@ class HTTPService{
         );
     }
     static post(url, body, options){
-        if(!options){
-            options = body;
-            body = null;
-        }
+
         return HTTPService.wrapPromise(
             axios.post(
                 ConfigService.config.chaosnet.host + url,
@@ -28,10 +25,7 @@ class HTTPService{
         );
     }
     static put(url, body, options){
-        if(!options){
-            options = body;
-            body = null;
-        }
+
         return HTTPService.wrapPromise(
             axios.post(
                 ConfigService.config.chaosnet.host + url,
