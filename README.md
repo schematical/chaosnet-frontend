@@ -70,5 +70,5 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/tr
 
 
 
-aws lambda add-permission --function-name chaosnet-api-gateway-lambda-v1-dev --action lambda:InvokeFunction --statement-id apigateway \
---principal apigateway.amazonaws.com --source-arn arn:aws:execute-api:us-east-1:368590945923:4wtbwjbo61/** --output text
+aws lambda add-permission --function-name chaosnet-frontend-lambda-v1-prod --action lambda:InvokeFunction --statement-id apigateway \
+--principal apigateway.amazonaws.com --source-arn arn:aws:execute-api:us-east-1:368590945923:rbllyhd641/** --output text

@@ -1,0 +1,14 @@
+{
+    "PATH": "./build/_lambda",
+    "AWS_REGION": "us-east-1",
+
+
+
+    "FunctionName": "chaosnet-frontend-lambda-v1-prod",
+    "Role":"arn:aws:iam::368590945923:role/service-role/lambda",
+    "Handler": "index.handler",
+
+
+    "Description": "",
+    "Runtime":"nodejs12.x"
+}
