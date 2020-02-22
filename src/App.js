@@ -1,4 +1,8 @@
 import React, { Component } from 'react';
+
+import $ from 'jquery';
+import 'bootstrap/dist/js/bootstrap.bundle.min';
+
 import Router  from 'react-router-component';
 import HomePage from './pages/HomePage.js';
 import LoginPage from './pages/LoginPage.js';
@@ -36,15 +40,8 @@ class App extends Component {
         const {cookies} = props;
         this.cookies = cookies;
         ConfigService.init();
+        AuthService.init(cookies);
 
-        let userDataString = this.cookies.get('jwt');
-        if(userDataString){
-            AuthService.cookies = this.cookies;
-            AuthService.setUserData(userDataString);
-            //AuthService.setAccessToken(this.cookies.get('access_token'));
-            AuthService.refreshAccessToken(AuthService.userData.username, this.cookies.get('refresh_token'));
-
-        }
     }
   render() {
 

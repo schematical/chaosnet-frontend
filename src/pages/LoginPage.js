@@ -34,21 +34,6 @@ class LoginPage extends Component {
         AuthService.login(this.state.username, this.state.password)
             .then((response)=>{
 
-                //const { cookies } = this.props;
-                //cookieOptions.expires = new Date(response.data.expiration);
-                this.cookies.set("access_token", response.data.accessToken,
-                   cookieOptions
-                );
-                this.cookies.set("refresh_token", response.data.refreshToken,
-                    cookieOptions
-                );
-                return AuthService.whoami(response.data.accessToken);
-
-            })
-            .then((response)=>{
-
-                this.cookies.set("jwt", JSON.stringify(response.data), cookieOptions);
-                this.cookies.set("username", response.data.username, cookieOptions);
                 document.location = "/";
             })
             .catch((err)=>{
