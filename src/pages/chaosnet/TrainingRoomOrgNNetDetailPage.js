@@ -184,8 +184,8 @@ class TrainingRoomOrgNNetDetailPage extends Component {
                                 {
                                     this.state.loaded && <div className="container-fluid">
                                     {/* Page Heading */}
-                                    <div className="d-sm-flex align-items-center justify-content-between mb-4">
-                                        <h1 className="h3 mb-0 text-gray-800">
+                                    <div className="d-sm-flex align-items-center justify-content-between mb-3">
+                                        <h1 className="h3 m-3 text-gray-800">
                                             /<a href={"/" + this.props.username}>{this.props.username}</a>
                                             /<a href={"/" + this.props.username + "/trainingrooms"}>trainingrooms</a>
                                             /<a

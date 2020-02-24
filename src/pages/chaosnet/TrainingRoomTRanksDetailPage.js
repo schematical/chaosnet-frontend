@@ -57,10 +57,10 @@ class TrainingRoomTRanksDetailPage extends Component {
                                 {/* Begin Page Content */}
                                 <div className="container-fluid">
                                     {/* Page Heading */}
-                                    <div className="d-sm-flex align-items-center justify-content-between mb-4">
+                                    <div className="d-sm-flex align-items-center justify-content-between mb-3">
                                         <h1 className="h3 mb-0 text-gray-800">ChaosNet</h1>
-                                        <div className="d-sm-flex align-items-center justify-content-between mb-4">
-                                            <h1 className="h3 mb-0 text-gray-800">
+                                        <div className="d-sm-flex align-items-center justify-content-between mb-3">
+                                            <h1 className="h3 m-3 text-gray-800">
                                                 /<a href={"/" + this.props.username}>{this.props.username}</a>
                                                 /<a href={"/" + this.props.username + "/trainingrooms"}>trainingrooms</a>
                                                 /<a
@@ -129,20 +129,20 @@ class TrainingRoomTRanksDetailPage extends Component {
                                                         this.state.trank.parentNamespace &&
                                                         <h3>
                                                             Parent Namespace:
-                                                            <a className="btn btn-primary btn-sm"
+                                                            <a className="btn btn-primary btn-sm p-2 mb-1 p-2 mb-1"
                                                                href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.parentNamespace}>
                                                                 {this.state.trank.parentNamespace}
                                                             </a>
                                                         </h3>
                                                     }
-                                                    <a className="btn btn-primary btn-sm" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/children"}>
+                                                    <a className="btn btn-primary btn-sm p-2 mb-1" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/children"}>
                                                         Children
                                                     </a>
 
-                                                    <a className="btn btn-primary btn-sm" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/organisms"}>
+                                                    <a className="btn btn-primary btn-sm p-2 mb-1" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/organisms"}>
                                                         Organisms
                                                     </a>
-                                                    <a className="btn btn-primary btn-sm" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/organisms/top"}>
+                                                    <a className="btn btn-primary btn-sm p-2 mb-1" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/organisms/top"}>
                                                         Top Organisms
                                                     </a>
 

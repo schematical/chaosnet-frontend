@@ -116,8 +116,8 @@ class TrainingRoomFitnessRuleListPage extends Component {
                                     this.state.loaded &&
                                     <div className="container-fluid">
                                         {/* Page Heading */}
-                                        <div className="d-sm-flex align-items-center justify-content-between mb-4">
-                                            <h1 className="h3 mb-0 text-gray-800">
+                                        <div className="d-sm-flex align-items-center justify-content-between mb-3">
+                                            <h1 className="h3 m-3 text-gray-800">
                                                 /<a href={"/" + this.props.username}>{this.props.username}</a>
                                                 /<a href={"/" + this.props.username + "/trainingrooms"}>trainingrooms</a>
                                                 /<a
@@ -141,7 +141,7 @@ class TrainingRoomFitnessRuleListPage extends Component {
                                                             </div>
                                                         </div>
                                                     }
-                                                    <h2 className="h3 mb-0 text-gray-800">
+                                                    <h2 className="h3 m-3 text-gray-800">
                                                         Fitness Rules
                                                     </h2>
 
@@ -188,7 +188,7 @@ class TrainingRoomFitnessRuleListPage extends Component {
                                                         </tbody>
                                                     </table>
 
-                                                    <button className="btn btn-danger btn-sm" onClick={this.createNewRule}>
+                                                    <button className="btn btn-danger btn-m" onClick={this.createNewRule}>
                                                         New Rule
                                                     </button>
                                                 </div>
