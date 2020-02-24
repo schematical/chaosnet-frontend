@@ -619,7 +619,7 @@ class ChaosPixelSlicerPage extends Component {
                                 {/* Begin Page Content */}
                                 <div className="container-fluid">
                                     {/* Page Heading */}
-                                    <div className="d-sm-flex align-items-center justify-content-between mb-4">
+                                    <div className="d-sm-flex align-items-center justify-content-between mb-3">
                                         <h1 className="h3 mb-0 text-gray-800">ChaosNet</h1>
                                         {/*<a href="#"
                                            className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
@@ -682,7 +682,7 @@ class ChaosPixelSlicerPage extends Component {
                                                                             <div className="form-group">
                                                                                 <label htmlFor="exampleInputEmail1">Background Color</label>
                                                                                 <input type="color" name="background_color" placeholder="Background Color" value={this.state.background_color} onChange={this.handleChange} />
-                                                                                <input type="button" className="btn btn-danger btn-lg" onClick={this.drawSliceLines} value="Set Background Color" />
+                                                                                <input type="button" className="btn btn-danger btn-m" onClick={this.drawSliceLines} value="Set Background Color" />
                                                                             </div>
                                                                             <div className="form-group">
                                                                                 <label htmlFor="exampleInputEmail1">Background Color Range</label>
@@ -743,7 +743,7 @@ class ChaosPixelSlicerPage extends Component {
                                                                                 <input type="number" name="scale" placeholder="Scale" value={this.state.scale} onChange={this.handleChange} />
                                                                             </div>
 
-                                                                            <input type="button" className="btn btn-danger btn-lg" onClick={this.autoscale} value="Auto Scale" />
+                                                                            <input type="button" className="btn btn-danger btn-m" onClick={this.autoscale} value="Auto Scale" />
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -781,7 +781,7 @@ class ChaosPixelSlicerPage extends Component {
                                                                                 <label htmlFor="exampleInputEmail1">Sprite Width </label>
                                                                                 <input type="number" name="grid_width" placeholder="Width" value={this.state.grid_width} onChange={this.handleGridChange} />
                                                                             </div>
-                                                                            <input type="button" className="btn btn-danger btn-lg" onClick={this.gridSlice} value="Splice" />
+                                                                            <input type="button" className="btn btn-danger btn-m" onClick={this.gridSlice} value="Splice" />
 
 
                                                                         </div>
@@ -818,7 +818,7 @@ class ChaosPixelSlicerPage extends Component {
                                                                                 <label htmlFor="exampleInputEmail1">Batch Szie</label>
                                                                                 <input type="number" name="batch_size" placeholder="Height" value={this.state.batch_size} onChange={this.handleChange} />
                                                                             </div>
-                                                                            <input type="button" className="btn btn-danger btn-lg" onClick={this.autosliceSpriteGroup} value="Auto Slice" />
+                                                                            <input type="button" className="btn btn-danger btn-m" onClick={this.autosliceSpriteGroup} value="Auto Slice" />
                                                                         </div>
                                                                     </div>
                                                             </div>
@@ -832,7 +832,7 @@ class ChaosPixelSlicerPage extends Component {
 
 
 
-                                                            <input type="button" className="btn btn-danger btn-lg" onClick={this.resetCanvasWithImage} value="Refresh" />
+                                                            <input type="button" className="btn btn-danger btn-m" onClick={this.resetCanvasWithImage} value="Refresh" />
 
 
                                                             <p>
@@ -925,7 +925,7 @@ class ChaosPixelSlicerPage extends Component {
 
                                                         </tbody>
                                                     </table>
-                                                    <input type="button" className="btn btn-danger btn-lg" onClick={this.saveTrainingData} value="Save" />
+                                                    <input type="button" className="btn btn-danger btn-m" onClick={this.saveTrainingData} value="Save" />
                                                 </div>
                                             </div>
                                         </div>

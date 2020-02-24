@@ -77,7 +77,7 @@ class ChaosPixelListTrainingDatasPage extends Component {
                                 {/* Begin Page Content */}
                                 <div className="container-fluid">
                                     {/* Page Heading */}
-                                    <div className="d-sm-flex align-items-center justify-content-between mb-4">
+                                    <div className="d-sm-flex align-items-center justify-content-between mb-3">
                                         <h1 className="h3 mb-0 text-gray-800">ChaosNet</h1>
 
                                     </div>
@@ -120,7 +120,7 @@ class ChaosPixelListTrainingDatasPage extends Component {
 
                                                         </tbody>
                                                     </table>
-                                                    <input type="button" className="btn btn-danger btn-lg" onClick={this.saveTrainingData} value="Save" />
+                                                    <input type="button" className="btn btn-danger btn-m" onClick={this.saveTrainingData} value="Save" />
                                                 </div>
                                             </div>
                                         </div>

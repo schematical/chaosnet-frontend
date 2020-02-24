@@ -102,10 +102,10 @@ class TrainingRoomSessionDetailPage extends Component {
                                 {/* Begin Page Content */}
                                 <div className="container-fluid">
                                     {/* Page Heading */}
-                                    <div className="d-sm-flex align-items-center justify-content-between mb-4">
+                                    <div className="d-sm-flex align-items-center justify-content-between mb-3">
                                         <h1 className="h3 mb-0 text-gray-800">ChaosNet</h1>
-                                        <div className="d-sm-flex align-items-center justify-content-between mb-4">
-                                            <h1 className="h3 mb-0 text-gray-800">
+                                        <div className="d-sm-flex align-items-center justify-content-between mb-3">
+                                            <h1 className="h3 m-3 text-gray-800">
                                                 /<a href={"/" + this.props.username}>{this.props.username}</a>
                                                 /<a href={"/" + this.props.username + "/trainingrooms"}>trainingrooms</a>
                                                 /<a
@@ -164,17 +164,17 @@ class TrainingRoomSessionDetailPage extends Component {
                                                     {
                                                         this.state.canEdit &&
                                                         <div>
-                                                            <button className="btn btn-primary btn-sm"
+                                                            <button className="btn btn-primary btn-sm p-2 mb-1"
                                                                     onClick={this.repairSession}>
                                                                 Repair
                                                             </button>
 
                                                             {
                                                                 !this.state.showHardReset ?
-                                                                <button className="btn btn-primary btn-sm" onClick={this.showHardResetButton}>
+                                                                <button className="btn btn-primary btn-m p-2 mb-1" onClick={this.showHardResetButton}>
                                                                 Hard Reset
                                                                 </button> :
-                                                                <button className="btn btn-danger btn-sm" onClick={this.hardReset}>
+                                                                <button className="btn btn-danger btn-m" onClick={this.hardReset}>
                                                                 Hard Reset
                                                                 </button>
                                                             }
@@ -184,7 +184,7 @@ class TrainingRoomSessionDetailPage extends Component {
                                                     <h3>
 
                                                     </h3>
-                                                    <a className="btn btn-primary btn-sm" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/" + this.props.session + "/species"}>
+                                                    <a className="btn btn-primary btn-sm p-2 mb-1" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/" + this.props.session + "/species"}>
                                                         Species
                                                     </a>
                                                     <h3>

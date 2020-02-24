@@ -81,7 +81,7 @@ class TrainingRoomNewPage extends Component {
 
                                         <div className="col-xl-12 col-lg-12">
                                             <div className="card shadow mb-4">
-                                                <h2 className="h3 mb-0 text-gray-800">
+                                                <h2 className="h3 m-3 text-gray-800">
                                                   New Training Room
                                                 </h2>
                                                 {/* Card Body */}
