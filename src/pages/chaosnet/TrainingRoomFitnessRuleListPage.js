@@ -12,7 +12,7 @@ class TrainingRoomFitnessRuleListPage extends Component {
         super(props);
 
         this.state = {
-
+            canEdit: false
         }
         this.createNewRule = this.createNewRule.bind(this);
 
@@ -69,11 +69,14 @@ class TrainingRoomFitnessRuleListPage extends Component {
 
                 })
                     .then((response) => {
+                        let state = {};
+                        state.trainingroom = response.data;
 
-                        this.state.trainingroom = response.data;
-
-
-                        this.setState(this.state);
+                        state.canEdit = AuthService.userData && (
+                            AuthService.isAdmin() ||
+                            AuthService.userData.username == state.trainingroom.owner_username
+                        );
+                        this.setState(state);
 
                         return HTTPService.get('/simmodels/' + this.state.trainingroom.simModelNamespace , {
 
@@ -187,10 +190,13 @@ class TrainingRoomFitnessRuleListPage extends Component {
 
                                                         </tbody>
                                                     </table>
-
-                                                    <button className="btn btn-danger btn-sm" onClick={this.createNewRule}>
-                                                        New Rule
-                                                    </button>
+                                                    {
+                                                        this.state.canEdit &&
+                                                        <button className="btn btn-danger btn-sm"
+                                                                onClick={this.createNewRule}>
+                                                            New Rule
+                                                        </button>
+                                                    }
                                                 </div>
                                             </div>
                                         </div>
@@ -211,28 +217,7 @@ class TrainingRoomFitnessRuleListPage extends Component {
                     <a className="scroll-to-top rounded" href="#page-top">
                         <i className="fas fa-angle-up"/>
                     </a>
-                    {/* Logout Modal*/}
-                    <div className="modal fade" id="logoutModal" tabIndex={-1} role="dialog"
-                         aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div className="modal-dialog" role="document">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h5 className="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                                    <button className="close" type="button" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">×</span>
-                                    </button>
-                                </div>
-                                <div className="modal-body">Select "Logout" below if you are ready to end your current
-                                    session.
-                                </div>
-                                <div className="modal-footer">
-                                    <button className="btn btn-secondary" type="button" data-dismiss="modal">Cancel
-                                    </button>
-                                    <a className="btn btn-primary" href="login.html">Logout</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
 
             </div>

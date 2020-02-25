@@ -13,7 +13,7 @@ class TrainingRoomPresetNeuronListPage extends Component {
         super(props);
 
         this.state = {
-
+            canEdit: false
         }
         this.createNew = this.createNew.bind(this);
 
@@ -125,6 +125,10 @@ class TrainingRoomPresetNeuronListPage extends Component {
 
                         state.trainingroom.config = state.trainingroom.config ||{};
                         state.trainingroom.config.presetNeurons = state.trainingroom.config.presetNeurons || [];
+                        state.canEdit = AuthService.userData && (
+                            AuthService.isAdmin() ||
+                            AuthService.userData.username == state.trainingroom.owner_username
+                        );
                         this.setState(state);
 
                         return HTTPService.get('/simmodels/' + this.state.trainingroom.simModelNamespace , {
@@ -180,7 +184,7 @@ class TrainingRoomPresetNeuronListPage extends Component {
                                                 /<a href={"/" + this.props.username + "/trainingrooms"}>trainingrooms</a>
                                                 /<a
                                                 href={"/" + this.props.username + "/trainingrooms/" + this.state.trainingroom.namespace}>{this.state.trainingroom.namespace}</a>
-                                                /fitnessrules
+                                                /presetneurons
                                             </h1>
 
                                         </div>
@@ -232,10 +236,13 @@ class TrainingRoomPresetNeuronListPage extends Component {
 
                                                         </tbody>
                                                     </table>
-
-                                                    <button className="btn btn-danger btn-sm" onClick={this.createNew}>
-                                                        New Neuron
-                                                    </button>
+                                                    {
+                                                        this.state.canEdit &&
+                                                        <button className="btn btn-danger btn-sm"
+                                                                onClick={this.createNew}>
+                                                            New Neuron
+                                                        </button>
+                                                    }
                                                 </div>
                                             </div>
                                         </div>
@@ -256,28 +263,6 @@ class TrainingRoomPresetNeuronListPage extends Component {
                     <a className="scroll-to-top rounded" href="#page-top">
                         <i className="fas fa-angle-up"/>
                     </a>
-                    {/* Logout Modal*/}
-                    <div className="modal fade" id="logoutModal" tabIndex={-1} role="dialog"
-                         aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div className="modal-dialog" role="document">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h5 className="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                                    <button className="close" type="button" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">×</span>
-                                    </button>
-                                </div>
-                                <div className="modal-body">Select "Logout" below if you are ready to end your current
-                                    session.
-                                </div>
-                                <div className="modal-footer">
-                                    <button className="btn btn-secondary" type="button" data-dismiss="modal">Cancel
-                                    </button>
-                                    <a className="btn btn-primary" href="login.html">Logout</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
             </div>

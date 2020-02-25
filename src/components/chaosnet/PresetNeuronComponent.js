@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Link  from 'react-router-component';
+import AuthService from "../../services/AuthService";
 
 class PresetNeuronComponent extends Component {
 
@@ -12,7 +13,8 @@ class PresetNeuronComponent extends Component {
             presetNeuron: this.props.presetNeuron || {},
             neuronType: props.simModel._neuronCache[props.presetNeuron['$TYPE']],
             dirty: false,
-            isNew: props.fitnessRule ? false : true
+            isNew: props.fitnessRule ? false : true,
+            canEdit: props.page.state.canEdit
         }
         if(!this.state.neuronType) {
             this.state.neuronType = {}
@@ -76,10 +78,10 @@ class PresetNeuronComponent extends Component {
                 return <td key={key} className="form-group">
                         <div className="input-group mb-3">
 
-                            <input id="attributeId" name="attributeId"  type="text" className="form-control" placeholder="Attribute Id" aria-label="Attribute Id"
+                            <input readOnly={this.state.canEdit} id="attributeId" name="attributeId"  type="text" className="form-control" placeholder="Attribute Id" aria-label="Attribute Id"
                                    aria-describedby="basic-addon1" value={this.state.presetNeuron.attributeId}  onChange={this.handleChange} />
 
-                            <input id="attributeValue" name="attributeValue"  type="text" className="form-control" placeholder="Attribute Value" aria-label="Attribute Value"
+                            <input readOnly={this.state.canEdit} id="attributeValue" name="attributeValue"  type="text" className="form-control" placeholder="Attribute Value" aria-label="Attribute Value"
                                    aria-describedby="basic-addon1" value={this.state.presetNeuron.attributeValue}  onChange={this.handleChange} />
                         </div>
                     </td>
@@ -88,7 +90,7 @@ class PresetNeuronComponent extends Component {
                 return ;
             default:
                 return <td key={key} className="form-group">
-                    <input type="text" className="form-control form-control-user"
+                    <input  readOnly={this.state.canEdit} type="text" className="form-control form-control-user"
                            id={key} name={key} aria-describedby={key}
                            placeholder={key}  value={this.state.presetNeuron[key]} onChange={this.handleChange}
                     />
@@ -106,14 +108,14 @@ class PresetNeuronComponent extends Component {
 
                 <td>
 
-                    <input type="text" className="form-control form-control-user"
+                    <input  readOnly={this.state.canEdit} type="text" className="form-control form-control-user"
                            id="presetNeuronId" name="id" aria-describedby="presetNeuronId"
                            /*readOnly={this.state.isNew}*/
                            placeholder="Neuron Unique ID"  value={this.state.presetNeuron.id} onChange={this.handleChange}
                     />
                 </td>
                 <td >
-                    <select  id="neuronType" name="neuronType" value={this.state.presetNeuron["$TYPE"]} onChange={this.handleChange}>
+                    <select  readOnly={this.state.canEdit}  id="neuronType" name="neuronType" value={this.state.presetNeuron["$TYPE"]} onChange={this.handleChange}>
                         {
                             Object.keys(this.state.simModel._neuronCache).map((neruonTypeId)=>{
                                 return <option value={neruonTypeId}>{neruonTypeId}</option>
@@ -135,10 +137,15 @@ class PresetNeuronComponent extends Component {
                 <td>
                     {/*<button class="btn btn-sm btn-primary " onClick={this.debugFitnessRule}>Debug</button>*/}
                     {
+                        this.state.canEdit &&
                         this.state.dirty &&
                         <button className="btn btn-sm btn-primary " onClick={this.save}>Save</button>
                     }
-                    <button className="btn btn-sm btn-danger " onClick={this.delete}>X</button>
+                    {
+                        this.state.canEdit &&
+                        <button className="btn btn-sm btn-danger " onClick={this.delete}>X</button>
+                    }
+
                 </td>
 
             </tr>

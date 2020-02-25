@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Link  from 'react-router-component';
+import AuthService from "../../services/AuthService";
 
 class FitnessRuleComponent extends Component {
 
@@ -19,7 +20,8 @@ class FitnessRuleComponent extends Component {
             fitnessRule: this.props.fitnessRule || {},
             eventType: props.simModel._fitnessCache[props.fitnessRule.eventType],
             dirty: false,
-            isNew: props.fitnessRule ? false : true
+            isNew: props.fitnessRule ? false : true,
+            canEdit: props.page.state.canEdit
         }
         if(!this.state.eventType) {
             this.state.eventType = {}

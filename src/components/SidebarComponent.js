@@ -46,6 +46,7 @@ class SidebarComponent extends Component {
                                 <a className="collapse-item" href={"/" + AuthService.userData.username + "/trainingrooms"}>Training Rooms</a> :
                                 <a className="collapse-item" href="/login">Training Rooms</a>
                             }
+                            <a href="https://github.com/schematical/chaoscraft-mod/wiki"  className="collapse-item">ChaosCraft Wiki</a>
                         </div>
                     </div>
 

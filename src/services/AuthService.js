@@ -84,6 +84,12 @@ class AuthService{
        });
 
     }
+    static isAdmin(){
+        if(!AuthService.userData){
+            return false;
+        }
+        return AuthService.userData._isAdmin || false;
+    }
     static async refreshAccessToken(username, refreshToken){
 
 
