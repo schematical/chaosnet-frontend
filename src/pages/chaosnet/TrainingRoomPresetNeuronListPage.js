@@ -107,7 +107,7 @@ class TrainingRoomPresetNeuronListPage extends Component {
             })
             .catch((err) => {
                 let state = {};
-                state.error = err;
+                state.error = err.response && err.response.data && err.response.data.error || err;
                 this.setState(state);
                 console.error("Error: ", err.message);
             })

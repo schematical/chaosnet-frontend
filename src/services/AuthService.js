@@ -19,10 +19,10 @@ class AuthService{
         }
     }
     static logout(){
-        AuthService.cookies.remove("refresh_token");
-        AuthService.cookies.remove("access_token");
-        AuthService.cookies.remove("jwt");
-        AuthService.cookies.remove("username");
+        AuthService.cookies.remove("refresh_token", { path: "/"});
+        AuthService.cookies.remove("access_token", { path: "/"});
+        AuthService.cookies.remove("jwt", { path: "/"});
+        AuthService.cookies.remove("username", { path: "/"});
         AuthService.userData = null;
         AuthService.accessToken = null;
     }

@@ -27,7 +27,7 @@ class HTTPService{
     static put(url, body, options){
 
         return HTTPService.wrapPromise(
-            axios.post(
+            axios.put(
                 ConfigService.config.chaosnet.host + url,
                 body,
                 HTTPService.authRequest(options)
