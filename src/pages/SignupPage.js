@@ -32,10 +32,10 @@ class SignupPage extends Component {
                 })
             })
             .catch((err, response)=>{
-                console.error(err);
+
 
                 this.setState({
-                    error: err.response && err.response.data.error && err.response.data.error.message || err.message
+                    error: err.response && err.response.data && err.response.data.error || err
                 })
             })
     }

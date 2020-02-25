@@ -145,7 +145,7 @@ class TrainingRoomPresetNeuronListPage extends Component {
                         })
                         state.loaded = true;
 
-                        this.setState(this.state);
+                        this.setState(state);
 
                     })
                     .catch((err) => {
@@ -214,25 +214,12 @@ class TrainingRoomPresetNeuronListPage extends Component {
                                                             </th>
 
                                                             <th>
-                                                                Score Effect:
+                                                                Type
 
                                                             </th>
 
 
 
-                                                            <th>
-                                                                Life Effect:
-
-                                                            </th>
-                                                            <th className="form-group">
-                                                                Max Occurrences:
-
-                                                            </th>
-
-                                                            <th>
-                                                                Event Type:
-
-                                                            </th>
 
                                                         </tr>
                                                         </thead>

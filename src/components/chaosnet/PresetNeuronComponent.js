@@ -20,7 +20,6 @@ class PresetNeuronComponent extends Component {
 
 
         this.handleChange = this.handleChange.bind(this);
-        this.debugFitnessRule = this.debugFitnessRule.bind(this);
         this.save = this.save.bind(this);
         this.delete = this.delete.bind(this);
     }

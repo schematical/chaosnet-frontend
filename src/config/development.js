@@ -1,6 +1,6 @@
 module.exports = {
     "chaosnet": {
-        "host": "https://chaosnet.schematical.com/dev"
+        "host": "https://dev-api.chaosnet.ai/v0"//"https://chaosnet.schematical.com/dev"
     }
 
 }

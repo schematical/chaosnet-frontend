@@ -51,15 +51,20 @@ class HTTPService{
     }
     static wrapPromise(p){
         return p.catch((err)=>{
+            console.error("ERROR - Caught: ", err);
+            if(err.request){
+                console.log(err.request);
+            }
             if (!err.response) {
                 throw err;
             }
-            console.error("ERROR: ", err.response.status)
+            console.error("ERROR - status: ", err.response.status)
             switch(err.response.status){
                 case(401):
                     document.location.href = "/login";
                 break;
                 default:
+                    throw err;
             }
         })
     }

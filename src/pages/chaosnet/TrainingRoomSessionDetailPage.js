@@ -21,7 +21,7 @@ class TrainingRoomSessionDetailPage extends Component {
     showHardResetButton(){
         let state = {};
         state.showHardReset = true;
-        this.setState(this.state);
+        this.setState(state);
     }
     hardReset(){
         let url = '/'  + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/start"

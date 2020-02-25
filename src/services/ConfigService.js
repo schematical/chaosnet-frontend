@@ -20,7 +20,7 @@ class ConfigService{
                 break;
             default:
         }
-        console.log("CONFIG:", config);
+        console.log("CONFIG:", process.env.NODE_ENV, config);
     }
 }
 export default ConfigService;
