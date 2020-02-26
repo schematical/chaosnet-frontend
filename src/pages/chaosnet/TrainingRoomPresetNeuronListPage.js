@@ -45,7 +45,7 @@ class TrainingRoomPresetNeuronListPage extends Component {
                 "_base_type":"input"
             })
         }*/
-        this.state.trainingroom.config.presetNeurons.push({
+       /* this.state.trainingroom.config.presetNeurons.push({
             "$TYPE":"TargetYawInput",
             "attributeId":"ENTITY_ID",
             "attributeValue":"minecraft:bee",
@@ -62,7 +62,7 @@ class TrainingRoomPresetNeuronListPage extends Component {
             "attributeId":"ENTITY_ID",
             "attributeValue":"minecraft:bee",
             "_base_type":"input"
-        })
+        })*/
     }
     createNew(){
         this.state.trainingroom.config.presetNeurons.push({
@@ -129,6 +129,7 @@ class TrainingRoomPresetNeuronListPage extends Component {
                             AuthService.isAdmin() ||
                             AuthService.userData.username == state.trainingroom.owner_username
                         );
+                        console.log("Can Edit: ", state.canEdit);
                         this.setState(state);
 
                         return HTTPService.get('/simmodels/' + this.state.trainingroom.simModelNamespace , {

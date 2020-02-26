@@ -17,8 +17,10 @@ class TrainingRoomFitnessRuleListPage extends Component {
         this.createNewRule = this.createNewRule.bind(this);
 
     }
+
     createNewRule(){
         this.state.trainingroom.fitnessRules.push({
+            id: "new-" + Math.round(Math.random() * 99999),
             _isNew: true
         })
         this.setState(this.state);

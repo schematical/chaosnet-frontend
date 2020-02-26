@@ -10,12 +10,13 @@ class PresetNeuronComponent extends Component {
         this.state = {
             page: props.page,
             simModel: props.simModel,
-            presetNeuron: this.props.presetNeuron || {},
+            presetNeuron: props.presetNeuron || {},
             neuronType: props.simModel._neuronCache[props.presetNeuron['$TYPE']],
             dirty: false,
-            isNew: props.fitnessRule ? false : true,
+            isNew: props.presetNeuron ? false : true,
             canEdit: props.page.state.canEdit
         }
+
         if(!this.state.neuronType) {
             this.state.neuronType = {}
         }
@@ -36,6 +37,12 @@ class PresetNeuronComponent extends Component {
 
                 this.state.neuronType = this.state.simModel._neuronCache[this.state.presetNeuron['$TYPE']];
                 this.state.presetNeuron._base_type = this.state.neuronType._base_type;
+                if(this.state.neuronType['$EVAL_GROUP']) {
+                    this.state.presetNeuron["$EVAL_GROUP"] = this.state.neuronType['$EVAL_GROUP']
+                }
+                if(this.state.neuronType['$OUTPUT_GROUP']) {
+                    this.state.presetNeuron["$OUTPUT_GROUP"] = this.state.neuronType['$OUTPUT_GROUP']
+                }
                 break;
             default:
                 this.state.presetNeuron[event.target.name] = event.target.value;
@@ -69,6 +76,8 @@ class PresetNeuronComponent extends Component {
         switch(key){
             case("_base_type"):
             case("$TYPE"):
+            case("$EVAL_GROUP"):
+            case("$DEFAULT"):
                 return;
 
                 break;
@@ -78,10 +87,10 @@ class PresetNeuronComponent extends Component {
                 return <td key={key} className="form-group">
                         <div className="input-group mb-3">
 
-                            <input readOnly={this.state.canEdit} id="attributeId" name="attributeId"  type="text" className="form-control" placeholder="Attribute Id" aria-label="Attribute Id"
+                            <input readOnly={!this.state.canEdit} id="attributeId" name="attributeId"  type="text" className="form-control" placeholder="Attribute Id" aria-label="Attribute Id"
                                    aria-describedby="basic-addon1" value={this.state.presetNeuron.attributeId}  onChange={this.handleChange} />
 
-                            <input readOnly={this.state.canEdit} id="attributeValue" name="attributeValue"  type="text" className="form-control" placeholder="Attribute Value" aria-label="Attribute Value"
+                            <input readOnly={!this.state.canEdit} id="attributeValue" name="attributeValue"  type="text" className="form-control" placeholder="Attribute Value" aria-label="Attribute Value"
                                    aria-describedby="basic-addon1" value={this.state.presetNeuron.attributeValue}  onChange={this.handleChange} />
                         </div>
                     </td>
@@ -90,7 +99,7 @@ class PresetNeuronComponent extends Component {
                 return ;
             default:
                 return <td key={key} className="form-group">
-                    <input  readOnly={this.state.canEdit} type="text" className="form-control form-control-user"
+                    <input  readOnly={!this.state.canEdit} type="text" className="form-control form-control-user"
                            id={key} name={key} aria-describedby={key}
                            placeholder={key}  value={this.state.presetNeuron[key]} onChange={this.handleChange}
                     />
@@ -108,17 +117,19 @@ class PresetNeuronComponent extends Component {
 
                 <td>
 
-                    <input  readOnly={this.state.canEdit} type="text" className="form-control form-control-user"
+                    <input  readOnly={!this.state.canEdit} type="text" className="form-control form-control-user"
                            id="presetNeuronId" name="id" aria-describedby="presetNeuronId"
-                           /*readOnly={this.state.isNew}*/
                            placeholder="Neuron Unique ID"  value={this.state.presetNeuron.id} onChange={this.handleChange}
                     />
                 </td>
                 <td >
-                    <select  readOnly={this.state.canEdit}  id="neuronType" name="neuronType" value={this.state.presetNeuron["$TYPE"]} onChange={this.handleChange}>
+                    <select  readOnly={!this.state.canEdit}  id="neuronType" name="neuronType" value={this.state.presetNeuron["$TYPE"]} onChange={this.handleChange}>
                         {
                             Object.keys(this.state.simModel._neuronCache).map((neruonTypeId)=>{
-                                return <option value={neruonTypeId}>{neruonTypeId}</option>
+
+
+                                       return <option value={neruonTypeId}>{neruonTypeId}</option>
+
                             })
                         }
                     </select>
