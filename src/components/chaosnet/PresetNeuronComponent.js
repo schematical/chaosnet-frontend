@@ -2,16 +2,17 @@ import React, {Component} from 'react';
 import Link  from 'react-router-component';
 import AuthService from "../../services/AuthService";
 
+const _ = require('underscore');
 class PresetNeuronComponent extends Component {
 
     constructor(props) {
         super(props);
-
+console.log("props.simModel._neuronCache[props.presetNeuron['$TYPE']]: ", props.presetNeuron['$TYPE'], props.simModel._neuronCache[props.presetNeuron['$TYPE']]);
         this.state = {
             page: props.page,
             simModel: props.simModel,
             presetNeuron: props.presetNeuron || {},
-            neuronType: props.simModel._neuronCache[props.presetNeuron['$TYPE']],
+            neuronType: props.simModel._neuronCache[props.presetNeuron['$TYPE']][props.presetNeuron._neruonTypeIndex || 0],
             dirty: false,
             isNew: props.presetNeuron ? false : true,
             canEdit: props.page.state.canEdit
@@ -20,39 +21,64 @@ class PresetNeuronComponent extends Component {
         if(!this.state.neuronType) {
             this.state.neuronType = {}
         }
+        this.setNeuronType(this.state.neuronType, this.state.presetNeuron._neruonTypeIndex);
 
 
         this.handleChange = this.handleChange.bind(this);
         this.save = this.save.bind(this);
         this.delete = this.delete.bind(this);
+        this.renderInputs = this.renderInputs.bind(this);
+
     }
 
     handleChange(event) {
-
-
+        let state = {
+            presetNeuron: this.state.presetNeuron
+        };
 
         switch(event.target.name){
             case('neuronType'):
-                this.state.presetNeuron["$TYPE"] = event.target.value;
 
-                this.state.neuronType = this.state.simModel._neuronCache[this.state.presetNeuron['$TYPE']];
-                this.state.presetNeuron._base_type = this.state.neuronType._base_type;
-                if(this.state.neuronType['$EVAL_GROUP']) {
-                    this.state.presetNeuron["$EVAL_GROUP"] = this.state.neuronType['$EVAL_GROUP']
+                let parts = event.target.value.split("-");
+                if(parts.length === 1){
+                    parts.push(0)
+                }else {
+                    parts[1] = parseInt(parts[1]) - 1;
                 }
-                if(this.state.neuronType['$OUTPUT_GROUP']) {
-                    this.state.presetNeuron["$OUTPUT_GROUP"] = this.state.neuronType['$OUTPUT_GROUP']
-                }
+                this.setNeuronType(this.state.page.state.simModel._neuronCache[parts[0]][parts[1]], parts[1]);
+
                 break;
             default:
-                this.state.presetNeuron[event.target.name] = event.target.value;
+                state.presetNeuron[event.target.name] = event.target.value;
+                state.dirty = true;
+                this.setState(state);
 
         }
-        this.state.dirty = true;
-        this.setState(this.state);
+
 
     }
-
+    setNeuronType(neuronType, neuronTypeIndex){
+        let state = {
+            presetNeuron: this.state.presetNeuron
+        };
+        state.neuronType = neuronType;
+        state.presetNeuron["$TYPE"] = neuronType['$TYPE'];//event.target.value;
+        //console.log("this.state.page.state.simModel._neuronCache[parts[0]]: ", this.state.page.state.simModel._neuronCache[parts[0]])
+        if(!_.isUndefined(neuronTypeIndex)) {
+            state.presetNeuron._neruonTypeIndex = neuronTypeIndex;
+        }
+        state.presetNeuron._base_type = state.neuronType._base_type;
+        if(state.neuronType['$EVAL_GROUP']) {
+            state.presetNeuron["$EVAL_GROUP"] = state.neuronType['$EVAL_GROUP']
+        }
+        if(state.neuronType['$OUTPUT_GROUP']) {
+            state.presetNeuron["$OUTPUT_GROUP"] = state.neuronType['$OUTPUT_GROUP']
+        }
+        if(state.neuronType['attributeId']) {
+            state.presetNeuron["attributeId"] = state.neuronType['attributeId']
+        }
+        this.setState(state);
+    }
     save(){
         /*if(this.state.neuronType && this.state.neuronType.attributeId){
             this.state.fitnessRule.attributeId = this.state.neuronType.attributeId;
@@ -72,7 +98,40 @@ class PresetNeuronComponent extends Component {
     }
     renderInputs(key){
 
+        if(this.state.neuronType[key]["$SOURCE"]){
+            switch(this.state.neuronType[key]["$SOURCE"]){
+                case('biology'):
+                    let biology = null;
+                    this.state.page.state.simModel.biology.forEach((b)=>{
+                        if(this.state.neuronType[key]["$BIOLOGY_TYPE"] == b["$TYPE"]){
+                            biology = b;
+                        }
+                    })
+                    let biologyIds = [];
+                    for(let i = 0; i < biology["$COUNT"]; i++){
+                        biologyIds.push(biology["$TYPE"] + "_" + i);
+                    }
+                    return <td key={key}>
+                        <select  readOnly={!this.state.canEdit}  id={key} name={key} value={this.state.presetNeuron[key]} onChange={this.handleChange}>
+                            {
+                                biologyIds.map((biologyId)=>{
 
+                                    return <option value={biologyId}>{biologyId}</option>
+
+                                })
+                            }
+                        </select>
+                        {
+                            this.state.canEdit &&
+                            <button className="btn btn-sm btn-danger " onClick={()=>{this.state.page.addAll(this.state.presetNeuron, this.state.neuronType, key, biology);}}>Add All</button>
+                        }
+
+
+                    </td>
+                break;
+            }
+
+        }
         switch(key){
             case("_base_type"):
             case("$TYPE"):
@@ -87,7 +146,7 @@ class PresetNeuronComponent extends Component {
                 return <td key={key} className="form-group">
                         <div className="input-group mb-3">
 
-                            <input readOnly={!this.state.canEdit} id="attributeId" name="attributeId"  type="text" className="form-control" placeholder="Attribute Id" aria-label="Attribute Id"
+                            <input readOnly={true} id="attributeId" name="attributeId"  type="text" className="form-control" placeholder="Attribute Id" aria-label="Attribute Id"
                                    aria-describedby="basic-addon1" value={this.state.presetNeuron.attributeId}  onChange={this.handleChange} />
 
                             <input readOnly={!this.state.canEdit} id="attributeValue" name="attributeValue"  type="text" className="form-control" placeholder="Attribute Value" aria-label="Attribute Value"
@@ -97,6 +156,8 @@ class PresetNeuronComponent extends Component {
             case('attributeValue'):
                 //Render nothing because AttributeID renders both
                 return ;
+
+
             default:
                 return <td key={key} className="form-group">
                     <input  readOnly={!this.state.canEdit} type="text" className="form-control form-control-user"
@@ -125,10 +186,10 @@ class PresetNeuronComponent extends Component {
                 <td >
                     <select  readOnly={!this.state.canEdit}  id="neuronType" name="neuronType" value={this.state.presetNeuron["$TYPE"]} onChange={this.handleChange}>
                         {
-                            Object.keys(this.state.simModel._neuronCache).map((neruonTypeId)=>{
+                            this.state.page.state.neuronOptions.map((option)=>{
 
 
-                                       return <option value={neruonTypeId}>{neruonTypeId}</option>
+                                       return <option value={option.id}>{option.id}</option>
 
                             })
                         }

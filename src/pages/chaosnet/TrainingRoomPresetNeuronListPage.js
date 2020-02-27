@@ -6,7 +6,6 @@ import FooterComponent from "../../components/FooterComponent";
 import FitnessRuleComponent from "../../components/chaosnet/FitnessRuleComponent";
 import PresetNeuronComponent from "../../components/chaosnet/PresetNeuronComponent";
 import HTTPService from "../../services/HTTPService";
-const axios = require('axios');
 const _ = require('underscore');
 class TrainingRoomPresetNeuronListPage extends Component {
     constructor(props) {
@@ -20,53 +19,25 @@ class TrainingRoomPresetNeuronListPage extends Component {
     }
     hack(){
 
-        /*[
-            "minecraft:lava",
-            "minecraft:stone"
-        ].forEach((strAttr)=>{
-            for(let i = 0; i < 10; i++){
-                this.state.trainingroom.config.presetNeurons.push({
+    }
+    addAll(baseNeuron, neuronType, key, biology){
+        let state = {
+            trainingroom:this.state.trainingroom
+        }
+        for(let i = 1; i < biology["$COUNT"]; i++){
 
-                    "$TYPE":"IsLookingAtInput",
-                    "attributeId":"BLOCK_ID",
-                    "attributeValue": strAttr,
-                    "eye":"Eye_" + i,
-                    "_base_type":"input"
+            let newNeuron = _.clone(baseNeuron);
+            newNeuron.id = neuronType["$TYPE"].toLowerCase() + "-" + i;
+            newNeuron[key] = biology['$TYPE'] + "_" + i;
 
-                })
-            }
-        })
-        for(let i = 0; i < 10; i++){
-            this.state.trainingroom.config.presetNeurons.push({
-                "$TYPE":"IsLookingAtInput",
-                "attributeId":"BLOCK_TOUCH_STATE",
-                "attributeValue": "HAS_TOUCHED_BLOCK",
-                "eye":"Eye_" + i,
-                "_base_type":"input"
-            })
-        }*/
-       /* this.state.trainingroom.config.presetNeurons.push({
-            "$TYPE":"TargetYawInput",
-            "attributeId":"ENTITY_ID",
-            "attributeValue":"minecraft:bee",
-            "_base_type":"input"
-        })
-        this.state.trainingroom.config.presetNeurons.push({
-            "$TYPE":"TargetPitchInput",
-            "attributeId":"ENTITY_ID",
-            "attributeValue":"minecraft:bee",
-            "_base_type":"input"
-        })
-        this.state.trainingroom.config.presetNeurons.push({
-            "$TYPE":"TargetDistanceInput",
-            "attributeId":"ENTITY_ID",
-            "attributeValue":"minecraft:bee",
-            "_base_type":"input"
-        })*/
+            state.trainingroom.config.presetNeurons.push(newNeuron);
+        }
+        this.setState(state);
     }
     createNew(){
         this.state.trainingroom.config.presetNeurons.push({
             id: "new-" + Math.round(Math.random() * 99999),
+            "$TYPE": Object.keys(this.state.simModel._neuronCache)[0],
             _isNew: true
         })
         this.setState(this.state);
@@ -138,17 +109,41 @@ class TrainingRoomPresetNeuronListPage extends Component {
                     })
                     .then((response) => {
                         let state = {};
+                        state.neuronOptions = [];
                         state.simModel = response.data;
                         state.simModel._neuronCache = {};
                         state.simModel.outputNeurons.forEach((neuron)=>{
                             neuron._base_type = "output";
-                            state.simModel._neuronCache[neuron["$TYPE"]] = neuron;
+                            state.simModel._neuronCache[neuron["$TYPE"]] = state.simModel._neuronCache[neuron["$TYPE"]] || [];
+                            state.simModel._neuronCache[neuron["$TYPE"]].push(neuron);
+
+                            let neuronOptionId = neuron["$TYPE"];
+                            if(state.simModel._neuronCache[neuron["$TYPE"]].length > 1){
+                                neuronOptionId += "-" + state.simModel._neuronCache[neuron["$TYPE"]].length;
+                            }
+                            state.neuronOptions.push({
+                                id:neuronOptionId,
+                                neuron: neuron,
+                            })
+
+
                         })
                         state.simModel.inputNeurons.forEach((neuron)=>{
                             neuron._base_type = "input";
-                            state.simModel._neuronCache[neuron["$TYPE"]] = neuron;
+                            state.simModel._neuronCache[neuron["$TYPE"]] = state.simModel._neuronCache[neuron["$TYPE"]] || []
+                            state.simModel._neuronCache[neuron["$TYPE"]].push(neuron);
+                            let neuronOptionId = neuron["$TYPE"];
+                            if(state.simModel._neuronCache[neuron["$TYPE"]].length > 1){
+                                neuronOptionId += "-" + state.simModel._neuronCache[neuron["$TYPE"]].length;
+                            }
+                            state.neuronOptions.push({
+                                id:neuronOptionId,
+                                neuron: neuron,
+                            })
                         })
                         state.loaded = true;
+
+
 
                         this.setState(state);
 
