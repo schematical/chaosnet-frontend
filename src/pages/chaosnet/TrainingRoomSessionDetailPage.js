@@ -12,7 +12,7 @@ class TrainingRoomSessionDetailPage extends Component {
             session:{},
             showHardReset: false,
             loaded:false,
-            canEdit: (AuthService.userData && this.props.username === AuthService.userData.username)
+            canEdit: false
         }
         this.repairSession = this.repairSession.bind(this);
         this.hardReset = this.hardReset.bind(this);
@@ -75,6 +75,7 @@ class TrainingRoomSessionDetailPage extends Component {
                     .then((response) => {
                         let state = {};
                         state.session = response.data
+                        state.canHardReset = (AuthService.userData && AuthService.userData.username == state.session.owner_username)
                         state.loaded = true;
                         this.setState(state);
                     })
@@ -162,7 +163,7 @@ class TrainingRoomSessionDetailPage extends Component {
                                                         </a>
                                                     </h3>
                                                     {
-                                                        this.state.canEdit &&
+                                                        this.state.canHardReset &&
                                                         <div>
                                                             <button className="btn btn-primary btn-sm"
                                                                     onClick={this.repairSession}>
