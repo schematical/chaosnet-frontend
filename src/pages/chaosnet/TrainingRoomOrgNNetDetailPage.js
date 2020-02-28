@@ -42,8 +42,8 @@ class TrainingRoomOrgNNetDetailPage extends Component {
         super(props);
 
         this.state = {
-            hasHitRegularUrl: !this.props.neuron
-            
+            hasHitRegularUrl: !this.props.neuron,
+            complexityScore: -1
         }
         this.padding = 30;
         this.downloadNNet = this.downloadNNet.bind(this);
@@ -123,9 +123,11 @@ class TrainingRoomOrgNNetDetailPage extends Component {
                         this.nodeAgeTotals.total = 0;
 
                         state.links = [];
+                        state.complexityScore = 0;
                         state.nNet.neurons.forEach((node)=>{
-
+                            state.complexityScore += 1;
                             node.dependencies.forEach((neuronDep)=>{
+                                state.complexityScore += 1;
                                 this.state.links.push({
                                     source: node.id,
                                     target: neuronDep.neuronId,
@@ -191,6 +193,9 @@ class TrainingRoomOrgNNetDetailPage extends Component {
                                             /<a
                                             href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace}>{this.props.trainingRoomNamespace}</a>
                                         </h1>
+                                        <h3>
+                                            Complexity: {this.state.complexityScore }
+                                        </h3>
                                         <button className="btn btn-primary" onClick={this.downloadNNet}>Download</button>
                                     </div>
                                     <div className="row">

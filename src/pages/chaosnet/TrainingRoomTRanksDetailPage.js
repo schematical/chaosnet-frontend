@@ -16,6 +16,40 @@ class TrainingRoomTRanksDetailPage extends Component {
         this.state = {
             trank:{}
         }
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+
+    }
+    handleChange(event){
+        let state = {
+            trank: this.state.trank
+        }
+        state.trank[event.target.name] = event.target.value;
+        this.setState(state);
+    }
+    handleSubmit(event){
+        event.preventDefault();
+        let url = '/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks/' + this.props.trank;
+        let payload = _.clone(this.state.trank);
+        delete(payload.namespace);
+        delete(payload.owner_username);
+        return HTTPService.put(
+            url,
+            payload,
+    {}
+        )
+        .then((response) => {
+            let state = {};
+            state.trank = response.data;
+            state.loaded = true;
+            this.setState(state);
+        })
+        .catch((err) => {
+            let state = {};
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        })
 
     }
     render() {
@@ -145,6 +179,21 @@ class TrainingRoomTRanksDetailPage extends Component {
                                                     <a className="btn btn-primary btn-sm" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/organisms/top"}>
                                                         Top Organisms
                                                     </a>
+                                                    <form className="user col-lg-4" onSubmit={this.handleSubmit}>
+                                                        <div className="form-group">
+                                                            <label>
+                                                                Life State
+                                                            </label>
+                                                            <select id="lifeState" name="lifeState" className="form-control form-control-user" value={this.state.trank.lifeState} onChange={this.handleChange}>
+                                                                <option value="Active">Active</option>
+                                                                <option value="StalledOut">StalledOut</option>
+                                                                <option value="MarkedForColdStorage">MarkedForColdStorage</option>
+                                                            </select>
+                                                            <button className="btn btn-primary btn-sm">
+                                                                Update
+                                                            </button>
+                                                        </div>
+                                                    </form>
 
                                                     {this.state.trank.historicalScores &&
                                                         <div>
