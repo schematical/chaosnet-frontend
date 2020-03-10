@@ -112,15 +112,24 @@ console.log("props.simModel._neuronCache[props.presetNeuron['$TYPE']]: ", props.
                         biologyIds.push(biology["$TYPE"] + "_" + i);
                     }
                     return <td key={key}>
-                        <select  readOnly={!this.state.canEdit}  id={key} name={key} value={this.state.presetNeuron[key]} onChange={this.handleChange}>
-                            {
-                                biologyIds.map((biologyId)=>{
+                        <div className="input-group mb-3">
 
-                                    return <option value={biologyId}>{biologyId}</option>
+                            <input readOnly={true} id={key} name={key}  type="text" className="form-control" placeholder={key} aria-label={key}
+                                   aria-describedby="basic-addon1" value={key}  onChange={this.handleChange} />
 
-                                })
-                            }
-                        </select>
+
+                            <select  readOnly={!this.state.canEdit}  id={key} name={key} value={this.state.presetNeuron[key]} className="form-control" onChange={this.handleChange}>
+                                <option value=""></option>
+                                {
+                                    biologyIds.map((biologyId)=>{
+
+                                        return <option value={biologyId}>{biologyId}</option>
+
+                                    })
+                                }
+                            </select>
+
+                        </div>
                         {
                             this.state.canEdit &&
                             <button className="btn btn-sm btn-danger " onClick={()=>{this.state.page.addAll(this.state.presetNeuron, this.state.neuronType, key, biology);}}>Add All</button>
@@ -160,10 +169,18 @@ console.log("props.simModel._neuronCache[props.presetNeuron['$TYPE']]: ", props.
 
             default:
                 return <td key={key} className="form-group">
-                    <input  readOnly={!this.state.canEdit} type="text" className="form-control form-control-user"
-                           id={key} name={key} aria-describedby={key}
-                           placeholder={key}  value={this.state.presetNeuron[key]} onChange={this.handleChange}
-                    />
+                    <div className="input-group mb-3">
+
+                        <input readOnly={true} id={key} name={key}  type="text" className="form-control" placeholder={key} aria-label={key}
+                               aria-describedby="basic-addon1" value={key}  onChange={this.handleChange} />
+
+                        <input  readOnly={!this.state.canEdit} type="text" className="form-control form-control-user"
+                                id={key} name={key} aria-describedby={key}
+                                placeholder={key}  value={this.state.presetNeuron[key]} onChange={this.handleChange}
+                        />
+
+                    </div>
+
                 </td>
         }
 

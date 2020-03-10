@@ -6,19 +6,17 @@ class FitnessRuleComponent extends Component {
 
     constructor(props) {
         super(props);
-        switch(props.fitnessRule.eventType){
-            case("EQUIP"):
-                props.fitnessRule.eventType = "ITEM_EQUIPPED";
-            break;
-            case("CRAFT"):
-                props.fitnessRule.eventType = "ITEM_CRAFTED";
-                break;
+
+        let eventType = null;
+        if(props.fitnessRule.eventType){
+            eventType = props.simModel._fitnessCache[props.fitnessRule.eventType] &&
+                props.simModel._fitnessCache[props.fitnessRule.eventType][props.fitnessRule.eventTypeIndex || 0];
         }
         this.state = {
             page: props.page,
             simModel: props.simModel,
             fitnessRule: this.props.fitnessRule || {},
-            eventType: props.simModel._fitnessCache[props.fitnessRule.eventType],
+            eventType: eventType,
             dirty: false,
             isNew: props.fitnessRule ? false : true,
             canEdit: props.page.state.canEdit
@@ -36,16 +34,25 @@ class FitnessRuleComponent extends Component {
 
     handleChange(event) {
 
+        console.log("Updating: ", event.target.name, event.target.value,this.state.fitnessRule.eventType)
+        let state = {
+            fitnessRule: this.state.fitnessRule,
+        }
+        state.fitnessRule[event.target.name] = event.target.value;
 
-        this.state.fitnessRule[event.target.name] = event.target.value;
         switch(event.target.name){
             case('eventType'):
-                this.state.eventType = this.state.simModel._fitnessCache[this.state.fitnessRule.eventType];
+                let parts = state.fitnessRule.eventType.split("-");
+                state.fitnessRule.eventTypeIndex = parts[1] || 0;
+                state.fitnessRule.eventType = parts[0];
+                state.eventType = this.state.simModel._fitnessCache[state.fitnessRule.eventType][state.fitnessRule.eventTypeIndex];
+
                 break;
 
         }
-        this.state.dirty = true;
-        this.setState(this.state);
+        state.dirty = true;
+        this.setState(state);
+        console.log("this.state.eventType: ", this.state.eventType);
     }
 
     debugFitnessRule(){
@@ -109,9 +116,17 @@ class FitnessRuleComponent extends Component {
 
                 <td>
                     <select id="eventType" name="eventType" value={this.state.fitnessRule.eventType} onChange={this.handleChange}>
+                        <option value={null}></option>
                         {
-                            this.state.simModel.fitness.map((fitnessModel)=>{
-                                return <option value={fitnessModel.eventType}>{fitnessModel.eventType}</option>
+                            Object.keys(this.state.simModel._fitnessCache).map((key)=>{
+                                let fitnessModels = this.state.simModel._fitnessCache[key];
+                                return fitnessModels.map((fitnessModel)=> {
+                                    let id = fitnessModel.eventType;
+                                    if(fitnessModel.eventTypeIndex > 0){
+                                        id += "-" + fitnessModel.eventTypeIndex
+                                    }
+                                    return <option value={id}>{id}</option>
+                                })
                             })
                         }
                     </select>
@@ -119,7 +134,7 @@ class FitnessRuleComponent extends Component {
 
                 <td className="form-group">
                     {
-                        this.state.eventType.attributeId &&
+                        (this.state.eventType && this.state.eventType.attributeId) &&
                         <div className="input-group mb-3">
 
                             <input id="attributeId" name="attributeId"  type="text" className="form-control" placeholder="Attribute Id" aria-label="Attribute Id"

@@ -7,7 +7,6 @@ import FooterComponent from "../../components/FooterComponent";
 import OrgListComponent from "../../components/chaosnet/OrgListComponent";
 import TRankListComponent from "../../components/chaosnet/TRankListComponent";
 import HTTPService from "../../services/HTTPService";
-const axios = require('axios');
 const _ = require('underscore');
 class TrainingRoomTRanksDetailPage extends Component {
     constructor(props) {

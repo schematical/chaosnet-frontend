@@ -89,7 +89,10 @@ class TrainingRoomFitnessRuleListPage extends Component {
                         this.state.simModel = response.data;
                         this.state.simModel._fitnessCache = {};
                         this.state.simModel.fitness.forEach((fitnessModel)=>{
-                            this.state.simModel._fitnessCache[fitnessModel.eventType] = fitnessModel;
+                            this.state.simModel._fitnessCache[fitnessModel.eventType] = this.state.simModel._fitnessCache[fitnessModel.eventType] || [];
+                            fitnessModel.eventTypeIndex = this.state.simModel._fitnessCache[fitnessModel.eventType].length;
+                            this.state.simModel._fitnessCache[fitnessModel.eventType].push(fitnessModel);
+
                         })
                         this.state.loaded = true;
 
