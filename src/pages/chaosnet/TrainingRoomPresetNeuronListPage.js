@@ -131,27 +131,32 @@ class TrainingRoomPresetNeuronListPage extends Component {
         });
 
         this.setState(this.state);
+        this.save()
     }
-    save(presetNeuron, ele){
+    updateNeuron(presetNeuron, ele) {
 
-        this.state.presetNeurons.forEach((_presetNeuron, i)=>{
-            if(ele.state.isNew && _presetNeuron._isNew){
+        this.state.presetNeurons.forEach((_presetNeuron, i) => {
+            if (ele.state.isNew && _presetNeuron._isNew) {
                 presetNeuron._isNew = false;
                 this.state.presetNeurons[i] = presetNeuron;
-            }else if(presetNeuron.id == _presetNeuron.id){
+            } else if (presetNeuron.id == _presetNeuron.id) {
                 this.state.presetNeurons[i] = presetNeuron;
             }
         })
+        return this.save()
+            .then((response) => {
+                ele.markClean();
+
+            })
+    }
+    save() {
         return HTTPService.put(this.state.uri + '/presetneurons',
             this.state.presetNeurons,
             {
 
             }
         )
-            .then((response) => {
-                ele.markClean();
 
-            })
             .catch((err) => {
                 let state = {};
                 state.error = err.response && err.response.data && err.response.data.error || err;
@@ -189,7 +194,7 @@ class TrainingRoomPresetNeuronListPage extends Component {
                                                 /<a
                                                 href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/roles"}>roles</a>
                                                 /<a
-                                                href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace+ "/roles/" + this.props.role}>roles</a>
+                                                href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace+ "/roles/" + this.props.role}>{this.props.role}</a>
                                                 /presetneurons
                                             </h1>
 

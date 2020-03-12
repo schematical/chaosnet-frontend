@@ -12,14 +12,64 @@ class TrainingRoomFitnessRuleListPage extends Component {
         super(props);
 
         this.state = {
-            canEdit: false
+            canEdit: false,
+            uri: '/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace +'/roles/' + this.props.role
         }
         this.createNewRule = this.createNewRule.bind(this);
+
+        HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace , {
+
+        })
+        .then((response) => {
+            let state = {};
+            state.trainingroom = response.data;
+
+            state.canEdit = AuthService.userData && (
+                AuthService.isAdmin() ||
+                AuthService.userData.username == state.trainingroom.owner_username
+            );
+            this.setState(state);
+
+            return HTTPService.get( this.state.uri + '/fitnessrules', {
+
+            })
+        })
+        .then((response) => {
+            let state = {};
+            state.fitnessRules = response.data.fitnessRules;
+
+
+            this.setState(state);
+
+            return HTTPService.get('/simmodels/' + this.state.trainingroom.simModelNamespace , {
+
+            })
+        })
+        .then((response) => {
+
+            this.state.simModel = response.data;
+            this.state.simModel._fitnessCache = {};
+            this.state.simModel.fitness.forEach((fitnessModel)=>{
+                this.state.simModel._fitnessCache[fitnessModel.eventType] = this.state.simModel._fitnessCache[fitnessModel.eventType] || [];
+                fitnessModel.eventTypeIndex = this.state.simModel._fitnessCache[fitnessModel.eventType].length;
+                this.state.simModel._fitnessCache[fitnessModel.eventType].push(fitnessModel);
+
+            })
+            this.state.loaded = true;
+
+            this.setState(this.state);
+
+        })
+        .catch((err) => {
+            this.state.error = err;
+            this.setState(this.state);
+            console.error("Error: ", err.message);
+        })
 
     }
 
     createNewRule(){
-        this.state.trainingroom.fitnessRules.push({
+        this.state.fitnessRules.push({
             id: "new-" + Math.round(Math.random() * 99999),
             _isNew: true
         })
@@ -28,7 +78,7 @@ class TrainingRoomFitnessRuleListPage extends Component {
     removeRule(component){
 
         let fitnessRule  = component.state.fitnessRule
-        this.state.trainingroom.fitnessRules = _.reject(this.state.trainingroom.fitnessRules,
+        this.state.fitnessRules = _.reject(this.state.fitnessRules,
             function(_fitnessRule){
             if(component.state.isNew && _fitnessRule.isNew){
                 return true;
@@ -38,73 +88,40 @@ class TrainingRoomFitnessRuleListPage extends Component {
         });
 
         this.setState(this.state);
+        return this.save();
     }
-    save(fitnessRule, ele){
-        this.state.trainingroom.fitnessRules.forEach((_fitnessRule, i)=>{
+    updateRule(fitnessRule, ele) {
+        this.state.fitnessRules.forEach((_fitnessRule, i)=>{
             if(ele.state.isNew && _fitnessRule._isNew){
                 fitnessRule._isNew = false;
-                this.state.trainingroom.fitnessRules[i] = fitnessRule;
+                this.state.fitnessRules[i] = fitnessRule;
             }else if(fitnessRule.id == _fitnessRule.id){
-                this.state.trainingroom.fitnessRules[i] = fitnessRule;
+                this.state.fitnessRules[i] = fitnessRule;
             }
         })
-        return HTTPService.put('/' + this.state.trainingroom.owner_username + '/trainingrooms/' + this.state.trainingroom.namespace,
-            this.state.trainingroom,
-            {
-            }
-        )
+        return this.save()
             .then((response) => {
                 ele.markClean();
 
             })
-            .catch((err) => {
-                this.state.error = err;
-                this.setState(this.state);
-                console.error("Error: ", err.message);
-            })
+
+    }
+   save(){
+        return HTTPService.put(this.state.uri + '/fitnessrules',
+            this.state.fitnessRules,
+            {
+            }
+        )
+        .catch((err) => {
+            this.state.error = err;
+            this.setState(this.state);
+            console.error("Error: ", err.message);
+        })
     }
     render() {
 
         if(!this.state.loaded) {
-            setTimeout(() => {
-                return HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace , {
-
-                })
-                    .then((response) => {
-                        let state = {};
-                        state.trainingroom = response.data;
-
-                        state.canEdit = AuthService.userData && (
-                            AuthService.isAdmin() ||
-                            AuthService.userData.username == state.trainingroom.owner_username
-                        );
-                        this.setState(state);
-
-                        return HTTPService.get('/simmodels/' + this.state.trainingroom.simModelNamespace , {
-
-                        })
-                    })
-                    .then((response) => {
-
-                        this.state.simModel = response.data;
-                        this.state.simModel._fitnessCache = {};
-                        this.state.simModel.fitness.forEach((fitnessModel)=>{
-                            this.state.simModel._fitnessCache[fitnessModel.eventType] = this.state.simModel._fitnessCache[fitnessModel.eventType] || [];
-                            fitnessModel.eventTypeIndex = this.state.simModel._fitnessCache[fitnessModel.eventType].length;
-                            this.state.simModel._fitnessCache[fitnessModel.eventType].push(fitnessModel);
-
-                        })
-                        this.state.loaded = true;
-
-                        this.setState(this.state);
-
-                    })
-                    .catch((err) => {
-                        this.state.error = err;
-                        this.setState(this.state);
-                        console.error("Error: ", err.message);
-                    })
-            }, 1000);
+            return <span>Loading...</span>
         }
         return (
             <div>
@@ -129,7 +146,11 @@ class TrainingRoomFitnessRuleListPage extends Component {
                                                 /<a href={"/" + this.props.username}>{this.props.username}</a>
                                                 /<a href={"/" + this.props.username + "/trainingrooms"}>trainingrooms</a>
                                                 /<a
-                                                href={"/" + this.props.username + "/trainingrooms/" + this.state.trainingroom.namespace}>{this.state.trainingroom.namespace}</a>
+                                                href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace}>{this.props.trainingRoomNamespace}</a>
+                                                /<a
+                                                href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/roles"}>roles</a>
+                                                /<a
+                                                href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/roles/" + this.props.role}>{ this.props.role}</a>
                                                 /fitnessrules
                                             </h1>
 
@@ -188,7 +209,7 @@ class TrainingRoomFitnessRuleListPage extends Component {
                                                         </thead>
                                                         <tbody>
                                                         {
-                                                            this.state.trainingroom.fitnessRules.map((fitnessRule)=>{
+                                                            this.state.fitnessRules.map((fitnessRule)=>{
                                                                 return <FitnessRuleComponent key={fitnessRule.id} fitnessRule={fitnessRule} simModel={this.state.simModel} trainingRoom={this.state.trainingRoom} page={this}/>
                                                             })
                                                         }

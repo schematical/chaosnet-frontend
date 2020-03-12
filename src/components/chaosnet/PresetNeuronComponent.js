@@ -98,7 +98,7 @@ class PresetNeuronComponent extends Component {
             this.state.fitnessRule.attributeId = null;
         }*/
         this.setState(this.state);
-        this.state.page.save(this.state.presetNeuron, this);
+        this.state.page.updateNeuron(this.state.presetNeuron, this);
     }
     delete(){
         this.state.page.removeRule(this);

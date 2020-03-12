@@ -80,7 +80,7 @@ class FitnessRuleComponent extends Component {
             this.state.fitnessRule.attributeId = null;
         }
         this.setState(this.state);
-        this.state.page.save(this.state.fitnessRule, this);
+        this.state.page.updateRule(this.state.fitnessRule, this);
     }
     delete(){
         this.state.page.removeRule(this);
