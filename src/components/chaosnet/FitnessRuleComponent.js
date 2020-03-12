@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import Link  from 'react-router-component';
 import AuthService from "../../services/AuthService";
+import RawEditComponent from "./RawEditComponent";
 
 class FitnessRuleComponent extends Component {
 
@@ -30,6 +31,20 @@ class FitnessRuleComponent extends Component {
         this.debugFitnessRule = this.debugFitnessRule.bind(this);
         this.save = this.save.bind(this);
         this.delete = this.delete.bind(this);
+        this.onRawUpdate = this.onRawUpdate.bind(this);
+        this.showRawEdit = this.showRawEdit.bind(this);
+
+    }
+    showRawEdit(){
+        this.refs.rawEditComponent.show(this.state.fitnessRule);
+    }
+    onRawUpdate(fitnessRule){
+        let state = {
+            fitnessRule: fitnessRule,
+            dirty: true
+        }
+        this.setState(state);
+
     }
 
     handleChange(event) {
@@ -151,7 +166,15 @@ class FitnessRuleComponent extends Component {
                         this.state.dirty &&
                         <button className="btn btn-sm btn-primary " onClick={this.save}>Save</button>
                     }
-                    <button className="btn btn-sm btn-danger " onClick={this.delete}>X</button>
+                    {
+                        this.state.canEdit &&
+                        <button className="btn btn-sm btn-danger " onClick={this.delete}>X</button>
+                    }
+                    {
+                        this.state.canEdit &&
+                        <button className="btn btn-sm btn-info " onClick={this.showRawEdit}>R</button>
+                    }
+                    <RawEditComponent ref="rawEditComponent"id={this.state.fitnessRule.id + "_rawEditComponent"} title={this.state.fitnessRule.id} onSave={this.onRawUpdate} />
                 </td>
 
             </tr>

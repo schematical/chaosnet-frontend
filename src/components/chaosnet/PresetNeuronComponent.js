@@ -1,13 +1,13 @@
 import React, {Component} from 'react';
 import Link  from 'react-router-component';
 import AuthService from "../../services/AuthService";
+import RawEditComponent from "./RawEditComponent";
 
 const _ = require('underscore');
 class PresetNeuronComponent extends Component {
 
     constructor(props) {
         super(props);
-console.log("props.simModel._neuronCache[props.presetNeuron['$TYPE']]: ", props.presetNeuron['$TYPE'], props.simModel._neuronCache[props.presetNeuron['$TYPE']]);
         this.state = {
             page: props.page,
             simModel: props.simModel,
@@ -28,9 +28,21 @@ console.log("props.simModel._neuronCache[props.presetNeuron['$TYPE']]: ", props.
         this.save = this.save.bind(this);
         this.delete = this.delete.bind(this);
         this.renderInputs = this.renderInputs.bind(this);
+        this.onRawUpdate = this.onRawUpdate.bind(this);
+        this.showRawEdit = this.showRawEdit.bind(this);
 
     }
+    showRawEdit(){
+        this.refs.rawEditComponent.show(this.state.presetNeuron);
+    }
+    onRawUpdate(newPresetNeuron){
+        let state = {
+            presetNeuron: newPresetNeuron,
+            dirty: true
+        }
+        this.setState(state);
 
+    }
     handleChange(event) {
         let state = {
             presetNeuron: this.state.presetNeuron
@@ -234,7 +246,11 @@ console.log("props.simModel._neuronCache[props.presetNeuron['$TYPE']]: ", props.
                         this.state.canEdit &&
                         <button className="btn btn-sm btn-danger " onClick={this.delete}>X</button>
                     }
-
+                    {
+                        this.state.canEdit &&
+                        <button className="btn btn-sm btn-info " onClick={this.showRawEdit}>R</button>
+                    }
+                    <RawEditComponent ref="rawEditComponent" id={this.state.presetNeuron.id + "_rawEditComponent"} title={this.state.presetNeuron.id} onSave={this.onRawUpdate} />
                 </td>
 
             </tr>

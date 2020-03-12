@@ -31,6 +31,8 @@ import TrainingRoomTRanksOrgsListPage from "./pages/chaosnet/TrainingRoomTRanksO
 import TrainingRoomPresetNeuronListPage from "./pages/chaosnet/TrainingRoomPresetNeuronListPage";
 import TrainingRoomTRanksImportPage from "./pages/chaosnet/TrainingRoomTRanksImportPage";
 import ConfigService from "./services/ConfigService";
+import TrainingRoomRolesListPage from "./pages/chaosnet/TrainingRoomRolesListPage";
+import TrainingRoomRoleDetailPage from "./pages/chaosnet/TrainingRoomRoleDetailPage";
 class App extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired
@@ -59,6 +61,11 @@ class App extends Component {
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/organisms/:organism" handler={TrainingRoomOrgDetailPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/organisms/:organism/nnet" handler={TrainingRoomOrgNNetDetailPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/organisms/:organism/nnet/neurons/:neuron" handler={TrainingRoomOrgNNetDetailPage} />
+            <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/roles" handler={TrainingRoomRolesListPage} />
+            <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/roles/:role" handler={TrainingRoomRoleDetailPage} />
+            <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/roles/:role/fitnessrules" handler={TrainingRoomFitnessRuleListPage} />
+            <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/roles/:role/presetneurons" handler={TrainingRoomPresetNeuronListPage} />
+
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/tranks" handler={TrainingRoomTRanksListPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/tranks/import" handler={TrainingRoomTRanksImportPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/tranks/:trank" handler={TrainingRoomTRanksDetailPage} />

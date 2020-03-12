@@ -4,6 +4,7 @@ import TopbarComponent from '../../components/TopbarComponent';
 import AuthService from "../../services/AuthService";
 import FooterComponent from "../../components/FooterComponent";
 import HTTPService from "../../services/HTTPService";
+import RawEditComponent from "../../components/chaosnet/RawEditComponent";
 const axios = require('axios');
 class TrainingRoomDetailPage extends Component {
     constructor(props) {
@@ -15,6 +16,22 @@ class TrainingRoomDetailPage extends Component {
         this.handleConfigChange = this.handleConfigChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.isOwner = this.isOwner.bind(this);
+        this.onRawUpdate = this.onRawUpdate.bind(this);
+        this.showRawEdit = this.showRawEdit.bind(this);
+
+    }
+    showRawEdit(event){
+        event.preventDefault();
+        this.refs.rawEditComponent.show(this.state.trainingroom.config);
+    }
+    onRawUpdate(config){
+        let state = {
+            trainingroom: this.state.trainingroom
+        }
+
+        state.trainingroom.config = config;
+        this.setState(state);
+
     }
     handleConfigChange(event) {
         //let state = {};
@@ -114,19 +131,21 @@ class TrainingRoomDetailPage extends Component {
                                                         </div>
                                                     </div>
                                                 }
-                                                <a className="btn btn-primary btn-sm"  href={"/" + this.state.trainingroom.owner_username +  "/trainingrooms/" + this.state.trainingroom.namespace + "/fitnessrules"}>Fitness Rules</a>
-                                                <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/organisms"}>
-                                                    Organisms
-                                                </a>
-                                                <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/tranks"}>
-                                                    Taxonomic Ranks
-                                                </a>
-                                                <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/sessions"}>
-                                                    Sessions
-                                                </a>
-                                                <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/presetneurons"}>
-                                                    Preset Neurons
-                                                </a>
+                                                <div className="btn-group" role="group" aria-label="Options">
+                                                    <a className="btn btn-primary btn-sm"  href={"/" + this.state.trainingroom.owner_username +  "/trainingrooms/" + this.state.trainingroom.namespace + "/fitnessrules"}>Fitness Rules</a>
+                                                    <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/organisms"}>
+                                                        Organisms
+                                                    </a>
+                                                    <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/tranks"}>
+                                                        Taxonomic Ranks
+                                                    </a>
+                                                    <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/sessions"}>
+                                                        Sessions
+                                                    </a>
+                                                    <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/presetneurons"}>
+                                                        Preset Neurons
+                                                    </a>
+                                                </div>
 
                                             </div>
 
@@ -274,10 +293,19 @@ class TrainingRoomDetailPage extends Component {
                                                         </div>
                                                         {
                                                             this.isOwner() &&
-                                                            <button className="btn btn-primary btn-user btn-block">
-                                                                Save
-                                                            </button>
+                                                                <div>
+                                                                    <button className="btn btn-primary btn-user btn-block">
+                                                                        Save
+                                                                    </button>
+                                                                    <button className="btn btn-info btn-user btn-block" onClick={this.showRawEdit}>
+                                                                        Raw
+                                                                    </button>
+                                                                    <RawEditComponent ref="rawEditComponent"id={this.state.trainingroom.namespace + "_rawEditComponent"} title={this.state.trainingroom.namespace } onSave={this.onRawUpdate} />
+
+                                                                </div>
                                                         }
+
+
                                                     </form>
                                                 </div>
                                             </div>

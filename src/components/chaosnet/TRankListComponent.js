@@ -7,7 +7,8 @@ class TRankListComponent extends Component {
         super(props);
 
         this.state = {
-            trank: this.props.trank
+            trank: this.props.trank,
+            uri: "/" + this.props.page.props.username + "/trainingrooms/" + this.props.page.props.trainingRoomNamespace + "/tranks/" +this.state.trank.namespace
         }
 
         this.handleChange = this.handleChange.bind(this);
@@ -26,12 +27,12 @@ class TRankListComponent extends Component {
 
             <tr>
                 <th scope="row">
-                    <a href={"/" + this.props.page.props.username + "/trainingrooms/" + this.props.page.props.trainingRoomNamespace + "/tranks/" +this.state.trank.namespace }>
+                    <a href={this.state.uri}>
                         {this.state.trank.namespace}
                     </a>
 
                 </th>
-                <a href={"/" + this.props.page.props.username + "/trainingrooms/" + this.props.page.props.trainingRoomNamespace + "/tranks/" +this.state.trank.namespace }>
+                <a href={this.state.uri}>
                     {this.state.trank.name}
                 </a>
                 <td>
@@ -56,8 +57,8 @@ class TRankListComponent extends Component {
                         <div id={"spriteGroup_" + this.state.trank.namespace} className="collapse" aria-labelledby="headingTwo"
                              data-parent="#accordionSidebar">
                             <div className="bg-white py-2 collapse-inner rounded">
-                                <h6 className="collapse-header">ChaosPixel:</h6>
-                                <a className="collapse-item" href="/chaospixel">Slicer</a>
+                                <h6 className="collapse-header">ChaosCraft:</h6>
+                                <a className="collapse-item" href={this.state.uri + '/organisms'}>Organisms</a>
                             </div>
                         </div>
                     </div>
