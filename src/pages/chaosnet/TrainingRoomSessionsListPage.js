@@ -16,28 +16,27 @@ class TrainingRoomSessionsListPage extends Component {
         this.state = {
             sessions:[]
         }
+        HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions', {
 
+        })
+        .then((response) => {
+            let state = {};
+            state.sessions = response.data;
+            state.loaded = true;
+            this.setState(state);
+        })
+        .catch((err) => {
+            let state = {};
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        })
     }
     render() {
 
         if(!this.state.loaded) {
-            setTimeout(() => {
-                return HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions', {
+           return <span>Loading....</span>
 
-                })
-                    .then((response) => {
-                        let state = {};
-                        state.sessions = response.data;
-                        state.loaded = true;
-                        this.setState(state);
-                    })
-                    .catch((err) => {
-                        let state = {};
-                        state.error = err;
-                        this.setState(state);
-                        console.error("Error: ", err.message);
-                    })
-            }, 1000);
         }
         return (
             <div>

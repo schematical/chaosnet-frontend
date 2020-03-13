@@ -8,7 +8,7 @@ class TRankListComponent extends Component {
 
         this.state = {
             trank: this.props.trank,
-            uri: "/" + this.props.page.props.username + "/trainingrooms/" + this.props.page.props.trainingRoomNamespace + "/tranks/" +this.state.trank.namespace
+            uri: "/" + this.props.page.props.username + "/trainingrooms/" + this.props.page.props.trainingRoomNamespace + "/tranks/" +this.props.trank.namespace
         }
 
         this.handleChange = this.handleChange.bind(this);

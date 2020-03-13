@@ -17,6 +17,26 @@ class TrainingRoomTRanksListPage extends Component {
             _lifeState: "Active"
         }
         this.handleChange = this.handleChange.bind(this);
+        let qs = "state=" +this.state._lifeState;
+        let url = '/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks?' + qs;
+        if(this.props.session){
+            url = '/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions/' + this.props.session + '/species?' + qs;
+        }
+        HTTPService.get(url, {
+
+        })
+        .then((response) => {
+            let state = {};
+            state.tranks = response.data;
+            state.loaded = true;
+            this.setState(state);
+        })
+        .catch((err) => {
+            let state = {};
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        })
 
     }
     handleChange(event) {
@@ -29,28 +49,7 @@ class TrainingRoomTRanksListPage extends Component {
     render() {
 
         if(!this.state.loaded) {
-            setTimeout(() => {
-                let qs = "state=" +this.state._lifeState;
-                let url = '/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks?' + qs;
-                if(this.props.session){
-                    url = '/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions/' + this.props.session + '/species?' + qs;
-                }
-                return HTTPService.get(url, {
-
-                })
-                    .then((response) => {
-                        let state = {};
-                        state.tranks = response.data;
-                        state.loaded = true;
-                        this.setState(state);
-                    })
-                    .catch((err) => {
-                        let state = {};
-                        state.error = err;
-                        this.setState(state);
-                        console.error("Error: ", err.message);
-                    })
-            }, 1000);
+           return "<span>Loading...</span>";
         }
         return (
             <div>
