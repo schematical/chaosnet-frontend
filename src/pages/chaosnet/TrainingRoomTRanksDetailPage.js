@@ -158,6 +158,9 @@ class TrainingRoomTRanksDetailPage extends Component {
                                                     <h3>
                                                         Gens Since Last Improvement: {this.state.trank.gensSinceLastImprovement}
                                                     </h3>
+                                                    <h3>
+                                                        Complexity: {this.state.trank.complexityScore}
+                                                    </h3>
                                                     {
                                                         this.state.trank.parentNamespace &&
                                                         <h3>
@@ -188,10 +191,21 @@ class TrainingRoomTRanksDetailPage extends Component {
                                                                 <option value="StalledOut">StalledOut</option>
                                                                 <option value="MarkedForColdStorage">MarkedForColdStorage</option>
                                                             </select>
-                                                            <button className="btn btn-primary btn-sm">
-                                                                Update
-                                                            </button>
+
                                                         </div>
+                                                        <div className="form-group">
+                                                            <label>
+                                                                Evolve State
+                                                            </label>
+                                                            <select id="evolveState" name="evolveState" className="form-control form-control-user" value={this.state.trank.evolveState} onChange={this.handleChange}>
+                                                                <option value="Add">Add</option>
+                                                                <option value="Subtract">Subtract</option>
+                                                            </select>
+
+                                                        </div>
+                                                        <button className="btn btn-primary btn-sm">
+                                                            Update
+                                                        </button>
                                                     </form>
 
                                                     {this.state.trank.historicalScores &&

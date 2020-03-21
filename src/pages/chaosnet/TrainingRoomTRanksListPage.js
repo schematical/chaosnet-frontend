@@ -117,6 +117,8 @@ class TrainingRoomTRanksListPage extends Component {
                                                             <th scope="col">High Score</th>
 
                                                             <th scope="col">Life State</th>
+                                                            <th scope="col">Evolve State</th>
+                                                            <th scope="col">Complexity</th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>
