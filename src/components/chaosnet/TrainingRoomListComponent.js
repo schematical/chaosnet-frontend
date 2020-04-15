@@ -33,7 +33,7 @@ class TrainingRoomListComponent extends Component {
 
                 </th>
 
-                <td>
+                {/*<td>
                     <div className="dropdown">
                         <a className="btn btn-sm btn-secondary nav-link collapsed" href="#" data-toggle="collapse"
                            data-target={"#spriteGroup_" + this.props.trainingRoom.namespace} aria-expanded="true" aria-controls="collapseTwo">
@@ -48,7 +48,7 @@ class TrainingRoomListComponent extends Component {
                             </div>
                         </div>
                     </div>
-                </td>
+                </td>*/}
 
             </tr>
 

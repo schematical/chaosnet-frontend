@@ -12,9 +12,11 @@ class TrainingRoomFitnessRuleListPage extends Component {
         super(props);
 
         this.state = {
-            canEdit: false
+            canEdit: false,
+            showSaveAll: false
         }
         this.createNewRule = this.createNewRule.bind(this);
+        this.clearAll = this.clearAll.bind(this);
 
     }
 
@@ -25,10 +27,24 @@ class TrainingRoomFitnessRuleListPage extends Component {
         })
         this.setState(this.state);
     }
+    clearAll(){
+        let state = {
+            trainingroom:this.state.trainingroom,
+            showSaveAll: true
+        }
+        state.trainingroom.fitnessRules = [];
+        this.setState(state);
+
+
+
+    }
     removeRule(component){
 
         let fitnessRule  = component.state.fitnessRule
-        this.state.trainingroom.fitnessRules = _.reject(this.state.trainingroom.fitnessRules,
+        let state = {
+            trainingroom: this.state.trainingroom
+        }
+        state.trainingroom.fitnessRules = _.reject(state.trainingroom.fitnessRules,
             function(_fitnessRule){
             if(component.state.isNew && _fitnessRule.isNew){
                 return true;
@@ -36,25 +52,31 @@ class TrainingRoomFitnessRuleListPage extends Component {
                 return true;
             }
         });
-
-        this.setState(this.state);
+        if(state.trainingroom.fitnessRules.length == 0){
+            state.showSaveAll = true;
+        }
+        this.setState(state);
     }
     save(fitnessRule, ele){
-        this.state.trainingroom.fitnessRules.forEach((_fitnessRule, i)=>{
-            if(ele.state.isNew && _fitnessRule._isNew){
-                fitnessRule._isNew = false;
-                this.state.trainingroom.fitnessRules[i] = fitnessRule;
-            }else if(fitnessRule.id == _fitnessRule.id){
-                this.state.trainingroom.fitnessRules[i] = fitnessRule;
-            }
-        })
+        if(fitnessRule) {
+            this.state.trainingroom.fitnessRules.forEach((_fitnessRule, i) => {
+                if (ele.state.isNew && _fitnessRule._isNew) {
+                    fitnessRule._isNew = false;
+                    this.state.trainingroom.fitnessRules[i] = fitnessRule;
+                } else if (fitnessRule.id == _fitnessRule.id) {
+                    this.state.trainingroom.fitnessRules[i] = fitnessRule;
+                }
+            })
+        }
         return HTTPService.put('/' + this.state.trainingroom.owner_username + '/trainingrooms/' + this.state.trainingroom.namespace,
             this.state.trainingroom,
             {
             }
         )
             .then((response) => {
-                ele.markClean();
+                if(ele) {
+                    ele.markClean();
+                }
 
             })
             .catch((err) => {
@@ -195,13 +217,31 @@ class TrainingRoomFitnessRuleListPage extends Component {
 
                                                         </tbody>
                                                     </table>
-                                                    {
-                                                        this.state.canEdit &&
-                                                        <button className="btn btn-danger btn-sm"
-                                                                onClick={this.createNewRule}>
-                                                            New Rule
-                                                        </button>
-                                                    }
+                                                    <div className="btn-group" role="group" aria-label="Basic example">
+                                                        {
+                                                            this.state.canEdit &&
+                                                            <button className="btn btn-primary btn-sm"
+                                                                    onClick={this.createNewRule}>
+                                                                New Rule
+                                                            </button>
+                                                        }
+                                                        {
+                                                            this.state.canEdit &&
+                                                            !this.state.showSaveAll &&
+                                                            <button className="btn btn-info btn-sm"
+                                                                    onClick={this.clearAll}>
+                                                                Clear All
+                                                            </button>
+                                                        }
+                                                        {
+                                                            this.state.canEdit &&
+                                                            this.state.showSaveAll &&
+                                                            <button className="btn btn-danger btn-sm"
+                                                                    onClick={(ele)=>{ this.save(null, null);  }}>
+                                                                Confirm Save
+                                                            </button>
+                                                        }
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

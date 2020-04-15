@@ -101,16 +101,23 @@ console.log("props.simModel._neuronCache[props.presetNeuron['$TYPE']]: ", props.
         if(this.state.neuronType[key]["$SOURCE"]){
             switch(this.state.neuronType[key]["$SOURCE"]){
                 case('biology'):
-                    let biology = null;
+                    let biologyTypes = [];
                     this.state.page.state.simModel.biology.forEach((b)=>{
                         if(this.state.neuronType[key]["$BIOLOGY_TYPE"] == b["$TYPE"]){
-                            biology = b;
+                            biologyTypes.push(b);
                         }
                     })
                     let biologyIds = [];
-                    for(let i = 0; i < biology["$COUNT"]; i++){
-                        biologyIds.push(biology["$TYPE"] + "_" + i);
-                    }
+                    biologyTypes.forEach((biology)=>{
+
+                        for(let i = 0; i < biology["$COUNT"]; i++){
+                            if( biology["$ID"]){
+                                biologyIds.push(biology["$ID"]);
+                            }else {
+                                biologyIds.push(biology["$TYPE"] + "_" + i);
+                            }
+                        }
+                    })
                     return <td key={key}>
                         <div className="input-group mb-3">
 
@@ -132,7 +139,7 @@ console.log("props.simModel._neuronCache[props.presetNeuron['$TYPE']]: ", props.
                         </div>
                         {
                             this.state.canEdit &&
-                            <button className="btn btn-sm btn-danger " onClick={()=>{this.state.page.addAll(this.state.presetNeuron, this.state.neuronType, key, biology);}}>Add All</button>
+                            <button className="btn btn-sm btn-danger " onClick={()=>{this.state.page.addAll(this.state.presetNeuron, this.state.neuronType, key, biologyTypes);}}>Add All</button>
                         }
 
 

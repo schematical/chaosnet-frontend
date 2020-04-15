@@ -188,6 +188,9 @@ class TrainingRoomSessionDetailPage extends Component {
                                                     <a className="btn btn-primary btn-sm" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/" + this.props.session + "/species"}>
                                                         Species
                                                     </a>
+                                                    <h4>
+                                                        Last Updated: {this.state.lastUpdateDate}
+                                                    </h4>
                                                     <h3>
                                                         Organisms
                                                     </h3>

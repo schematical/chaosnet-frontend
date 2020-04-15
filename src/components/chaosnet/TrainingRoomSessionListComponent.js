@@ -27,13 +27,13 @@ class TrainingRoomSessionListComponent extends Component {
 
             <tr>
                 <th scope="row">
-                    <a href={"/" + this.props.page.props.username + "/trainingrooms/" + this.props.page.props.trainingRoomNamespace + "/sessions/" +this.state.session.namespace }>
+                    <a href={"/" + this.state.session.trainingRoomUsername + "/trainingrooms/" + this.state.session.trainingRoomNamespace + "/sessions/" +this.state.session.namespace }>
                         {this.state.session.owner_username}{/* - {this.state.session.namespace}*/}
                     </a>
 
                 </th>
 
-                <td>
+                {/*<td>
                     <div className="dropdown">
                         <a className="btn btn-sm btn-secondary nav-link collapsed" href="#" data-toggle="collapse"
                            data-target={"#spriteGroup_" + this.state.session.namespace} aria-expanded="true" aria-controls="collapseTwo">
@@ -48,7 +48,7 @@ class TrainingRoomSessionListComponent extends Component {
                             </div>
                         </div>
                     </div>
-                </td>
+                </td>*/}
 
             </tr>
 

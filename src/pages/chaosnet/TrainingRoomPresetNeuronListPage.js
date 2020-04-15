@@ -12,12 +12,23 @@ class TrainingRoomPresetNeuronListPage extends Component {
         super(props);
 
         this.state = {
-            canEdit: false
+            canEdit: false,
+            showSaveAll: false
         }
         this.createNew = this.createNew.bind(this);
+        this.clearAll = this.clearAll.bind(this);
+
 
     }
-    hack(){
+    clearAll(){
+        let state = {
+            trainingroom:this.state.trainingroom,
+            showSaveAll: true
+        }
+        state.trainingroom.config.presetNeurons = [];
+        this.setState(state);
+
+
 
     }
     addAll(baseNeuron, neuronType, key, biology){
@@ -45,7 +56,10 @@ class TrainingRoomPresetNeuronListPage extends Component {
     removeRule(component){
 
         let presetNeuron  = component.state.presetNeuron;
-        this.state.trainingroom.config.presetNeurons = _.reject(this.state.trainingroom.config.presetNeurons,
+        let state = {
+            trainingroom:  this.state.trainingroom
+        }
+        state.trainingroom.config.presetNeurons = _.reject(this.state.trainingroom.config.presetNeurons,
             function(_presetNeuron){
             if(component.state.isNew && _presetNeuron.isNew){
                 return true;
@@ -54,18 +68,22 @@ class TrainingRoomPresetNeuronListPage extends Component {
             }
         });
 
-        this.setState(this.state);
+        if(state.trainingroom.config.presetNeurons.length == 0){
+            state.showSaveAll = true;
+        }
+        this.setState(state);
     }
     save(presetNeuron, ele){
-
-        this.state.trainingroom.config.presetNeurons.forEach((_presetNeuron, i)=>{
-            if(ele.state.isNew && _presetNeuron._isNew){
-                presetNeuron._isNew = false;
-                this.state.trainingroom.config.presetNeurons[i] = presetNeuron;
-            }else if(presetNeuron.id == _presetNeuron.id){
-                this.state.trainingroom.config.presetNeurons[i] = presetNeuron;
-            }
-        })
+        if(presetNeuron) {
+            this.state.trainingroom.config.presetNeurons.forEach((_presetNeuron, i) => {
+                if (ele.state.isNew && _presetNeuron._isNew) {
+                    presetNeuron._isNew = false;
+                    this.state.trainingroom.config.presetNeurons[i] = presetNeuron;
+                } else if (presetNeuron.id == _presetNeuron.id) {
+                    this.state.trainingroom.config.presetNeurons[i] = presetNeuron;
+                }
+            })
+        }
         return HTTPService.put('/' + this.state.trainingroom.owner_username + '/trainingrooms/' + this.state.trainingroom.namespace,
             this.state.trainingroom,
             {
@@ -73,11 +91,16 @@ class TrainingRoomPresetNeuronListPage extends Component {
             }
         )
             .then((response) => {
-                ele.markClean();
-
+                if(ele) {
+                    ele.markClean();
+                }
+                let state = {};
+                state.showSaveAll = false;
+                this.setState(state);
             })
             .catch((err) => {
                 let state = {};
+
                 state.error = err.response && err.response.data && err.response.data.error || err;
                 this.setState(state);
                 console.error("Error: ", err.message);
@@ -232,13 +255,31 @@ class TrainingRoomPresetNeuronListPage extends Component {
 
                                                         </tbody>
                                                     </table>
-                                                    {
-                                                        this.state.canEdit &&
-                                                        <button className="btn btn-danger btn-sm"
-                                                                onClick={this.createNew}>
-                                                            New Neuron
-                                                        </button>
-                                                    }
+                                                    <div className="btn-group" role="group" aria-label="Basic example">
+                                                        {
+                                                            this.state.canEdit &&
+                                                            <button className="btn btn-primary btn-sm"
+                                                                    onClick={this.createNew}>
+                                                                New Neuron
+                                                            </button>
+                                                        }
+                                                        {
+                                                            this.state.canEdit &&
+                                                            !this.state.showSaveAll &&
+                                                            <button className="btn btn-info btn-sm"
+                                                                    onClick={this.clearAll}>
+                                                                Clear All
+                                                            </button>
+                                                        }
+                                                        {
+                                                            this.state.canEdit &&
+                                                            this.state.showSaveAll &&
+                                                            <button className="btn btn-danger btn-sm"
+                                                                    onClick={(ele)=>{ this.save(null, null);  }}>
+                                                                Confirm Save
+                                                            </button>
+                                                        }
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

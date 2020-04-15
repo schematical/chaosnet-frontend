@@ -2,8 +2,32 @@ import React, {Component} from 'react';
 import SidebarComponent from '../components/SidebarComponent';
 import TopbarComponent from '../components/TopbarComponent';
 import FooterComponent from "../components/FooterComponent";
+import HTTPService from "../services/HTTPService";
+import OrgListComponent from "../components/chaosnet/OrgListComponent";
+import TrainingRoomListComponent from "../components/chaosnet/TrainingRoomListComponent";
+import TrainingRoomSessionListComponent from "../components/chaosnet/TrainingRoomSessionListComponent";
 class HomePage extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            loaded:false
+        }
+
+    }
     render() {
+        if(!this.state.loaded){
+
+            HTTPService.get('/trainingrooms/home', {})
+                .then((response) => {
+                    let state = {};
+                    state.loaded = true;
+                    state.trainingRooms = response.data.trainingRooms;
+                    state.trainingRoomSessions = response.data.trainingRoomSessions;
+                    this.setState(state);
+                })
+
+        }
         return (
             <div>
                 <div>
@@ -22,7 +46,9 @@ class HomePage extends Component {
 
                                     <div className="row">
 
-                                        <div className="col-xl-8 col-lg-7">
+
+
+                                        <div className="col-xl-6 col-md-12 mb-6">
                                             <div className="card shadow mb-4">
                                                 <div className="card-header py-3">
                                                     <h1 className="h3 mb-0 text-gray-800">ChaosNet</h1>
@@ -35,24 +61,64 @@ class HomePage extends Component {
                                                             allowFullScreen></iframe>
                                                 </div>
                                             </div>
+                                        </div>
+                                        <div className="col-xl-4 col-md-12 mb-4">
                                             <div className="card shadow mb-4">
                                                 <div className="card-header py-3">
-                                                    <h1 className="h3 mb-0 text-gray-800">Featured Room</h1>
+                                                    <h1 className="h3 mb-0 text-gray-800">Discord</h1>
                                                 </div>
                                                 <div className="card-body">
-                                                    <ul>
-                                                        <li>
-                                                            <a href="/schematical/trainingrooms/chickenhunt">Chicken Hunt</a>
-                                                        </li>
-                                                        <li>
-                                                            <a href="/schematical/trainingrooms/maze">Maze</a>
-                                                        </li>
-                                                    </ul>
+                                                    <iframe src="https://discordapp.com/widget?id=477184896171900928&theme=dark"
+                                                            width="100%" height="500" allowTransparency="true"
+                                                            frameBorder="0"></iframe>
 
                                                 </div>
                                             </div>
                                         </div>
+                                        {
+                                            this.state.trainingRooms &&
 
+                                            <div className="col-xl-3 col-md-6 mb-4">
+                                                <div className="card shadow mb-4">
+                                                    <div className="card-header py-3">
+                                                        <h1 className="h3 mb-0 text-gray-800">Recent Rooms</h1>
+                                                    </div>
+                                                    <div className="card-body">
+                                                        <ul>
+                                                            {
+                                                                this.state.trainingRooms.map((trainingRoom) => {
+                                                                    return <TrainingRoomListComponent
+                                                                        key={trainingRoom.namespace}
+                                                                        trainingRoom={trainingRoom} page={this}/>
+                                                                })
+                                                            }
+                                                        </ul>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        {
+                                            this.state.trainingRoomSessions &&
+
+                                            <div className="col-xl-3 col-md-6 mb-4">
+                                                <div className="card shadow mb-4">
+                                                    <div className="card-header py-3">
+                                                        <h1 className="h3 mb-0 text-gray-800">Recent Sessions</h1>
+                                                    </div>
+                                                    <div className="card-body">
+                                                        <ul>
+                                                            {
+                                                                this.state.trainingRoomSessions.map((session) => {
+                                                                    return <TrainingRoomSessionListComponent session={session} page={this}/>
+                                                                })
+                                                            }
+                                                        </ul>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                                 {/* /.container-fluid */}
