@@ -116,7 +116,7 @@ class TrainingRoomOrgNNetDetailPage extends Component {
                         state.nNet = response.data.nNet;
 
                         state.nNet_clean = JSON.stringify(response.data.nNet);
-                        this.state.loaded = true;
+                        state.loaded = true;
 
 
                         this.nodeAgeTotals = {};
@@ -128,7 +128,7 @@ class TrainingRoomOrgNNetDetailPage extends Component {
                             state.complexityScore += 1;
                             node.dependencies.forEach((neuronDep)=>{
                                 state.complexityScore += 1;
-                                this.state.links.push({
+                                state.links.push({
                                     source: node.id,
                                     target: neuronDep.neuronId,
                                     neuronDep: neuronDep

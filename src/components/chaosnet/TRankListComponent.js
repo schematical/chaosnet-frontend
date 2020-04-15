@@ -48,6 +48,17 @@ class TRankListComponent extends Component {
                     {this.state.trank.lifeState}
                 </td>
                 <td>
+                    {this.state.trank.evolveState}
+                </td>
+                <td>
+                    {this.state.trank.complexityScore}
+                    {this.state.trank.complexityScore &&
+                        <span>
+                            ({Math.round((this.state.trank.currScore/ this.state.trank.complexityScore) * 100) / 100})
+                        </span>
+                    }
+                </td>
+                {/*<td>
                     <div className="dropdown">
                         <a className="btn btn-sm btn-secondary nav-link collapsed" href="#" data-toggle="collapse"
                            data-target={"#spriteGroup_" + this.state.trank.namespace} aria-expanded="true" aria-controls="collapseTwo">
@@ -62,7 +73,7 @@ class TRankListComponent extends Component {
                             </div>
                         </div>
                     </div>
-                </td>
+                </td>*/}
 
             </tr>
 

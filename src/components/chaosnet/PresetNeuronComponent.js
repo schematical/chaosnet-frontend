@@ -113,16 +113,23 @@ class PresetNeuronComponent extends Component {
         if(this.state.neuronType[key]["$SOURCE"]){
             switch(this.state.neuronType[key]["$SOURCE"]){
                 case('biology'):
-                    let biology = null;
+                    let biologyTypes = [];
                     this.state.page.state.simModel.biology.forEach((b)=>{
                         if(this.state.neuronType[key]["$BIOLOGY_TYPE"] == b["$TYPE"]){
-                            biology = b;
+                            biologyTypes.push(b);
                         }
                     })
                     let biologyIds = [];
-                    for(let i = 0; i < biology["$COUNT"]; i++){
-                        biologyIds.push(biology["$TYPE"] + "_" + i);
-                    }
+                    biologyTypes.forEach((biology)=>{
+
+                        for(let i = 0; i < biology["$COUNT"]; i++){
+                            if( biology["$ID"]){
+                                biologyIds.push(biology["$ID"]);
+                            }else {
+                                biologyIds.push(biology["$TYPE"] + "_" + i);
+                            }
+                        }
+                    })
                     return <td key={key}>
                         <div className="input-group mb-3">
 
@@ -144,7 +151,7 @@ class PresetNeuronComponent extends Component {
                         </div>
                         {
                             this.state.canEdit &&
-                            <button className="btn btn-sm btn-danger " onClick={()=>{this.state.page.addAll(this.state.presetNeuron, this.state.neuronType, key, biology);}}>Add All</button>
+                            <button className="btn btn-sm btn-danger " onClick={()=>{this.state.page.addAll(this.state.presetNeuron, this.state.neuronType, key, biologyTypes);}}>Add All</button>
                         }
 
 
@@ -213,7 +220,7 @@ class PresetNeuronComponent extends Component {
                     />
                 </td>
                 <td >
-                    <select  readOnly={!this.state.canEdit}  id="neuronType" name="neuronType" value={this.state.presetNeuron["$TYPE"]} onChange={this.handleChange}>
+                    <select  id="neuronType" name="neuronType" class="form-control" readOnly={!this.state.canEdit}  value={this.state.presetNeuron["$TYPE"]} onChange={this.handleChange}>
                         {
                             this.state.page.state.neuronOptions.map((option)=>{
 

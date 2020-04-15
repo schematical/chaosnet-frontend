@@ -7,6 +7,7 @@ import FooterComponent from "../../components/FooterComponent";
 import OrgListComponent from "../../components/chaosnet/OrgListComponent";
 import TRankListComponent from "../../components/chaosnet/TRankListComponent";
 import HTTPService from "../../services/HTTPService";
+import LoadingComponent from "../../components/LoadingComponent";
 const axios = require('axios');
 class TrainingRoomTRanksListPage extends Component {
     constructor(props) {
@@ -86,50 +87,60 @@ class TrainingRoomTRanksListPage extends Component {
 
 
                                         <div className="col-xl-12 col-lg-12">
+                                            { !this.state.loaded && <LoadingComponent /> }
+                                            {
+                                                this.state.loaded &&
+                                                <div className="card shadow mb-4">
 
-                                            <div className="card shadow mb-4">
-
-                                                <div className="card-body">
-                                                    {
-                                                        this.state.error &&
-                                                        <div className="card mb-4 py-3  bg-danger text-white shadow">
-                                                            <div className="card-body">
-                                                                Error   {this.state.error.status}
-                                                                <div className="text-white-50 small">
-                                                                    {this.state.error.message}
+                                                    <div className="card-body">
+                                                        {
+                                                            this.state.error &&
+                                                            <div
+                                                                className="card mb-4 py-3  bg-danger text-white shadow">
+                                                                <div className="card-body">
+                                                                    Error {this.state.error.status}
+                                                                    <div className="text-white-50 small">
+                                                                        {this.state.error.message}
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    }
-                                                    <select id="_lifeState" name="_lifeState" value={this.state._lifeState} onChange={this.handleChange}>
-                                                        <option value="Active">Active</option>
-                                                        <option value="StalledOut">StalledOut</option>
-                                                        <option value="MarkedForColdStorage">MarkedForColdStorage</option>
-                                                    </select>
-                                                    <table className="table">
-                                                        <thead>
-                                                        <tr>
-                                                            <th scope="col">Count {this.state.tranks.length}</th>
-                                                            <th scope="col">Name</th>
-                                                            <th scope="col">Age</th>
-                                                            <th scope="col">Current Score</th>
-                                                            <th scope="col">High Score</th>
-
-                                                            <th scope="col">Life State</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        {
-                                                            this.state.tranks.map((trank)=>{
-                                                                return <TRankListComponent trank={trank} page={this}/>
-                                                            })
                                                         }
+                                                        <select id="_lifeState" name="_lifeState"
+                                                                value={this.state._lifeState}
+                                                                onChange={this.handleChange}>
+                                                            <option value="Active">Active</option>
+                                                            <option value="StalledOut">StalledOut</option>
+                                                            <option value="MarkedForColdStorage">MarkedForColdStorage
+                                                            </option>
+                                                        </select>
+                                                        <table className="table">
+                                                            <thead>
+                                                            <tr>
+                                                                <th scope="col">Count {this.state.tranks.length}</th>
+                                                                <th scope="col">Name</th>
+                                                                <th scope="col">Age</th>
+                                                                <th scope="col">Current Score</th>
+                                                                <th scope="col">High Score</th>
 
-                                                        </tbody>
-                                                    </table>
-                                                    {/*<a  href={"/" + this.props.username + "/trainingrooms/new"} className="btn btn-danger btn-lg" onClick={this.createNewTrainingRoom}>Create New</a>*/}
+                                                                <th scope="col">Life State</th>
+                                                                <th scope="col">Evolve State</th>
+                                                                <th scope="col">Complexity</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            {
+                                                                this.state.tranks.map((trank) => {
+                                                                    return <TRankListComponent trank={trank}
+                                                                                               page={this}/>
+                                                                })
+                                                            }
+
+                                                            </tbody>
+                                                        </table>
+                                                        {/*<a  href={"/" + this.props.username + "/trainingrooms/new"} className="btn btn-danger btn-lg" onClick={this.createNewTrainingRoom}>Create New</a>*/}
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            }
                                         </div>
 
 

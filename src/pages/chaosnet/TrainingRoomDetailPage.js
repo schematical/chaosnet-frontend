@@ -5,6 +5,7 @@ import AuthService from "../../services/AuthService";
 import FooterComponent from "../../components/FooterComponent";
 import HTTPService from "../../services/HTTPService";
 import RawEditComponent from "../../components/chaosnet/RawEditComponent";
+import LoadingComponent from "../../components/LoadingComponent";
 const axios = require('axios');
 class TrainingRoomDetailPage extends Component {
     constructor(props) {
@@ -103,8 +104,7 @@ class TrainingRoomDetailPage extends Component {
                                 <TopbarComponent></TopbarComponent>
                                 {/* End of Topbar */}
                                 {/* Begin Page Content */}
-                                {
-                                    this.state.loaded && <div className="container-fluid">
+                                <div className="container-fluid">
                                     {/* Page Heading */}
                                     <div className="d-sm-flex align-items-center justify-content-between mb-4">
                                         <h1 className="h3 mb-0 text-gray-800">
@@ -118,202 +118,232 @@ class TrainingRoomDetailPage extends Component {
                                     <div className="row">
 
                                         <div className="col-xl-12 col-lg-12">
-                                            <div className="card shadow mb-4">
+                                            { !this.state.error && !this.state.loaded && <LoadingComponent /> }
+                                            {
+                                                this.state.error &&
+                                                <div className="card mb-4 py-3  bg-danger text-white shadow">
+                                                    <div className="card-body">
+                                                        Error   {this.state.error.status}
+                                                        <div className="text-white-50 small">
+                                                            {this.state.error.message}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                            {
+                                                this.state.loaded &&
+                                                <div className="card shadow mb-4">
+                                                    <div className="btn-group" role="group" aria-label="Basic example">
 
-                                                {
-                                                    this.state.error &&
-                                                    <div className="card mb-4 py-3  bg-danger text-white shadow">
-                                                        <div className="card-body">
-                                                            Error   {this.state.error.status}
-                                                            <div className="text-white-50 small">
-                                                                {this.state.error.message}
+                                                        <a className="btn btn-primary btn-sm"
+                                                           href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/tranks"}>
+                                                            Taxonomic Ranks
+                                                        </a>
+                                                        <a className="btn btn-primary btn-sm"
+                                                           href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/sessions"}>
+                                                            Sessions
+                                                        </a>
+
+                                                        <div className="btn-group" role="group">
+                                                            <button id="btnGroupDrop1" type="button"
+                                                                    className="btn btn-secondary dropdown-toggle"
+                                                                    data-toggle="dropdown" aria-haspopup="true"
+                                                                    aria-expanded="false">
+                                                                Edit
+                                                            </button>
+                                                            <div className="dropdown-menu"
+                                                                 aria-labelledby="btnGroupDrop1">
+                                                                <a className="dropdown-item" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/presetneurons"}>
+                                                                    Preset Neurons
+                                                                </a>
+                                                                <a className="dropdown-item" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/fitnessrules"}>
+                                                                    Fitness Rules
+                                                                </a>
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+
+
+                                                </div>
+                                            }
+                                            {
+                                                this.state.loaded &&
+                                                <div className="container-fluid">
+
+                                                    <div className="row">
+
+
+                                                        <div className="col-xl-6 col-md-12 mb-6">
+                                                            <div className="card shadow mb-4">
+                                                                <div className="card-header py-3">
+                                                                    <h1 className="h3 mb-0 text-gray-800">Config</h1>
+                                                                </div>
+                                                                <div className="card-body">
+                                                                    <form className="user" onSubmit={this.handleSubmit}>
+
+                                                                        <div className="form-group">
+                                                                            <label>
+                                                                                Top TRank
+                                                                            </label>
+                                                                            <input type="text"
+                                                                                   className="form-control form-control-user"
+                                                                                   readOnly={!this.isOwner()}
+                                                                                   id="topTRank" name="topTRank"
+                                                                                   aria-describedby="trainingRoomName"
+                                                                                   placeholder="Top TRank"
+                                                                                   value={this.state.trainingroom.config.topTRank}
+                                                                                   onChange={this.handleConfigChange}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="form-group">
+                                                                            <label>
+                                                                                Min Species Count
+                                                                            </label>
+                                                                            <input type="number"
+                                                                                   className="form-control form-control-user"
+                                                                                   readOnly={!this.isOwner()}
+                                                                                   id="minSpeciesCount"
+                                                                                   name="minSpeciesCount"
+                                                                                   aria-describedby="trainingRoomName"
+                                                                                   placeholder="Min Species Count"
+                                                                                   value={this.state.trainingroom.config.minSpeciesCount}
+                                                                                   onChange={this.handleConfigChange}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="form-group">
+                                                                            <label>
+                                                                                Max Surviving Species Per Generation
+                                                                            </label>
+                                                                            <input type="number"
+                                                                                   className="form-control form-control-user"
+                                                                                   readOnly={!this.isOwner()}
+                                                                                   id="maxSurvivngSpeciesPerGeneration"
+                                                                                   name="maxSurvivngSpeciesPerGeneration"
+                                                                                   aria-describedby="trainingRoomName"
+                                                                                   placeholder="Max Surviving Species Per Generation"
+                                                                                   value={this.state.trainingroom.config.maxSurvivngSpeciesPerGeneration}
+                                                                                   onChange={this.handleConfigChange}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="form-group">
+                                                                            <label>
+                                                                                Min Organisms Per Species Per Generation
+                                                                            </label>
+                                                                            <input type="number"
+                                                                                   className="form-control form-control-user"
+                                                                                   readOnly={!this.isOwner()}
+                                                                                   id="minOrganisimsPerSpeciesPerGeneration"
+                                                                                   name="minOrganisimsPerSpeciesPerGeneration"
+                                                                                   aria-describedby="trainingRoomName"
+                                                                                   placeholder="Min Organisms Per Species Per Generation"
+                                                                                   value={this.state.trainingroom.config.minOrganisimsPerSpeciesPerGeneration}
+                                                                                   onChange={this.handleConfigChange}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="form-group">
+                                                                            <label>
+                                                                                Max Surviving Organisms Per Species Per
+                                                                                Generation
+                                                                            </label>
+                                                                            <input type="number"
+                                                                                   className="form-control form-control-user"
+                                                                                   readOnly={!this.isOwner()}
+                                                                                   id="maxSurvivingOrganisimsPerSpeciesPerGeneration"
+                                                                                   name="maxSurvivingOrganisimsPerSpeciesPerGeneration"
+                                                                                   aria-describedby="trainingRoomName"
+                                                                                   placeholder="Max Surviving Organisms Per Species Per Generation"
+                                                                                   value={this.state.trainingroom.config.maxSurvivingOrganisimsPerSpeciesPerGeneration}
+                                                                                   onChange={this.handleConfigChange}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="form-group">
+                                                                            <label>
+                                                                                Species Gens To Stabilize
+                                                                            </label>
+                                                                            <input type="number"
+                                                                                   className="form-control form-control-user"
+                                                                                   id="speciesGensToStabilize"
+                                                                                   name="speciesGensToStabilize"
+                                                                                   aria-describedby="speciesGensToStabilize"
+                                                                                   placeholder="Species Gens To Stabilize"
+                                                                                   value={this.state.trainingroom.config.speciesGensToStabilize}
+                                                                                   onChange={this.handleConfigChange}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="form-group">
+                                                                            <label>
+                                                                                Species Gen To Improve
+                                                                            </label>
+                                                                            <input type="number"
+                                                                                   className="form-control form-control-user"
+                                                                                   readOnly={!this.isOwner()}
+                                                                                   id="speciesGenToImprove"
+                                                                                   name="speciesGenToImprove"
+                                                                                   aria-describedby="speciesGenToImprove"
+                                                                                   placeholder="Species Gen To Improve"
+                                                                                   value={this.state.trainingroom.config.speciesGenToImprove}
+                                                                                   onChange={this.handleConfigChange}
+                                                                            />
+                                                                        </div>
+                                                                        <div className="form-group">
+                                                                            <label>
+                                                                                Batch Size
+                                                                            </label>
+                                                                            <input type="number"
+                                                                                   className="form-control form-control-user"
+                                                                                   id="batchSize" name="batchSize"
+                                                                                   aria-describedby="batchSize"
+                                                                                   placeholder="Batch Size"
+                                                                                   value={this.state.trainingroom.config.batchSize}
+                                                                                   onChange={this.handleConfigChange}
+                                                                            />
+                                                                        </div>
+                                                                        {/* <div className="form-group">
+                                                                            <label>
+                                                                                Preset Observed Attributes
+                                                                            </label>
+                                                                            <input type="text" className="form-control form-control-user" readOnly={!this.isOwner()}
+                                                                                   id="presetObservedAttributes" name="presetObservedAttributes" aria-describedby="presetObservedAttributes"
+                                                                                   placeholder="Preset Observed Attributes"  value={this.state.trainingroom.config.presetObservedAttributes} onChange={this.handleConfigChange}
+                                                                            />
+                                                                        </div>*/}
+                                                                        <div className="form-group">
+                                                                            <label>
+                                                                                Accelerate Mutation As Species Gets
+                                                                                Stale Rate
+                                                                            </label>
+                                                                            <input type="number"
+                                                                                   className="form-control form-control-user"
+                                                                                   readOnly={!this.isOwner()}
+                                                                                   id="accellerateMutationAsSpeciesGetsStaleRate"
+                                                                                   name="accellerateMutationAsSpeciesGetsStaleRate"
+                                                                                   aria-describedby="accellerateMutationAsSpeciesGetsStaleRate"
+                                                                                   placeholder="accellerateMutationAsSpeciesGetsStaleRate"
+                                                                                   value={this.state.trainingroom.config.accellerateMutationAsSpeciesGetsStaleRate}
+                                                                                   onChange={this.handleConfigChange}
+                                                                            />
+                                                                        </div>
+
+                                                                        {
+                                                                            this.isOwner() &&
+                                                                            <button
+                                                                                className="btn btn-primary btn-user btn-block">
+                                                                                Save
+                                                                            </button>
+                                                                        }
+                                                                    </form>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                }
-                                                <div className="btn-group" role="group" aria-label="Options">
-                                                    <a className="btn btn-primary btn-sm"  href={"/" + this.state.trainingroom.owner_username +  "/trainingrooms/" + this.state.trainingroom.namespace + "/fitnessrules"}>Fitness Rules</a>
-                                                    <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/organisms"}>
-                                                        Organisms
-                                                    </a>
-                                                    <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/tranks"}>
-                                                        Taxonomic Ranks
-                                                    </a>
-                                                    <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/sessions"}>
-                                                        Sessions
-                                                    </a>
-                                                    <a className="btn btn-primary btn-sm" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/presetneurons"}>
-                                                        Preset Neurons
-                                                    </a>
                                                 </div>
-
-                                            </div>
-
-                                            <div className="card shadow mb-4">
-                                                <h2 className="h3 mb-0 text-gray-800">
-                                                    Config
-                                                </h2>
-                                                {/* Card Body */}
-                                                <div className="card-body">
-                                                    <form className="user" onSubmit={this.handleSubmit}>
-
-                                                        <div className="form-group">
-                                                            <label>
-                                                                Top TRank
-                                                            </label>
-                                                            <input type="text" className="form-control form-control-user" readOnly={!this.isOwner()}
-                                                                   id="topTRank" name="topTRank" aria-describedby="trainingRoomName"
-                                                                   placeholder="Top TRank"  value={this.state.trainingroom.config.topTRank} onChange={this.handleConfigChange}
-                                                            />
-                                                        </div>
-                                                        <div className="form-group">
-                                                            <label>
-                                                                Min Species Count
-                                                            </label>
-                                                            <input type="number" className="form-control form-control-user" readOnly={!this.isOwner()}
-                                                                   id="minSpeciesCount" name="minSpeciesCount" aria-describedby="trainingRoomName"
-                                                                   placeholder="Min Species Count"  value={this.state.trainingroom.config.minSpeciesCount} onChange={this.handleConfigChange}
-                                                            />
-                                                        </div>
-                                                        <div className="form-group">
-                                                            <label>
-                                                                Max Surviving Species Per Generation
-                                                            </label>
-                                                            <input type="number" className="form-control form-control-user" readOnly={!this.isOwner()}
-                                                                   id="maxSurvivngSpeciesPerGeneration" name="maxSurvivngSpeciesPerGeneration" aria-describedby="trainingRoomName"
-                                                                   placeholder="Max Surviving Species Per Generation"  value={this.state.trainingroom.config.maxSurvivngSpeciesPerGeneration} onChange={this.handleConfigChange}
-                                                            />
-                                                        </div>
-                                                        <div className="form-group">
-                                                            <label>
-                                                                Min Organisms Per Species Per Generation
-                                                            </label>
-                                                            <input type="number" className="form-control form-control-user" readOnly={!this.isOwner()}
-                                                                   id="minOrganisimsPerSpeciesPerGeneration" name="minOrganisimsPerSpeciesPerGeneration" aria-describedby="trainingRoomName"
-                                                                   placeholder="Min Organisms Per Species Per Generation"  value={this.state.trainingroom.config.minOrganisimsPerSpeciesPerGeneration} onChange={this.handleConfigChange}
-                                                            />
-                                                        </div>
-                                                        <div className="form-group">
-                                                            <label>
-                                                                Max Surviving Organisms Per Species Per Generation
-                                                            </label>
-                                                            <input type="number" className="form-control form-control-user" readOnly={!this.isOwner()}
-                                                                   id="maxSurvivingOrganisimsPerSpeciesPerGeneration" name="maxSurvivingOrganisimsPerSpeciesPerGeneration" aria-describedby="trainingRoomName"
-                                                                   placeholder="Max Surviving Organisms Per Species Per Generation"  value={this.state.trainingroom.config.maxSurvivingOrganisimsPerSpeciesPerGeneration} onChange={this.handleConfigChange}
-                                                            />
-                                                        </div>
-                                                        <div className="form-group">
-                                                            <label>
-                                                                Species Gens To Stabilize
-                                                            </label>
-                                                            <input type="number" className="form-control form-control-user"
-                                                                   id="speciesGensToStabilize" name="speciesGensToStabilize" aria-describedby="speciesGensToStabilize"
-                                                                   placeholder="Species Gens To Stabilize"  value={this.state.trainingroom.config.speciesGensToStabilize} onChange={this.handleConfigChange}
-                                                            />
-                                                        </div>
-                                                        <div className="form-group">
-                                                            <label>
-                                                                Species Gen To Improve
-                                                            </label>
-                                                            <input type="number" className="form-control form-control-user" readOnly={!this.isOwner()}
-                                                                   id="speciesGenToImprove" name="speciesGenToImprove" aria-describedby="speciesGenToImprove"
-                                                                   placeholder="Species Gen To Improve"  value={this.state.trainingroom.config.speciesGenToImprove} onChange={this.handleConfigChange}
-                                                            />
-                                                        </div>
-                                                        <div className="form-group">
-                                                            <label>
-                                                                Batch Size
-                                                            </label>
-                                                            <input type="number" className="form-control form-control-user"
-                                                                   id="batchSize" name="batchSize" aria-describedby="batchSize"
-                                                                   placeholder="Batch Size"  value={this.state.trainingroom.config.batchSize} onChange={this.handleConfigChange}
-                                                            />
-                                                        </div>
-                                                        <div className="form-group">
-                                                            <label>
-                                                                Preset Observed Attributes
-                                                            </label>
-                                                            <input type="text" className="form-control form-control-user" readOnly={!this.isOwner()}
-                                                                   id="presetObservedAttributes" name="presetObservedAttributes" aria-describedby="presetObservedAttributes"
-                                                                   placeholder="Preset Observed Attributes"  value={this.state.trainingroom.config.presetObservedAttributes} onChange={this.handleConfigChange}
-                                                            />
-                                                        </div>
-                                                        <div className="form-group">
-                                                            <label>
-                                                                Accelerate Mutation As Species Gets Stale Rate
-                                                            </label>
-                                                            <input type="number" className="form-control form-control-user" readOnly={!this.isOwner()}
-                                                                   id="accellerateMutationAsSpeciesGetsStaleRate" name="accellerateMutationAsSpeciesGetsStaleRate" aria-describedby="accellerateMutationAsSpeciesGetsStaleRate"
-                                                                   placeholder="accellerateMutationAsSpeciesGetsStaleRate"  value={this.state.trainingroom.config.accellerateMutationAsSpeciesGetsStaleRate} onChange={this.handleConfigChange}
-                                                            />
-                                                        </div>
-
-                                                        <div className="form-group">
-                                                            <label>
-                                                               NEATO
-                                                            </label>
-                                                            <input type="checkbox"
-                                                                   className="form-control form-control-user"
-                                                                   id="useBinaryNeuronOutput" name="useBinaryNeuronOutput" aria-describedby="neato"
-                                                                   placeholder="useBinaryNeuronOutput"  checked={this.state.trainingroom.config.useBinaryNeuronOutput} onChange={this.handleConfigChange}
-                                                            />
-                                                        </div>
-
-                                                        <div className="form-group">
-                                                            <label>
-                                                                Use Binary Neuron Output
-                                                            </label>
-                                                            <input type="checkbox"
-                                                                   className="form-control form-control-user" readOnly={!this.isOwner()}
-                                                                   id="useBinaryNeuronOutput" name="useBinaryNeuronOutput" aria-describedby="useBinaryNeuronOutput"
-                                                                   placeholder="useBinaryNeuronOutput"  checked={this.state.trainingroom.config.useBinaryNeuronOutput} onChange={this.handleConfigChange}
-                                                            />
-                                                        </div>
-
-                                                        <div className="form-group">
-                                                            <label>
-                                                                Use Binary Neuron Input
-                                                            </label>
-                                                            <input type="checkbox"
-                                                                   className="form-control form-control-user"
-                                                                   id="useBinaryNeuronInput" name="useBinaryNeuronInput" aria-describedby="useBinaryNeuronInput"
-                                                                   placeholder="useBinaryNeuronInput"  checked={this.state.trainingroom.config.useBinaryNeuronInput} onChange={this.handleConfigChange}
-                                                            />
-                                                        </div>
-
-                                                        <div className="form-group">
-                                                            <label>
-                                                                Fire Only Top Neuron
-                                                            </label>
-                                                            <input type="checkbox"
-                                                                   className="form-control form-control-user" readOnly={!this.isOwner()}
-                                                                   id="fireOnlyTopNeuron" name="fireOnlyTopNeuron" aria-describedby="fireOnlyTopNeuron"
-                                                                   placeholder="fireOnlyTopNeuron"  checked={this.state.trainingroom.config.fireOnlyTopNeuron} onChange={this.handleConfigChange}
-                                                            />
-                                                        </div>
-                                                        {
-                                                            this.isOwner() &&
-                                                                <div>
-                                                                    <button className="btn btn-primary btn-user btn-block">
-                                                                        Save
-                                                                    </button>
-                                                                    <button className="btn btn-info btn-user btn-block" onClick={this.showRawEdit}>
-                                                                        Raw
-                                                                    </button>
-                                                                    <RawEditComponent ref="rawEditComponent"id={this.state.trainingroom.namespace + "_rawEditComponent"} title={this.state.trainingroom.namespace } onSave={this.onRawUpdate} />
-
-                                                                </div>
-                                                        }
-
-
-                                                    </form>
-                                                </div>
-                                            </div>
+                                            }
                                         </div>
                                     </div>
-
                                 </div>
-                                }
+
                                 {/* /.container-fluid */}
                             </div>
                             {/* End of Main Content */}

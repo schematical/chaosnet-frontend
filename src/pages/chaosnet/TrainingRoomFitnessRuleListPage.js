@@ -5,6 +5,7 @@ import AuthService from "../../services/AuthService";
 import FooterComponent from "../../components/FooterComponent";
 import FitnessRuleComponent from "../../components/chaosnet/FitnessRuleComponent";
 import HTTPService from "../../services/HTTPService";
+import LoadingComponent from "../../components/LoadingComponent";
 const axios = require('axios');
 const _ = require('underscore');
 class TrainingRoomFitnessRuleListPage extends Component {
@@ -13,9 +14,11 @@ class TrainingRoomFitnessRuleListPage extends Component {
 
         this.state = {
             canEdit: false,
+            showSaveAll: false,
             uri: '/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace +'/roles/' + this.props.role
         }
         this.createNewRule = this.createNewRule.bind(this);
+        this.clearAll = this.clearAll.bind(this);
 
         HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace , {
 
@@ -69,15 +72,30 @@ class TrainingRoomFitnessRuleListPage extends Component {
     }
 
     createNewRule(){
-        this.state.fitnessRules.push({
+        this.state.trainingroom.fitnessRules.push({
             id: "new-" + Math.round(Math.random() * 99999),
             _isNew: true
         })
         this.setState(this.state);
     }
+    clearAll(){
+        let state = {
+            trainingroom:this.state.trainingroom,
+            showSaveAll: true
+        }
+        state.trainingroom.fitnessRules = [];
+        this.setState(state);
+
+
+
+    }
     removeRule(component){
 
         let fitnessRule  = component.state.fitnessRule
+        let state = {
+            trainingroom: this.state.trainingroom
+        }
+        state.trainingroom.fitnessRules = _.reject(state.trainingroom.fitnessRules,
         this.state.fitnessRules = _.reject(this.state.fitnessRules,
             function(_fitnessRule){
             if(component.state.isNew && _fitnessRule.isNew){
@@ -89,6 +107,10 @@ class TrainingRoomFitnessRuleListPage extends Component {
 
         this.setState(this.state);
         return this.save();
+        if(state.trainingroom.fitnessRules.length == 0){
+            state.showSaveAll = true;
+        }
+        this.setState(state);
     }
     updateRule(fitnessRule, ele) {
         this.state.fitnessRules.forEach((_fitnessRule, i)=>{
@@ -100,8 +122,26 @@ class TrainingRoomFitnessRuleListPage extends Component {
             }
         })
         return this.save()
+    save(fitnessRule, ele){
+        if(fitnessRule) {
+            this.state.trainingroom.fitnessRules.forEach((_fitnessRule, i) => {
+                if (ele.state.isNew && _fitnessRule._isNew) {
+                    fitnessRule._isNew = false;
+                    this.state.trainingroom.fitnessRules[i] = fitnessRule;
+                } else if (fitnessRule.id == _fitnessRule.id) {
+                    this.state.trainingroom.fitnessRules[i] = fitnessRule;
+                }
+            })
+        }
+        return HTTPService.put('/' + this.state.trainingroom.owner_username + '/trainingrooms/' + this.state.trainingroom.namespace,
+            this.state.trainingroom,
+            {
+            }
+        )
             .then((response) => {
-                ele.markClean();
+                if(ele) {
+                    ele.markClean();
+                }
 
             })
 
@@ -121,7 +161,45 @@ class TrainingRoomFitnessRuleListPage extends Component {
     render() {
 
         if(!this.state.loaded) {
-            return <span>Loading...</span>
+            setTimeout(() => {
+                return HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace , {
+
+                })
+                    .then((response) => {
+                        let state = {};
+                        state.trainingroom = response.data;
+
+                        state.canEdit = AuthService.userData && (
+                            AuthService.isAdmin() ||
+                            AuthService.userData.username == state.trainingroom.owner_username
+                        );
+                        this.setState(state);
+
+                        return HTTPService.get('/simmodels/' + this.state.trainingroom.simModelNamespace , {
+
+                        })
+                    })
+                    .then((response) => {
+
+                        this.state.simModel = response.data;
+                        this.state.simModel._fitnessCache = {};
+                        this.state.simModel.fitness.forEach((fitnessModel)=>{
+                            this.state.simModel._fitnessCache[fitnessModel.eventType] = this.state.simModel._fitnessCache[fitnessModel.eventType] || [];
+                            fitnessModel.eventTypeIndex = this.state.simModel._fitnessCache[fitnessModel.eventType].length;
+                            this.state.simModel._fitnessCache[fitnessModel.eventType].push(fitnessModel);
+
+                        })
+                        this.state.loaded = true;
+
+                        this.setState(this.state);
+
+                    })
+                    .catch((err) => {
+                        this.state.error = err;
+                        this.setState(this.state);
+                        console.error("Error: ", err.message);
+                    })
+            }, 1000);
         }
         return (
             <div>
@@ -137,33 +215,43 @@ class TrainingRoomFitnessRuleListPage extends Component {
                                 <TopbarComponent></TopbarComponent>
                                 {/* End of Topbar */}
                                 {/* Begin Page Content */}
-                                {
-                                    this.state.loaded &&
-                                    <div className="container-fluid">
-                                        {/* Page Heading */}
-                                        <div className="d-sm-flex align-items-center justify-content-between mb-4">
-                                            <h1 className="h3 mb-0 text-gray-800">
-                                                /<a href={"/" + this.props.username}>{this.props.username}</a>
-                                                /<a href={"/" + this.props.username + "/trainingrooms"}>trainingrooms</a>
-                                                /<a
-                                                href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace}>{this.props.trainingRoomNamespace}</a>
-                                                /<a
-                                                href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/roles"}>roles</a>
-                                                /<a
-                                                href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/roles/" + this.props.role}>{ this.props.role}</a>
-                                                /fitnessrules
-                                            </h1>
 
-                                        </div>
-                                        <div className="row">
+                                <div className="container-fluid">
+                                    {/* Page Heading */}
+                                    <div className="d-sm-flex align-items-center justify-content-between mb-4">
+                                        <h1 className="h3 mb-0 text-gray-800">
+                                            /<a href={"/" + this.props.username}>{this.props.username}</a>
+                                            /<a href={"/" + this.props.username + "/trainingrooms"}>trainingrooms</a>
+                                            /<a href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace}>{this.props.trainingRoomNamespace}</a>
+                                            /fitnessrules
+                                        </h1>
 
-                                            <div className="col-xl-12 col-lg-12">
+                                    </div>
+                                    <div className="row">
+
+                                        <div className="col-xl-12 col-lg-12">
+                                            { !this.state.error && !this.state.loaded && <LoadingComponent /> }
+                                            {
+                                                this.state.error &&
+                                                <div
+                                                    className="card mb-4 py-3  bg-danger text-white shadow">
+                                                    <div className="card-body">
+                                                        Error {this.state.error.status}
+                                                        <div className="text-white-50 small">
+                                                            {this.state.error.message}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                            {
+                                                this.state.loaded &&
                                                 <div className="card shadow mb-4">
                                                     {
                                                         this.state.error &&
-                                                        <div className="card mb-4 py-3  bg-danger text-white shadow">
+                                                        <div
+                                                            className="card mb-4 py-3  bg-danger text-white shadow">
                                                             <div className="card-body">
-                                                                Error   {this.state.error.status}
+                                                                Error {this.state.error.status}
                                                                 <div className="text-white-50 small">
                                                                     {this.state.error.message}
                                                                 </div>
@@ -190,7 +278,6 @@ class TrainingRoomFitnessRuleListPage extends Component {
                                                             </th>
 
 
-
                                                             <th>
                                                                 Life Effect:
 
@@ -209,26 +296,51 @@ class TrainingRoomFitnessRuleListPage extends Component {
                                                         </thead>
                                                         <tbody>
                                                         {
-                                                            this.state.fitnessRules.map((fitnessRule)=>{
-                                                                return <FitnessRuleComponent key={fitnessRule.id} fitnessRule={fitnessRule} simModel={this.state.simModel} trainingRoom={this.state.trainingRoom} page={this}/>
+                                                            this.state.trainingroom.fitnessRules.map((fitnessRule) => {
+                                                                return <FitnessRuleComponent key={fitnessRule.id}
+                                                                                             fitnessRule={fitnessRule}
+                                                                                             simModel={this.state.simModel}
+                                                                                             trainingRoom={this.state.trainingRoom}
+                                                                                             page={this}/>
                                                             })
                                                         }
 
                                                         </tbody>
                                                     </table>
-                                                    {
-                                                        this.state.canEdit &&
-                                                        <button className="btn btn-danger btn-sm"
-                                                                onClick={this.createNewRule}>
-                                                            New Rule
-                                                        </button>
-                                                    }
+                                                    <div className="btn-group" role="group"
+                                                         aria-label="Basic example">
+                                                        {
+                                                            this.state.canEdit &&
+                                                            <button className="btn btn-primary btn-sm"
+                                                                    onClick={this.createNewRule}>
+                                                                New Rule
+                                                            </button>
+                                                        }
+                                                        {
+                                                            this.state.canEdit &&
+                                                            !this.state.showSaveAll &&
+                                                            <button className="btn btn-info btn-sm"
+                                                                    onClick={this.clearAll}>
+                                                                Clear All
+                                                            </button>
+                                                        }
+                                                        {
+                                                            this.state.canEdit &&
+                                                            this.state.showSaveAll &&
+                                                            <button className="btn btn-danger btn-sm"
+                                                                    onClick={(ele) => {
+                                                                        this.save(null, null);
+                                                                    }}>
+                                                                Confirm Save
+                                                            </button>
+                                                        }
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            }
                                         </div>
-
                                     </div>
-                                }
+                                </div>
+
                                 {/* /.container-fluid */}
                             </div>
                             {/* End of Main Content */}

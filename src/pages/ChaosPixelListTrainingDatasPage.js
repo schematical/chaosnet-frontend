@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import * as _ from 'underscore';
+//import * as _ from 'underscore';
 import SidebarComponent from '../components/SidebarComponent';
 import TopbarComponent from '../components/TopbarComponent';
 import AuthService from '../services/AuthService';

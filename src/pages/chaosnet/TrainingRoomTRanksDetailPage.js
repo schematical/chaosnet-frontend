@@ -7,6 +7,7 @@ import FooterComponent from "../../components/FooterComponent";
 import OrgListComponent from "../../components/chaosnet/OrgListComponent";
 import TRankListComponent from "../../components/chaosnet/TRankListComponent";
 import HTTPService from "../../services/HTTPService";
+import LoadingComponent from "../../components/LoadingComponent";
 const _ = require('underscore');
 class TrainingRoomTRanksDetailPage extends Component {
     constructor(props) {
@@ -113,88 +114,120 @@ class TrainingRoomTRanksDetailPage extends Component {
 
 
                                         <div className="col-xl-12 col-lg-12">
-
-                                            <div className="card shadow mb-4">
-
-                                                <div className="card-body">
-                                                    {
-                                                        this.state.error &&
-                                                        <div className="card mb-4 py-3  bg-danger text-white shadow">
-                                                            <div className="card-body">
-                                                                Error   {this.state.error.status}
-                                                                <div className="text-white-50 small">
-                                                                    {this.state.error.message}
-                                                                </div>
-                                                            </div>
+                                            { !this.state.error && !this.state.loaded && <LoadingComponent /> }
+                                            {
+                                                this.state.error &&
+                                                <div
+                                                    className="card mb-4 py-3  bg-danger text-white shadow">
+                                                    <div className="card-body">
+                                                        Error {this.state.error.status}
+                                                        <div className="text-white-50 small">
+                                                            {this.state.error.message}
                                                         </div>
-                                                    }
-                                                    <h1>
-                                                        {this.state.trank.namespace}
-                                                    </h1>
-                                                    <h3>
-                                                        State: {this.state.trank.lifeState}
-                                                    </h3>
-                                                    <h3>
-                                                        Children: {this.state.trank.children}
-                                                    </h3>
-                                                    <h3>
-                                                        Class: {this.state.trank.trankClass}
-                                                    </h3>
-                                                    <h3>
-                                                        Age: {this.state.trank.age}
-                                                    </h3>
-                                                    <h3>
-                                                        Current Score: {this.state.trank.currentScore}
-                                                    </h3>
-                                                    <h3>
-                                                        High Score: {this.state.trank.highScore}
-                                                    </h3>
-                                                    <h3>
-                                                        Children Spawned This Gen: {this.state.trank.childrenSpawnedThisGen}
-                                                    </h3>
-                                                    <h3>
-                                                        Children Reported This Gen: {this.state.trank.childrenReportedThisGen}
-                                                    </h3>
-                                                    <h3>
-                                                        Gens Since Last Improvement: {this.state.trank.gensSinceLastImprovement}
-                                                    </h3>
-                                                    {
-                                                        this.state.trank.parentNamespace &&
-                                                        <h3>
-                                                            Parent Namespace:
-                                                            <a className="btn btn-primary btn-sm"
-                                                               href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.parentNamespace}>
-                                                                {this.state.trank.parentNamespace}
-                                                            </a>
-                                                        </h3>
-                                                    }
-                                                    <a className="btn btn-primary btn-sm" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/children"}>
-                                                        Children
-                                                    </a>
+                                                    </div>
+                                                </div>
+                                            }
+                                            {
+                                                this.state.loaded &&
+                                                <div className="card shadow mb-4">
 
-                                                    <a className="btn btn-primary btn-sm" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/organisms"}>
-                                                        Organisms
-                                                    </a>
-                                                    <a className="btn btn-primary btn-sm" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/organisms/top"}>
-                                                        Top Organisms
-                                                    </a>
-                                                    <form className="user col-lg-4" onSubmit={this.handleSubmit}>
-                                                        <div className="form-group">
-                                                            <label>
-                                                                Life State
-                                                            </label>
-                                                            <select id="lifeState" name="lifeState" className="form-control form-control-user" value={this.state.trank.lifeState} onChange={this.handleChange}>
-                                                                <option value="Active">Active</option>
-                                                                <option value="StalledOut">StalledOut</option>
-                                                                <option value="MarkedForColdStorage">MarkedForColdStorage</option>
-                                                            </select>
+                                                    <div className="card-body">
+
+                                                        <h1>
+                                                            {this.state.trank.namespace}
+                                                        </h1>
+                                                        <h3>
+                                                            State: {this.state.trank.lifeState}
+                                                        </h3>
+                                                        <h3>
+                                                            Children: {this.state.trank.children}
+                                                        </h3>
+                                                        <h3>
+                                                            Class: {this.state.trank.trankClass}
+                                                        </h3>
+                                                        <h3>
+                                                            Age: {this.state.trank.age}
+                                                        </h3>
+                                                        <h3>
+                                                            Current Score: {this.state.trank.currentScore}
+                                                        </h3>
+                                                        <h3>
+                                                            High Score: {this.state.trank.highScore}
+                                                        </h3>
+                                                        <h3>
+                                                            Children Spawned This
+                                                            Gen: {this.state.trank.childrenSpawnedThisGen}
+                                                        </h3>
+                                                        <h3>
+                                                            Children Reported This
+                                                            Gen: {this.state.trank.childrenReportedThisGen}
+                                                        </h3>
+                                                        <h3>
+                                                            Gens Since Last
+                                                            Improvement: {this.state.trank.gensSinceLastImprovement}
+                                                        </h3>
+                                                        <h3>
+                                                            Complexity: {this.state.trank.complexityScore}
+                                                        </h3>
+                                                        {
+                                                            this.state.trank.parentNamespace &&
+                                                            <h3>
+                                                                Parent Namespace:
+                                                                <a className="btn btn-primary btn-sm"
+                                                                   href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.parentNamespace}>
+                                                                    {this.state.trank.parentNamespace}
+                                                                </a>
+                                                            </h3>
+                                                        }
+                                                        <a className="btn btn-primary btn-sm"
+                                                           href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/children"}>
+                                                            Children
+                                                        </a>
+
+                                                        <a className="btn btn-primary btn-sm"
+                                                           href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/organisms"}>
+                                                            Organisms
+                                                        </a>
+                                                        <a className="btn btn-primary btn-sm"
+                                                           href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/organisms/top"}>
+                                                            Top Organisms
+                                                        </a>
+                                                        <form className="user col-lg-4" onSubmit={this.handleSubmit}>
+                                                            <div className="form-group">
+                                                                <label>
+                                                                    Life State
+                                                                </label>
+                                                                <select id="lifeState" name="lifeState"
+                                                                        className="form-control form-control-user"
+                                                                        value={this.state.trank.lifeState}
+                                                                        onChange={this.handleChange}>
+                                                                    <option value="Active">Active</option>
+                                                                    <option value="StalledOut">StalledOut</option>
+                                                                    <option
+                                                                        value="MarkedForColdStorage">MarkedForColdStorage
+                                                                    </option>
+                                                                </select>
+
+                                                            </div>
+                                                            <div className="form-group">
+                                                                <label>
+                                                                    Evolve State
+                                                                </label>
+                                                                <select id="evolveState" name="evolveState"
+                                                                        className="form-control form-control-user"
+                                                                        value={this.state.trank.evolveState}
+                                                                        onChange={this.handleChange}>
+                                                                    <option value="Add">Add</option>
+                                                                    <option value="Subtract">Subtract</option>
+                                                                </select>
+
+                                                            </div>
                                                             <button className="btn btn-primary btn-sm">
                                                                 Update
                                                             </button>
-                                                        </div>
-                                                    </form>
+                                                        </form>
 
-                                                    {this.state.trank.historicalScores &&
+                                                        {this.state.trank.historicalScores &&
                                                         <div>
                                                             <h2>Historical Scores: </h2>
                                                             <table>
@@ -239,22 +272,22 @@ class TrainingRoomTRanksDetailPage extends Component {
                                                             <table>
                                                                 {
                                                                     Object.keys(this.state.trank.brainMakerConfigData || {}).map((key) => {
-                                                                        if(!_.isObject(this.state.trank.brainMakerConfigData[key])) {
+                                                                        if (!_.isObject(this.state.trank.brainMakerConfigData[key])) {
                                                                             return <tr>
                                                                                 <td>
                                                                                     {key} {this.state.trank.brainMakerConfigData[key]}
                                                                                 </td>
                                                                             </tr>
-                                                                        }else{
+                                                                        } else {
                                                                             return <tr>
                                                                                 <td>
                                                                                     {key}
                                                                                     <ul>
                                                                                         {
-                                                                                            Object.keys(this.state.trank.brainMakerConfigData[key]).map((key2)=>{
-                                                                                               return <li>
-                                                                                                   {key2}: {this.state.trank.brainMakerConfigData[key][key2]}
-                                                                                               </li>
+                                                                                            Object.keys(this.state.trank.brainMakerConfigData[key]).map((key2) => {
+                                                                                                return <li>
+                                                                                                    {key2}: {this.state.trank.brainMakerConfigData[key][key2]}
+                                                                                                </li>
                                                                                             })
 
                                                                                         }
@@ -266,16 +299,14 @@ class TrainingRoomTRanksDetailPage extends Component {
                                                                         }
 
 
-
-
-
                                                                     })
                                                                 }
 
                                                             </table>
                                                         </div>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            }
                                         </div>
 
 

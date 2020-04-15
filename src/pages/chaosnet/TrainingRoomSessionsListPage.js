@@ -8,6 +8,7 @@ import OrgListComponent from "../../components/chaosnet/OrgListComponent";
 import TRankListComponent from "../../components/chaosnet/TRankListComponent";
 import TrainingRoomSessionListComponent from "../../components/chaosnet/TrainingRoomSessionListComponent";
 import HTTPService from "../../services/HTTPService";
+import LoadingComponent from "../../components/LoadingComponent";
 const axios = require('axios');
 class TrainingRoomSessionsListPage extends Component {
     constructor(props) {
@@ -73,40 +74,44 @@ class TrainingRoomSessionsListPage extends Component {
 
 
                                         <div className="col-xl-12 col-lg-12">
+                                            { !this.state.loaded && <LoadingComponent /> }
+                                            {
+                                                this.state.loaded &&
+                                                <div className="card shadow mb-4">
 
-                                            <div className="card shadow mb-4">
-
-                                                <div className="card-body">
-                                                    {
-                                                        this.state.error &&
-                                                        <div className="card mb-4 py-3  bg-danger text-white shadow">
-                                                            <div className="card-body">
-                                                                Error   {this.state.error.status}
-                                                                <div className="text-white-50 small">
-                                                                    {this.state.error.message}
+                                                    <div className="card-body">
+                                                        {
+                                                            this.state.error &&
+                                                            <div className="card mb-4 py-3  bg-danger text-white shadow">
+                                                                <div className="card-body">
+                                                                    Error {this.state.error.status}
+                                                                    <div className="text-white-50 small">
+                                                                        {this.state.error.message}
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    }
-                                                    <table className="table">
-                                                        <thead>
-                                                        <tr>
-                                                            <th scope="col">Count {this.state.sessions.length}</th>
-
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        {
-                                                            this.state.sessions.map((session)=>{
-                                                                return <TrainingRoomSessionListComponent session={session} page={this}/>
-                                                            })
                                                         }
+                                                        <table className="table">
+                                                            <thead>
+                                                            <tr>
+                                                                <th scope="col">Count {this.state.sessions.length}</th>
 
-                                                        </tbody>
-                                                    </table>
-                                                    {/*<a  href={"/" + this.props.username + "/trainingrooms/new"} className="btn btn-danger btn-lg" onClick={this.createNewTrainingRoom}>Create New</a>*/}
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            {
+                                                                this.state.sessions.map((session) => {
+                                                                    return <TrainingRoomSessionListComponent
+                                                                        session={session} page={this}/>
+                                                                })
+                                                            }
+
+                                                            </tbody>
+                                                        </table>
+                                                        {/*<a  href={"/" + this.props.username + "/trainingrooms/new"} className="btn btn-danger btn-lg" onClick={this.createNewTrainingRoom}>Create New</a>*/}
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            }
                                         </div>
 
 

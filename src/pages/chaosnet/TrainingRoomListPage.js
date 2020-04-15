@@ -5,6 +5,7 @@ import AuthService from "../../services/AuthService";
 import TrainingRoomListComponent from "../../components/chaosnet/TrainingRoomListComponent";
 import FooterComponent from "../../components/FooterComponent";
 import HTTPService from "../../services/HTTPService";
+import LoadingComponent from "../../components/LoadingComponent";
 const axios = require('axios');
 class TrainingRoomListPage extends Component {
     constructor(props) {
@@ -65,39 +66,48 @@ class TrainingRoomListPage extends Component {
 
                                         <div className="col-xl-12 col-lg-12">
 
-                                            <div className="card shadow mb-4">
+                                            { !this.state.loaded && <LoadingComponent /> }
+                                            {
+                                                this.state.loaded &&
+                                                <div className="card shadow mb-4">
 
-                                                <div className="card-body">
-                                                    {
-                                                        this.state.error &&
-                                                        <div className="card mb-4 py-3  bg-danger text-white shadow">
-                                                            <div className="card-body">
-                                                                Error   {this.state.error.status}
-                                                                <div className="text-white-50 small">
-                                                                    {this.state.error.message}
+                                                    <div className="card-body">
+                                                        {
+                                                            this.state.error &&
+                                                            <div className="card mb-4 py-3  bg-danger text-white shadow">
+                                                                <div className="card-body">
+                                                                    Error {this.state.error.status}
+                                                                    <div className="text-white-50 small">
+                                                                        {this.state.error.message}
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    }
-                                                    <table className="table">
-                                                        <thead>
-                                                        <tr>
-                                                            <th scope="col">#</th>
-
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        {
-                                                            this.state.trainingrooms.map((trainingRoom)=>{
-                                                                return <TrainingRoomListComponent key={trainingRoom.namespace} trainingRoom={trainingRoom} page={this}/>
-                                                            })
                                                         }
+                                                        <table className="table">
+                                                            <thead>
+                                                            <tr>
+                                                                <th scope="col">#</th>
 
-                                                        </tbody>
-                                                    </table>
-                                                    <a  href={"/" + this.props.username + "/trainingrooms/new"} className="btn btn-danger btn-lg" onClick={this.createNewTrainingRoom}>Create New</a>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            {
+                                                                this.state.trainingrooms.map((trainingRoom) => {
+                                                                    return <TrainingRoomListComponent
+                                                                        key={trainingRoom.namespace}
+                                                                        trainingRoom={trainingRoom} page={this}/>
+                                                                })
+                                                            }
+
+                                                            </tbody>
+                                                        </table>
+                                                        <a href={"/" + this.props.username + "/trainingrooms/new"}
+                                                           className="btn btn-danger btn-lg"
+                                                           onClick={this.createNewTrainingRoom}>Create New</a>
+                                                    </div>
                                                 </div>
-                                            </div>
+
+                                            }
                                         </div>
 
 

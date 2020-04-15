@@ -4,6 +4,7 @@ import TopbarComponent from '../../components/TopbarComponent';
 import AuthService from "../../services/AuthService";
 import FooterComponent from "../../components/FooterComponent";
 import HTTPService from "../../services/HTTPService";
+import LoadingComponent from "../../components/LoadingComponent";
 const axios = require('axios');
 class TrainingRoomOrgDetailPage extends Component {
     constructor(props) {
@@ -16,24 +17,24 @@ class TrainingRoomOrgDetailPage extends Component {
     render() {
 
         if(!this.state.loaded) {
-            setTimeout(() => {
-                return HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + "/organisms/" + this.props.organism, {
 
-                })
-                    .then((response) => {
-                        let state = {};
-                        state.organism = response.data;
-                        state.loaded = true;
+            HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + "/organisms/" + this.props.organism, {
 
-                        this.setState(state);
-                    })
-                    .catch((err) => {
-                        let state = {};
-                        state.error = err;
-                        this.setState(state);
-                        console.error("Error: ", err.message);
-                    });
-            }, 1000);
+            })
+            .then((response) => {
+                let state = {};
+                state.organism = response.data;
+                state.loaded = true;
+
+                this.setState(state);
+            })
+            .catch((err) => {
+                let state = {};
+                state.error = err;
+                this.setState(state);
+                console.error("Error: ", err.message);
+            });
+
         }
         return (
             <div>
@@ -49,8 +50,7 @@ class TrainingRoomOrgDetailPage extends Component {
                                 <TopbarComponent></TopbarComponent>
                                 {/* End of Topbar */}
                                 {/* Begin Page Content */}
-                                {
-                                    this.state.loaded && <div className="container-fluid">
+                                <div className="container-fluid">
                                     {/* Page Heading */}
                                     <div className="d-sm-flex align-items-center justify-content-between mb-4">
                                         <h1 className="h3 mb-0 text-gray-800">
@@ -67,36 +67,45 @@ class TrainingRoomOrgDetailPage extends Component {
                                     <div className="row">
 
                                         <div className="col-xl-12 col-lg-12">
-                                            <div className="card shadow mb-4">
-                                                <h1>
-                                                    {this.state.organism.namespace}
-                                                </h1>
-
-                                                {
-                                                    this.state.error &&
-                                                    <div className="card mb-4 py-3  bg-danger text-white shadow">
-                                                        <div className="card-body">
-                                                            Error   {this.state.error.status}
-                                                            <div className="text-white-50 small">
-                                                                {this.state.error.message}
-                                                            </div>
+                                            { !this.state.error  && !this.state.loaded && <LoadingComponent /> }
+                                            {
+                                                this.state.error &&
+                                                <div className="card mb-4 py-3  bg-danger text-white shadow">
+                                                    <div className="card-body">
+                                                        Error {this.state.error.status}
+                                                        <div className="text-white-50 small">
+                                                            {this.state.error.message}
                                                         </div>
                                                     </div>
-                                                }
+                                                </div>
+                                            }
+                                            {
+                                                this.state.loaded &&
+                                                <div className="card shadow mb-4">
+                                                    <h1>
+                                                        {this.state.organism.namespace}
+                                                    </h1>
 
-                                                <a className="btn btn-primary btn-sm" href={"/" + this.props.username+ "/trainingrooms/" + this.props.trainingRoomNamespace + "/organisms/" + this.props.organism + "/nnet"}>
-                                                    NNet
-                                                </a>
 
+                                                    <div className="btn-group" role="group" aria-label="Basic example">
+                                                        <a className="btn btn-primary btn-sm"
+                                                           href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/organisms/" + this.props.organism + "/nnet"}>
+                                                            NNet
+                                                        </a>
+                                                        <a className="btn btn-secondary btn-sm"
+                                                           href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.organism.speciesNamespace}>
+                                                            Species
+                                                        </a>
+                                                    </div>
 
-                                            </div>
-
+                                                </div>
+                                            }
 
                                         </div>
                                     </div>
 
                                 </div>
-                                }
+
                                 {/* /.container-fluid */}
                             </div>
                             {/* End of Main Content */}

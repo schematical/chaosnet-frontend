@@ -4,6 +4,7 @@ import TopbarComponent from '../../components/TopbarComponent';
 import AuthService from "../../services/AuthService";
 import FooterComponent from "../../components/FooterComponent";
 import HTTPService from "../../services/HTTPService";
+import LoadingComponent from "../../components/LoadingComponent";
 class TrainingRoomSessionDetailPage extends Component {
     constructor(props) {
         super(props);
@@ -66,26 +67,27 @@ class TrainingRoomSessionDetailPage extends Component {
     render() {
 
         if(!this.state.loaded) {
-            setTimeout(() => {
-                let url = '/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions/' + this.props.session;
 
-                return HTTPService.get(url, {
+            let url = '/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions/' + this.props.session;
 
-                })
-                    .then((response) => {
-                        let state = {};
-                        state.session = response.data
-                        state.canHardReset = (AuthService.userData && AuthService.userData.username == state.session.owner_username)
-                        state.loaded = true;
-                        this.setState(state);
-                    })
-                    .catch((err) => {
-                        let state = {};
-                        state.error = err;
-                        this.setState(state);
-                        console.error("Error: ", err.message);
-                    })
-            }, 1000);
+            HTTPService.get(url, {
+
+            })
+            .then((response) => {
+                let state = {};
+                state.session = response.data
+                state.canHardReset = (AuthService.userData && AuthService.userData.username == state.session.owner_username)
+                state.loaded = true;
+                this.setState(state);
+            })
+            .catch((err) => {
+                let state = {};
+                state.error = err;
+                this.setState(state);
+                console.error("Error: ", err.message);
+            })
+
+
         }
         return (
             <div>
@@ -104,7 +106,6 @@ class TrainingRoomSessionDetailPage extends Component {
                                 <div className="container-fluid">
                                     {/* Page Heading */}
                                     <div className="d-sm-flex align-items-center justify-content-between mb-4">
-                                        <h1 className="h3 mb-0 text-gray-800">ChaosNet</h1>
                                         <div className="d-sm-flex align-items-center justify-content-between mb-4">
                                             <h1 className="h3 mb-0 text-gray-800">
                                                 /<a href={"/" + this.props.username}>{this.props.username}</a>
@@ -126,86 +127,94 @@ class TrainingRoomSessionDetailPage extends Component {
 
 
                                         <div className="col-xl-12 col-lg-12">
+                                            { !this.state.loaded && <LoadingComponent /> }
+                                            {
+                                                this.state.error &&
+                                                <div className="card mb-4 py-3  bg-danger text-white shadow">
+                                                    <div className="card-body">
+                                                        Error   {this.state.error.status}
+                                                        <div className="text-white-50 small">
+                                                            {this.state.error.message}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                            {
+                                                this.state.loaded &&
+                                                <div className="card shadow mb-4">
 
-                                            <div className="card shadow mb-4">
+                                                    <div className="card-body">
 
-                                                <div className="card-body">
-                                                    {
-                                                        this.state.error &&
-                                                        <div className="card mb-4 py-3  bg-danger text-white shadow">
-                                                            <div className="card-body">
-                                                                Error   {this.state.error.status}
-                                                                <div className="text-white-50 small">
-                                                                    {this.state.error.message}
+                                                        {
+                                                            this.state.message &&
+                                                            <div className="card mb-4 py-3  bg-info text-white shadow">
+                                                                <div className="card-body">
+                                                                    {this.state.message}
+                                                                    <div className="text-white-50 small">
+
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    }
-                                                    {
-                                                        this.state.message &&
-                                                        <div className="card mb-4 py-3  bg-info text-white shadow">
-                                                            <div className="card-body">
-                                                                 {this.state.message}
-                                                                <div className="text-white-50 small">
-
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    }
-                                                    <h1>
-                                                        {this.state.session.owner_username}
-                                                    </h1>
-                                                    <h3>
-                                                        Genus Namespace:
-                                                        <a
-                                                            href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/"+ this.state.session.genusNamespace}>
-                                                            {this.state.session.genusNamespace}
-                                                        </a>
-                                                    </h3>
-                                                    {
-                                                        this.state.canHardReset &&
-                                                        <div>
-                                                            <button className="btn btn-primary btn-sm"
-                                                                    onClick={this.repairSession}>
-                                                                Repair
-                                                            </button>
-
+                                                        }
+                                                        <h1>
+                                                            {this.state.session.owner_username}
+                                                        </h1>
+                                                        <h3>
+                                                            Genus Namespace:
+                                                            <a
+                                                                href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.session.genusNamespace}>
+                                                                {this.state.session.genusNamespace}
+                                                            </a>
+                                                        </h3>
+                                                        <div className="btn-group" role="group"
+                                                             aria-label="Basic example">
                                                             {
-                                                                !this.state.showHardReset ?
-                                                                <button className="btn btn-primary btn-sm" onClick={this.showHardResetButton}>
-                                                                Hard Reset
-                                                                </button> :
-                                                                <button className="btn btn-danger btn-sm" onClick={this.hardReset}>
-                                                                Hard Reset
+                                                                this.state.canHardReset &&
+
+                                                                <button className="btn btn-primary btn-sm"
+                                                                        onClick={this.repairSession}>
+                                                                    Repair
                                                                 </button>
                                                             }
+                                                            {
+                                                                !this.state.showHardReset ?
+                                                                    <button className="btn btn-primary btn-sm"
+                                                                            onClick={this.showHardResetButton}>
+                                                                        Hard Reset
+                                                                    </button> :
+                                                                    <button className="btn btn-danger btn-sm"
+                                                                            onClick={this.hardReset}>
+                                                                        Hard Reset
+                                                                    </button>
+                                                            }
+                                                            <a className="btn btn-primary btn-sm"
+                                                               href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/" + this.props.session + "/species"}>
+                                                                Species
+                                                            </a>
                                                         </div>
-                                                    }
+                                                        <h4>
+                                                            Last Updated: {this.state.lastUpdateDate}
+                                                        </h4>
+                                                        <h3>
+                                                            Organisms
+                                                        </h3>
+                                                        <table>
+                                                            {this.state.session.organisms && this.state.session.organisms.map((organismNamespace) => {
+                                                                return <tr>
+                                                                    <td>
+                                                                        <a
+                                                                            href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/organisms/" + organismNamespace}>
+                                                                            {organismNamespace}
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
+                                                            })}
+                                                        </table>
 
-                                                    <h3>
-
-                                                    </h3>
-                                                    <a className="btn btn-primary btn-sm" href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/" + this.props.session + "/species"}>
-                                                        Species
-                                                    </a>
-                                                    <h3>
-                                                        Organisms
-                                                    </h3>
-                                                    <table>
-                                                        {this.state.session.organisms && this.state.session.organisms.map((organismNamespace)=>{
-                                                            return <tr>
-                                                                <td>
-                                                                    <a
-                                                                        href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/organisms/" + organismNamespace }>
-                                                                        {organismNamespace}
-                                                                    </a>
-                                                                </td>
-                                                            </tr>
-                                                        })}
-                                                    </table>
+                                                    </div>
 
                                                 </div>
-                                            </div>
+                                            }
                                         </div>
 
 

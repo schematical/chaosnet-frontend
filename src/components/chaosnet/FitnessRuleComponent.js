@@ -130,7 +130,7 @@ class FitnessRuleComponent extends Component {
                 </td>
 
                 <td>
-                    <select id="eventType" name="eventType" value={this.state.fitnessRule.eventType} onChange={this.handleChange}>
+                    <select id="eventType" name="eventType"  class="form-control"  value={this.state.fitnessRule.eventType} onChange={this.handleChange}>
                         <option value={null}></option>
                         {
                             Object.keys(this.state.simModel._fitnessCache).map((key)=>{
