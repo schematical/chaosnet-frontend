@@ -6,6 +6,7 @@ import FooterComponent from "../../components/FooterComponent";
 import FitnessRuleComponent from "../../components/chaosnet/FitnessRuleComponent";
 import PresetNeuronComponent from "../../components/chaosnet/PresetNeuronComponent";
 import HTTPService from "../../services/HTTPService";
+import LoadingComponent from "../../components/LoadingComponent";
 const _ = require('underscore');
 class TrainingRoomPresetNeuronListPage extends Component {
     constructor(props) {
@@ -193,35 +194,38 @@ class TrainingRoomPresetNeuronListPage extends Component {
                                 <TopbarComponent></TopbarComponent>
                                 {/* End of Topbar */}
                                 {/* Begin Page Content */}
-                                {
-                                    this.state.loaded &&
-                                    <div className="container-fluid">
-                                        {/* Page Heading */}
-                                        <div className="d-sm-flex align-items-center justify-content-between mb-4">
-                                            <h1 className="h3 mb-0 text-gray-800">
-                                                /<a href={"/" + this.props.username}>{this.props.username}</a>
-                                                /<a href={"/" + this.props.username + "/trainingrooms"}>trainingrooms</a>
-                                                /<a
-                                                href={"/" + this.props.username + "/trainingrooms/" + this.state.trainingroom.namespace}>{this.state.trainingroom.namespace}</a>
-                                                /presetneurons
-                                            </h1>
 
-                                        </div>
-                                        <div className="row">
+                                <div className="container-fluid">
+                                    {/* Page Heading */}
+                                    <div className="d-sm-flex align-items-center justify-content-between mb-4">
+                                        <h1 className="h3 mb-0 text-gray-800">
+                                            /<a href={"/" + this.props.username}>{this.props.username}</a>
+                                            /<a href={"/" + this.props.username + "/trainingrooms"}>trainingrooms</a>
+                                            /<a href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace}>{this.props.trainingRoomNamespace}</a>
+                                            /presetneurons
+                                        </h1>
 
-                                            <div className="col-xl-12 col-lg-12">
-                                                <div className="card shadow mb-4">
-                                                    {
-                                                        this.state.error &&
-                                                        <div className="card mb-4 py-3  bg-danger text-white shadow">
-                                                            <div className="card-body">
-                                                                Error   {this.state.error.status}
-                                                                <div className="text-white-50 small">
-                                                                    {this.state.error.message}
-                                                                </div>
-                                                            </div>
+                                    </div>
+                                    <div className="row">
+
+                                        <div className="col-xl-12 col-lg-12">
+                                            { !this.state.error && !this.state.loaded && <LoadingComponent /> }
+                                            {
+                                                this.state.error &&
+                                                <div
+                                                    className="card mb-4 py-3  bg-danger text-white shadow">
+                                                    <div className="card-body">
+                                                        Error {this.state.error.status}
+                                                        <div className="text-white-50 small">
+                                                            {this.state.error.message}
                                                         </div>
-                                                    }
+                                                    </div>
+                                                </div>
+                                            }
+                                            {
+                                                this.state.loaded &&
+                                                <div className="card shadow mb-4">
+
                                                     <h2 className="h3 mb-0 text-gray-800">
                                                         Preset Neurons
                                                     </h2>
@@ -242,20 +246,23 @@ class TrainingRoomPresetNeuronListPage extends Component {
                                                             </th>
 
 
-
-
                                                         </tr>
                                                         </thead>
                                                         <tbody>
                                                         {
-                                                            this.state.trainingroom.config.presetNeurons.map((presetNeuron)=>{
-                                                                return <PresetNeuronComponent key={presetNeuron.id} presetNeuron={presetNeuron} simModel={this.state.simModel} trainingRoom={this.state.trainingRoom} page={this}/>
+                                                            this.state.trainingroom.config.presetNeurons.map((presetNeuron) => {
+                                                                return <PresetNeuronComponent key={presetNeuron.id}
+                                                                                              presetNeuron={presetNeuron}
+                                                                                              simModel={this.state.simModel}
+                                                                                              trainingRoom={this.state.trainingRoom}
+                                                                                              page={this}/>
                                                             })
                                                         }
 
                                                         </tbody>
                                                     </table>
-                                                    <div className="btn-group" role="group" aria-label="Basic example">
+                                                    <div className="btn-group" role="group"
+                                                         aria-label="Basic example">
                                                         {
                                                             this.state.canEdit &&
                                                             <button className="btn btn-primary btn-sm"
@@ -275,17 +282,20 @@ class TrainingRoomPresetNeuronListPage extends Component {
                                                             this.state.canEdit &&
                                                             this.state.showSaveAll &&
                                                             <button className="btn btn-danger btn-sm"
-                                                                    onClick={(ele)=>{ this.save(null, null);  }}>
+                                                                    onClick={(ele) => {
+                                                                        this.save(null, null);
+                                                                    }}>
                                                                 Confirm Save
                                                             </button>
                                                         }
                                                     </div>
                                                 </div>
-                                            </div>
+                                            }
                                         </div>
-
                                     </div>
-                                }
+
+                                </div>
+
                                 {/* /.container-fluid */}
                             </div>
                             {/* End of Main Content */}

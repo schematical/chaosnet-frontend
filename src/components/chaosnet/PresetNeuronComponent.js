@@ -208,7 +208,7 @@ console.log("props.simModel._neuronCache[props.presetNeuron['$TYPE']]: ", props.
                     />
                 </td>
                 <td >
-                    <select  readOnly={!this.state.canEdit}  id="neuronType" name="neuronType" value={this.state.presetNeuron["$TYPE"]} onChange={this.handleChange}>
+                    <select  id="neuronType" name="neuronType" class="form-control" readOnly={!this.state.canEdit}  value={this.state.presetNeuron["$TYPE"]} onChange={this.handleChange}>
                         {
                             this.state.page.state.neuronOptions.map((option)=>{
 

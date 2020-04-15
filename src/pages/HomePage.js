@@ -6,6 +6,7 @@ import HTTPService from "../services/HTTPService";
 import OrgListComponent from "../components/chaosnet/OrgListComponent";
 import TrainingRoomListComponent from "../components/chaosnet/TrainingRoomListComponent";
 import TrainingRoomSessionListComponent from "../components/chaosnet/TrainingRoomSessionListComponent";
+import LoadingComponent from "../components/LoadingComponent";
 class HomePage extends Component {
     constructor(props) {
         super(props);
@@ -75,6 +76,11 @@ class HomePage extends Component {
                                                 </div>
                                             </div>
                                         </div>
+                                        { !this.state.loaded &&
+                                            <div className="col-xl-3 col-md-6 mb-4">
+                                                <LoadingComponent />
+                                            </div>
+                                        }
                                         {
                                             this.state.trainingRooms &&
 

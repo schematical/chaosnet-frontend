@@ -20,7 +20,7 @@ class TrainingRoomOrgListPage extends Component {
 
         if(!this.state.loaded) {
             setTimeout(() => {
-                return HTTPService.get('https://chaosnet.schematical.com/v0/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/organisms', {
+                return HTTPService.get("/" +  this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/organisms', {
 
                 })
                     .then((response) => {
@@ -88,6 +88,7 @@ class TrainingRoomOrgListPage extends Component {
                                                             </div>
                                                         </div>
                                                     }
+
                                                     <table className="table">
                                                         <thead>
                                                         <tr>
