@@ -15,11 +15,87 @@ class TrainingRoomPresetNeuronListPage extends Component {
         this.state = {
             canEdit: false,
             showSaveAll: false,
-            uri: '/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace +'/roles/' + this.props.role
+            uri: '/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace +'/roles/' + this.props.role,
+            loaded: false
         }
         this.createNew = this.createNew.bind(this);
         this.clearAll = this.clearAll.bind(this);
+        HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace , {
 
+        })
+            .then((response) => {
+                let state = {};
+                state.trainingroom = response.data;
+
+                state.canEdit = AuthService.userData && (
+                    AuthService.isAdmin() ||
+                    AuthService.userData.username == state.trainingroom.owner_username
+                );
+                this.setState(state);
+
+                return HTTPService.get( this.state.uri + '/presetneurons', {
+
+                })
+            })
+            .then((response) => {
+                let state = {};
+                state.presetNeurons = response.data.presetNeurons;
+
+
+                this.setState(state);
+
+                return HTTPService.get('/simmodels/' + this.state.trainingroom.simModelNamespace , {
+
+                })
+            })
+
+            .then((response) => {
+                let state = {};
+                state.neuronOptions = [];
+                state.simModel = response.data;
+                state.simModel._neuronCache = {};
+                state.simModel.outputNeurons.forEach((neuron)=>{
+                    neuron._base_type = "output";
+                    state.simModel._neuronCache[neuron["$TYPE"]] = state.simModel._neuronCache[neuron["$TYPE"]] || [];
+                    state.simModel._neuronCache[neuron["$TYPE"]].push(neuron);
+
+                    let neuronOptionId = neuron["$TYPE"];
+                    if(state.simModel._neuronCache[neuron["$TYPE"]].length > 1){
+                        neuronOptionId += "-" + state.simModel._neuronCache[neuron["$TYPE"]].length;
+                    }
+                    state.neuronOptions.push({
+                        id:neuronOptionId,
+                        neuron: neuron,
+                    })
+
+
+                })
+                state.simModel.inputNeurons.forEach((neuron)=>{
+                    neuron._base_type = "input";
+                    state.simModel._neuronCache[neuron["$TYPE"]] = state.simModel._neuronCache[neuron["$TYPE"]] || []
+                    state.simModel._neuronCache[neuron["$TYPE"]].push(neuron);
+                    let neuronOptionId = neuron["$TYPE"];
+                    if(state.simModel._neuronCache[neuron["$TYPE"]].length > 1){
+                        neuronOptionId += "-" + state.simModel._neuronCache[neuron["$TYPE"]].length;
+                    }
+                    state.neuronOptions.push({
+                        id:neuronOptionId,
+                        neuron: neuron,
+                    })
+                })
+                state.loaded = true;
+
+
+
+                this.setState(state);
+
+            })
+            .catch((err) => {
+                let state = {};
+                state.error = err;
+                this.setState(state);
+                console.error("Error: ", err.message);
+            })
 
     }
     clearAll(){
@@ -27,7 +103,7 @@ class TrainingRoomPresetNeuronListPage extends Component {
             trainingroom:this.state.trainingroom,
             showSaveAll: true
         }
-        state.trainingroom.config.presetNeurons = [];
+        state.presetNeurons = [];
         this.setState(state);
 
 
@@ -43,12 +119,12 @@ class TrainingRoomPresetNeuronListPage extends Component {
             newNeuron.id = neuronType["$TYPE"].toLowerCase() + "-" + i;
             newNeuron[key] = biology['$TYPE'] + "_" + i;
 
-            state.trainingroom.config.presetNeurons.push(newNeuron);
+            state.presetNeurons.push(newNeuron);
         }
         this.setState(state);
     }
     createNew(){
-        this.state.trainingroom.config.presetNeurons.push({
+        this.state.presetNeurons.push({
             id: "new-" + Math.round(Math.random() * 99999),
             "$TYPE": Object.keys(this.state.simModel._neuronCache)[0],
             _isNew: true
@@ -59,9 +135,9 @@ class TrainingRoomPresetNeuronListPage extends Component {
 
         let presetNeuron  = component.state.presetNeuron;
         let state = {
-            trainingroom:  this.state.trainingroom
+            presetNeurons:  this.state.presetNeurons
         }
-        state.trainingroom.config.presetNeurons = _.reject(this.state.trainingroom.config.presetNeurons,
+        state.presetNeurons = _.reject(state.presetNeurons,
             function(_presetNeuron){
             if(component.state.isNew && _presetNeuron.isNew){
                 return true;
@@ -70,28 +146,28 @@ class TrainingRoomPresetNeuronListPage extends Component {
             }
         });
 
-        if(state.trainingroom.config.presetNeurons.length == 0){
+        if(state.presetNeurons.length == 0){
             state.showSaveAll = true;
         }
         this.setState(state);
+        return this.save(state.presetNeurons);
     }
-    save(presetNeuron, ele){
-        if(presetNeuron) {
-            this.state.trainingroom.config.presetNeurons.forEach((_presetNeuron, i) => {
+
+    updateNeuron(presetNeuron, ele) {
+        let state = {
+            presetNeurons: this.state.presetNeurons
+        }
+        if (presetNeuron) {
+            state.presetNeurons.forEach((_presetNeuron, i) => {
                 if (ele.state.isNew && _presetNeuron._isNew) {
                     presetNeuron._isNew = false;
-                    this.state.trainingroom.config.presetNeurons[i] = presetNeuron;
+                    state.presetNeurons[i] = presetNeuron;
                 } else if (presetNeuron.id == _presetNeuron.id) {
-                    this.state.trainingroom.config.presetNeurons[i] = presetNeuron;
+                    state.presetNeurons[i] = presetNeuron;
                 }
             })
         }
-        return HTTPService.put('/' + this.state.trainingroom.owner_username + '/trainingrooms/' + this.state.trainingroom.namespace,
-            this.state.trainingroom,
-            {
-
-            }
-        )
+        return this.save()
             .then((response) => {
                 if(ele) {
                     ele.markClean();
@@ -100,87 +176,27 @@ class TrainingRoomPresetNeuronListPage extends Component {
                 state.showSaveAll = false;
                 this.setState(state);
             })
-            .catch((err) => {
-                let state = {};
 
-                state.error = err.response && err.response.data && err.response.data.error || err;
-                this.setState(state);
-                console.error("Error: ", err.message);
-            })
+    }
+    save(presetNeurons){
+        return HTTPService.put(this.state.uri + "/presetneurons",
+            presetNeurons || this.state.presetNeurons,
+            {
+
+            }
+        )
+
+        .catch((err) => {
+            let state = {};
+
+            state.error = err.response && err.response.data && err.response.data.error || err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        })
     }
     render() {
 
-        if(!this.state.loaded) {
-            setTimeout(() => {
-                return HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace , {
 
-                })
-                    .then((response) => {
-                        let state = {};
-                        state.trainingroom = response.data;
-
-                        state.trainingroom.config = state.trainingroom.config ||{};
-                        state.trainingroom.config.presetNeurons = state.trainingroom.config.presetNeurons || [];
-                        state.canEdit = AuthService.userData && (
-                            AuthService.isAdmin() ||
-                            AuthService.userData.username == state.trainingroom.owner_username
-                        );
-                        console.log("Can Edit: ", state.canEdit);
-                        this.setState(state);
-
-                        return HTTPService.get('/simmodels/' + this.state.trainingroom.simModelNamespace , {
-
-                        })
-                    })
-                    .then((response) => {
-                        let state = {};
-                        state.neuronOptions = [];
-                        state.simModel = response.data;
-                        state.simModel._neuronCache = {};
-                        state.simModel.outputNeurons.forEach((neuron)=>{
-                            neuron._base_type = "output";
-                            state.simModel._neuronCache[neuron["$TYPE"]] = state.simModel._neuronCache[neuron["$TYPE"]] || [];
-                            state.simModel._neuronCache[neuron["$TYPE"]].push(neuron);
-
-                            let neuronOptionId = neuron["$TYPE"];
-                            if(state.simModel._neuronCache[neuron["$TYPE"]].length > 1){
-                                neuronOptionId += "-" + state.simModel._neuronCache[neuron["$TYPE"]].length;
-                            }
-                            state.neuronOptions.push({
-                                id:neuronOptionId,
-                                neuron: neuron,
-                            })
-
-
-                        })
-                        state.simModel.inputNeurons.forEach((neuron)=>{
-                            neuron._base_type = "input";
-                            state.simModel._neuronCache[neuron["$TYPE"]] = state.simModel._neuronCache[neuron["$TYPE"]] || []
-                            state.simModel._neuronCache[neuron["$TYPE"]].push(neuron);
-                            let neuronOptionId = neuron["$TYPE"];
-                            if(state.simModel._neuronCache[neuron["$TYPE"]].length > 1){
-                                neuronOptionId += "-" + state.simModel._neuronCache[neuron["$TYPE"]].length;
-                            }
-                            state.neuronOptions.push({
-                                id:neuronOptionId,
-                                neuron: neuron,
-                            })
-                        })
-                        state.loaded = true;
-
-
-
-                        this.setState(state);
-
-                    })
-                    .catch((err) => {
-                        let state = {};
-                        state.error = err;
-                        this.setState(state);
-                        console.error("Error: ", err.message);
-                    })
-            }, 1000);
-        }
         return (
             <div>
                 <div>
@@ -251,7 +267,7 @@ class TrainingRoomPresetNeuronListPage extends Component {
                                                         </thead>
                                                         <tbody>
                                                         {
-                                                            this.state.trainingroom.config.presetNeurons.map((presetNeuron) => {
+                                                            this.state.presetNeurons.map((presetNeuron) => {
                                                                 return <PresetNeuronComponent key={presetNeuron.id}
                                                                                               presetNeuron={presetNeuron}
                                                                                               simModel={this.state.simModel}
