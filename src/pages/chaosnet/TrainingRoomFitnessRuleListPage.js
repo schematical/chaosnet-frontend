@@ -19,7 +19,9 @@ class TrainingRoomFitnessRuleListPage extends Component {
         }
         this.createNewRule = this.createNewRule.bind(this);
         this.clearAll = this.clearAll.bind(this);
-
+        this.updateRule = this.updateRule.bind(this);
+        this.removeRule = this.removeRule.bind(this);
+        this.save = this.save.bind(this);
         HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace , {
 
         })
@@ -72,7 +74,7 @@ class TrainingRoomFitnessRuleListPage extends Component {
     }
 
     createNewRule(){
-        this.state.trainingroom.fitnessRules.push({
+        this.state.fitnessRules.push({
             id: "new-" + Math.round(Math.random() * 99999),
             _isNew: true
         })
@@ -80,10 +82,10 @@ class TrainingRoomFitnessRuleListPage extends Component {
     }
     clearAll(){
         let state = {
-            trainingroom:this.state.trainingroom,
+            fitnessRules:this.state.fitnessRules,
             showSaveAll: true
         }
-        state.trainingroom.fitnessRules = [];
+        state.fitnessRules = [];
         this.setState(state);
 
 
@@ -93,114 +95,66 @@ class TrainingRoomFitnessRuleListPage extends Component {
 
         let fitnessRule  = component.state.fitnessRule
         let state = {
-            trainingroom: this.state.trainingroom
+            fitnessRules: this.state.fitnessRules
         }
-        state.trainingroom.fitnessRules = _.reject(state.trainingroom.fitnessRules,
-        this.state.fitnessRules = _.reject(this.state.fitnessRules,
+        state.fitnessRules = _.reject(
+            state.fitnessRules,
             function(_fitnessRule){
-            if(component.state.isNew && _fitnessRule.isNew){
-                return true;
-            }else if(fitnessRule.id == _fitnessRule.id){
-                return true;
-            }
-        });
-
-        this.setState(this.state);
-        return this.save();
-        if(state.trainingroom.fitnessRules.length == 0){
-            state.showSaveAll = true;
-        }
-        this.setState(state);
-    }
-    updateRule(fitnessRule, ele) {
-        this.state.fitnessRules.forEach((_fitnessRule, i)=>{
-            if(ele.state.isNew && _fitnessRule._isNew){
-                fitnessRule._isNew = false;
-                this.state.fitnessRules[i] = fitnessRule;
-            }else if(fitnessRule.id == _fitnessRule.id){
-                this.state.fitnessRules[i] = fitnessRule;
-            }
-        })
-        return this.save()
-    save(fitnessRule, ele){
-        if(fitnessRule) {
-            this.state.trainingroom.fitnessRules.forEach((_fitnessRule, i) => {
-                if (ele.state.isNew && _fitnessRule._isNew) {
-                    fitnessRule._isNew = false;
-                    this.state.trainingroom.fitnessRules[i] = fitnessRule;
-                } else if (fitnessRule.id == _fitnessRule.id) {
-                    this.state.trainingroom.fitnessRules[i] = fitnessRule;
+                if(component.state.isNew && _fitnessRule.isNew){
+                    return true;
+                }else if(fitnessRule.id == _fitnessRule.id){
+                    return true;
                 }
-            })
-        }
-        return HTTPService.put('/' + this.state.trainingroom.owner_username + '/trainingrooms/' + this.state.trainingroom.namespace,
-            this.state.trainingroom,
+            }
+        );
+
+        this.setState(state);
+
+        return this.save(state.fitnessRules );
+    }
+    save(fitnessRules){
+
+        return HTTPService.put(this.state.uri + "/fitnessrules",
+            fitnessRules || this.state.fitnessRules,
             {
             }
         )
+            .then(()=>{
+                this.setState({
+                    showSaveAll: false
+                })
+            })
+    }
+    updateRule(fitnessRule, ele) {
+        let state = {
+            fitnessRules: this.state.fitnessRules
+        }
+        if(fitnessRule) {
+            state.fitnessRules.forEach((_fitnessRule, i) => {
+                if (ele.state.isNew && _fitnessRule._isNew) {
+                    fitnessRule._isNew = false;
+                    state.fitnessRules[i] = fitnessRule;
+                } else if (fitnessRule.id == _fitnessRule.id) {
+                    state.fitnessRules[i] = fitnessRule;
+                }
+            })
+        }
+
+        this.setState(state);
+        return this.save()
             .then((response) => {
                 if(ele) {
                     ele.markClean();
                 }
 
+
             })
 
     }
-   save(){
-        return HTTPService.put(this.state.uri + '/fitnessrules',
-            this.state.fitnessRules,
-            {
-            }
-        )
-        .catch((err) => {
-            this.state.error = err;
-            this.setState(this.state);
-            console.error("Error: ", err.message);
-        })
-    }
+
     render() {
 
-        if(!this.state.loaded) {
-            setTimeout(() => {
-                return HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace , {
 
-                })
-                    .then((response) => {
-                        let state = {};
-                        state.trainingroom = response.data;
-
-                        state.canEdit = AuthService.userData && (
-                            AuthService.isAdmin() ||
-                            AuthService.userData.username == state.trainingroom.owner_username
-                        );
-                        this.setState(state);
-
-                        return HTTPService.get('/simmodels/' + this.state.trainingroom.simModelNamespace , {
-
-                        })
-                    })
-                    .then((response) => {
-
-                        this.state.simModel = response.data;
-                        this.state.simModel._fitnessCache = {};
-                        this.state.simModel.fitness.forEach((fitnessModel)=>{
-                            this.state.simModel._fitnessCache[fitnessModel.eventType] = this.state.simModel._fitnessCache[fitnessModel.eventType] || [];
-                            fitnessModel.eventTypeIndex = this.state.simModel._fitnessCache[fitnessModel.eventType].length;
-                            this.state.simModel._fitnessCache[fitnessModel.eventType].push(fitnessModel);
-
-                        })
-                        this.state.loaded = true;
-
-                        this.setState(this.state);
-
-                    })
-                    .catch((err) => {
-                        this.state.error = err;
-                        this.setState(this.state);
-                        console.error("Error: ", err.message);
-                    })
-            }, 1000);
-        }
         return (
             <div>
                 <div>
@@ -296,7 +250,7 @@ class TrainingRoomFitnessRuleListPage extends Component {
                                                         </thead>
                                                         <tbody>
                                                         {
-                                                            this.state.trainingroom.fitnessRules.map((fitnessRule) => {
+                                                            this.state.fitnessRules.map((fitnessRule) => {
                                                                 return <FitnessRuleComponent key={fitnessRule.id}
                                                                                              fitnessRule={fitnessRule}
                                                                                              simModel={this.state.simModel}
@@ -329,7 +283,7 @@ class TrainingRoomFitnessRuleListPage extends Component {
                                                             this.state.showSaveAll &&
                                                             <button className="btn btn-danger btn-sm"
                                                                     onClick={(ele) => {
-                                                                        this.save(null, null);
+                                                                        this.save();
                                                                     }}>
                                                                 Confirm Save
                                                             </button>

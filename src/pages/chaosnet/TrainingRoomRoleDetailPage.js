@@ -4,6 +4,7 @@ import TopbarComponent from '../../components/TopbarComponent';
 import AuthService from "../../services/AuthService";
 import FooterComponent from "../../components/FooterComponent";
 import HTTPService from "../../services/HTTPService";
+import LoadingComponent from "../../components/LoadingComponent";
 class TrainingRoomRoleDetailPage extends Component {
     constructor(props) {
         super(props);
@@ -23,6 +24,7 @@ class TrainingRoomRoleDetailPage extends Component {
                 trainingRoomUsername: this.props.username,
                 trainingRoomNamespace: this.props.trainingRoomNamespace,
             }
+            this.state.loaded = true;
 
         }else {
 
@@ -49,7 +51,20 @@ class TrainingRoomRoleDetailPage extends Component {
         let state = {
             role: this.state.role
         };
-        state.role[event.target.name] = event.target.value;
+        switch(event.target.name){
+            case('namespace'):
+                state.role.namespace = event.target.value.toLowerCase().replace(/[^0-9a-z]/g, '');
+                break;
+            case('name'):
+
+                state.role.name = event.target.value;
+                state.role.namespace = state.role.name.toLowerCase().replace(/[^0-9a-z]/g, '');
+                break;
+            default:
+                state.role[event.target.name] = event.target.value;
+
+        }
+
         this.setState(state);
     }
     handleSubmit(event) {
@@ -74,9 +89,7 @@ class TrainingRoomRoleDetailPage extends Component {
             })
     }
     render() {
-        if(!this.state.loaded){
-            return <span>Loading...</span>;
-        }
+
         return (
             <div>
                 <div>
@@ -116,46 +129,61 @@ class TrainingRoomRoleDetailPage extends Component {
 
 
                                         <div className="col-xl-12 col-lg-12">
-
-                                            <div className="card shadow mb-4">
-
-                                                <div className="card-body">
-                                                    {
-                                                        this.state.error &&
-                                                        <div className="card mb-4 py-3  bg-danger text-white shadow">
-                                                            <div className="card-body">
-                                                                Error   {this.state.error.status}
-                                                                <div className="text-white-50 small">
-                                                                    {this.state.error.message}
-                                                                </div>
-                                                            </div>
+                                            { !this.state.error && !this.state.loaded && <LoadingComponent /> }
+                                            {
+                                                this.state.error &&
+                                                <div className="card mb-4 py-3  bg-danger text-white shadow">
+                                                    <div className="card-body">
+                                                        Error   {this.state.error.status}
+                                                        <div className="text-white-50 small">
+                                                            {this.state.error.message}
                                                         </div>
-                                                    }
+                                                    </div>
+                                                </div>
+                                            }
+                                            {
+                                                this.state.loaded &&
+                                                <div className="card shadow mb-4">
                                                     {
                                                         this.state.message &&
                                                         <div className="card mb-4 py-3  bg-info text-white shadow">
                                                             <div className="card-body">
-                                                                 {this.state.message}
+                                                                {this.state.message}
                                                                 <div className="text-white-50 small">
 
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     }
-                                                    {this.state.role &&
-                                                        <div className="card-body">
-                                                            {!this.state.isNew &&
-                                                            <div className="btn-group" role="group" aria-label="Options">
-                                                                <a className="btn btn-primary btn-sm"
-                                                                   href={this.state.uri + "/fitnessrules"}>Fitness
-                                                                    Rules</a>
-                                                                <a className="btn btn-primary btn-sm"
-                                                                   href={ this.state.uri + "/presetneurons"}>Preset
-                                                                    Neurons</a>
-                                                            </div>
-                                                            }
-                                                            <form className="user" onSubmit={this.handleSubmit}>
+                                                    {!this.state.isNew &&
+                                                    <div className="btn-group" role="group"
+                                                         aria-label="Options">
+                                                        <a className="btn btn-primary btn-sm"
+                                                           href={this.state.uri + "/fitnessrules"}>Fitness
+                                                            Rules</a>
+                                                        <a className="btn btn-primary btn-sm"
+                                                           href={this.state.uri + "/presetneurons"}>Preset
+                                                            Neurons</a>
+                                                    </div>
+                                                    }
 
+                                                    <div className="card-body">
+                                                        <div className="card-body">
+
+                                                            <form className="user" onSubmit={this.handleSubmit}>
+                                                                <div className="form-group">
+                                                                    <label>
+                                                                        Name
+                                                                    </label>
+                                                                    <input type="text"
+                                                                           className="form-control form-control-user"
+                                                                           readOnly={!this.state.canEdit}
+                                                                           id="name" name="name" aria-describedby="name"
+                                                                           placeholder="Name"
+                                                                           value={this.state.role.name}
+                                                                           onChange={this.handleChange}
+                                                                    />
+                                                                </div>
                                                                 <div className="form-group">
                                                                     <label>
                                                                         Namespace
@@ -170,18 +198,7 @@ class TrainingRoomRoleDetailPage extends Component {
                                                                            onChange={this.handleChange}
                                                                     />
                                                                 </div>
-                                                                <div className="form-group">
-                                                                    <label>
-                                                                        Name
-                                                                    </label>
-                                                                    <input type="text"
-                                                                           className="form-control form-control-user"
-                                                                           readOnly={!this.state.canEdit}
-                                                                           id="name" name="name" aria-describedby="name"
-                                                                           placeholder="Name" value={this.state.role.name}
-                                                                           onChange={this.handleChange}
-                                                                    />
-                                                                </div>
+
                                                                 <button className="btn btn-primary btn-user btn-block">
                                                                     Save
                                                                 </button>
@@ -189,10 +206,11 @@ class TrainingRoomRoleDetailPage extends Component {
                                                             </form>
 
                                                         </div>
-                                                    }
 
+
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            }
                                         </div>
 
 

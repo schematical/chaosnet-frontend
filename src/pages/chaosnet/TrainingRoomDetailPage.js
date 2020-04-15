@@ -153,11 +153,14 @@ class TrainingRoomDetailPage extends Component {
                                                             </button>
                                                             <div className="dropdown-menu"
                                                                  aria-labelledby="btnGroupDrop1">
-                                                                <a className="dropdown-item" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/presetneurons"}>
+                                                                {/*<a className="dropdown-item" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/presetneurons"}>
                                                                     Preset Neurons
                                                                 </a>
                                                                 <a className="dropdown-item" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/fitnessrules"}>
                                                                     Fitness Rules
+                                                                </a>*/}
+                                                                <a className="dropdown-item" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/roles"}>
+                                                                    Roles
                                                                 </a>
                                                             </div>
                                                         </div>

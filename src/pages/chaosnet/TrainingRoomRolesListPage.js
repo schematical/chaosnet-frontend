@@ -9,6 +9,7 @@ import TRankListComponent from "../../components/chaosnet/TRankListComponent";
 import TrainingRoomSessionListComponent from "../../components/chaosnet/TrainingRoomSessionListComponent";
 import HTTPService from "../../services/HTTPService";
 import TrainingRoomRoleListComponent from "../../components/chaosnet/TrainingRoomRoleListComponent";
+import LoadingComponent from "../../components/LoadingComponent";
 class TrainingRoomRolesListPage extends Component {
     constructor(props) {
         super(props);
@@ -22,23 +23,23 @@ class TrainingRoomRolesListPage extends Component {
     render() {
 
         if(!this.state.loaded) {
-            setTimeout(() => {
-                return HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/roles', {
 
+            HTTPService.get('/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/roles', {
+
+            })
+                .then((response) => {
+                    let state = {};
+                    state.roles = response.data;
+                    state.loaded = true;
+                    this.setState(state);
                 })
-                    .then((response) => {
-                        let state = {};
-                        state.roles = response.data;
-                        state.loaded = true;
-                        this.setState(state);
-                    })
-                    .catch((err) => {
-                        let state = {};
-                        state.error = err;
-                        this.setState(state);
-                        console.error("Error: ", err.message);
-                    })
-            }, 1000);
+                .catch((err) => {
+                    let state = {};
+                    state.error = err;
+                    this.setState(state);
+                    console.error("Error: ", err.message);
+                })
+
         }
         return (
             <div>
@@ -75,40 +76,46 @@ class TrainingRoomRolesListPage extends Component {
 
 
                                         <div className="col-xl-12 col-lg-12">
-
-                                            <div className="card shadow mb-4">
-
-                                                <div className="card-body">
-                                                    {
-                                                        this.state.error &&
-                                                        <div className="card mb-4 py-3  bg-danger text-white shadow">
-                                                            <div className="card-body">
-                                                                Error   {this.state.error.status}
-                                                                <div className="text-white-50 small">
-                                                                    {this.state.error.message}
-                                                                </div>
-                                                            </div>
+                                            { !this.state.error && !this.state.loaded && <LoadingComponent /> }
+                                            {
+                                                this.state.error &&
+                                                <div className="card mb-4 py-3  bg-danger text-white shadow">
+                                                    <div className="card-body">
+                                                        Error   {this.state.error.status}
+                                                        <div className="text-white-50 small">
+                                                            {this.state.error.message}
                                                         </div>
-                                                    }
-                                                    <table className="table">
-                                                        <thead>
-                                                        <tr>
-                                                            <th scope="col">Count {this.state.roles.length}</th>
-
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        {
-                                                            this.state.roles.map((role)=>{
-                                                                return <TrainingRoomRoleListComponent role={role} page={this}/>
-                                                            })
-                                                        }
-
-                                                        </tbody>
-                                                    </table>
-                                                    <a  href={ this.state.uri + "/new"} className="btn btn-danger btn-lg">Create New</a>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            }
+                                            {
+                                                this.state.loaded &&
+                                                <div className="card shadow mb-4">
+
+                                                    <div className="card-body">
+
+                                                        <table className="table">
+                                                            <thead>
+                                                            <tr>
+                                                                <th scope="col">Count {this.state.roles.length}</th>
+
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            {
+                                                                this.state.roles.map((role) => {
+                                                                    return <TrainingRoomRoleListComponent role={role}
+                                                                                                          page={this}/>
+                                                                })
+                                                            }
+
+                                                            </tbody>
+                                                        </table>
+                                                        <a href={this.state.uri + "/new"}
+                                                           className="btn btn-danger btn-lg">Create New</a>
+                                                    </div>
+                                                </div>
+                                            }
                                         </div>
 
 
