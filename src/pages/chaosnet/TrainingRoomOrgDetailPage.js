@@ -98,6 +98,10 @@ class TrainingRoomOrgDetailPage extends Component {
                                                         </a>
                                                     </div>
 
+                                                    <h3>
+                                                        State: {this.state.organism.state}
+                                                    </h3>
+
                                                 </div>
                                             }
 

@@ -14,10 +14,33 @@ class TrainingRoomTRanksDetailPage extends Component {
         super(props);
 
         this.state = {
-            trank:{}
+            trank:{},
+            uri:  '/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks/' + this.props.trank
         }
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handelDelete = this.handelDelete.bind(this);
+
+
+
+
+        HTTPService.get(this.state.uri, {
+
+        })
+            .then((response) => {
+                let state = {};
+                state.trank = response.data;
+                state.loaded = true;
+                this.setState(state);
+            })
+            .catch((err) => {
+                let state = {};
+                state.error = err;
+                this.setState(state);
+                console.error("Error: ", err.message);
+            })
+
+
 
     }
     handleChange(event){
@@ -52,29 +75,37 @@ class TrainingRoomTRanksDetailPage extends Component {
         })
 
     }
+    handelDelete(event){
+        event.preventDefault();
+        if(!this.state.confirmDelete){
+            this.setState({
+                confirmDelete: true
+            })
+            return;
+        }
+
+
+        return HTTPService.delete(
+            this.state.uri,
+            {},
+            {}
+        )
+        .then((response) => {
+            this.setState({
+                confirmDelete: false
+            })
+        })
+        .catch((err) => {
+            let state = {};
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        })
+
+    }
     render() {
 
-        if(!this.state.loaded) {
-            setTimeout(() => {
-                let url = '/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks/' + this.props.trank;
 
-                return HTTPService.get(url, {
-
-                })
-                    .then((response) => {
-                        let state = {};
-                        state.trank = response.data;
-                        state.loaded = true;
-                        this.setState(state);
-                    })
-                    .catch((err) => {
-                        let state = {};
-                        state.error = err;
-                        this.setState(state);
-                        console.error("Error: ", err.message);
-                    })
-            }, 1000);
-        }
         return (
             <div>
                 <div>
@@ -169,29 +200,31 @@ class TrainingRoomTRanksDetailPage extends Component {
                                                         <h3>
                                                             Complexity: {this.state.trank.complexityScore}
                                                         </h3>
-                                                        {
-                                                            this.state.trank.parentNamespace &&
-                                                            <h3>
-                                                                Parent Namespace:
-                                                                <a className="btn btn-primary btn-sm"
-                                                                   href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.parentNamespace}>
-                                                                    {this.state.trank.parentNamespace}
-                                                                </a>
-                                                            </h3>
-                                                        }
-                                                        <a className="btn btn-primary btn-sm"
-                                                           href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/children"}>
-                                                            Children
-                                                        </a>
+                                                        <div className="btn-group">
+                                                            {
+                                                                this.state.trank.parentNamespace &&
+                                                                <h3>
+                                                                    Parent Namespace:
+                                                                    <a className="btn btn-primary btn-sm"
+                                                                       href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.parentNamespace}>
+                                                                        {this.state.trank.parentNamespace}
+                                                                    </a>
+                                                                </h3>
+                                                            }
+                                                            <a className="btn btn-primary btn-sm"
+                                                               href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/children"}>
+                                                                Children
+                                                            </a>
 
-                                                        <a className="btn btn-primary btn-sm"
-                                                           href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/organisms"}>
-                                                            Organisms
-                                                        </a>
-                                                        <a className="btn btn-primary btn-sm"
-                                                           href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/organisms/top"}>
-                                                            Top Organisms
-                                                        </a>
+                                                            <a className="btn btn-primary btn-sm"
+                                                               href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/organisms"}>
+                                                                Organisms
+                                                            </a>
+                                                            <a className="btn btn-primary btn-sm"
+                                                               href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.trank.namespace + "/organisms/top"}>
+                                                                Top Organisms
+                                                            </a>
+                                                        </div>
                                                         <form className="user col-lg-4" onSubmit={this.handleSubmit}>
                                                             <div className="form-group">
                                                                 <label>
@@ -222,9 +255,23 @@ class TrainingRoomTRanksDetailPage extends Component {
                                                                 </select>
 
                                                             </div>
-                                                            <button className="btn btn-primary btn-sm">
-                                                                Update
-                                                            </button>
+                                                            <div class="btn-group">
+                                                                <button className="btn btn-primary btn-sm">
+                                                                    Update
+                                                                </button>
+                                                                {
+                                                                    !this.state.confirmDelete &&
+                                                                    <button className="btn btn-info btn-sm" onClick={this.handelDelete}>
+                                                                        Delete
+                                                                    </button>
+                                                                }
+                                                                {
+                                                                    this.state.confirmDelete &&
+                                                                    <button className="btn btn-danger btn-sm" onClick={this.handelDelete}>
+                                                                        Confirm Delete
+                                                                    </button>
+                                                                }
+                                                                </div>
                                                         </form>
 
                                                         {this.state.trank.historicalScores &&

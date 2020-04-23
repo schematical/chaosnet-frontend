@@ -121,7 +121,8 @@ class TrainingRoomTRanksListPage extends Component {
                                                                 <th scope="col">Age</th>
                                                                 <th scope="col">Current Score</th>
                                                                 <th scope="col">High Score</th>
-
+                                                                <th scope="col">Children Spawned</th>
+                                                                <th scope="col">Children Reported</th>
                                                                 <th scope="col">Life State</th>
                                                                 <th scope="col">Evolve State</th>
                                                                 <th scope="col">Complexity</th>

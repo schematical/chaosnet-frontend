@@ -39,6 +39,13 @@ class OrgListComponent extends Component {
                     {this.state.organism.score}
                 </td>
                 <td>
+                    {this.state.organism.state}
+                </td>
+
+                <td>
+                    {this.state.organism.scoredDate && new Date(this.state.organism.scoredDate).toDateString()}
+                </td>
+                <td>
                     <div className="dropdown">
                         <a className="btn btn-sm btn-secondary nav-link collapsed" href="#" data-toggle="collapse"
                            data-target={"#spriteGroup_" + this.state.organism.namespace} aria-expanded="true" aria-controls="collapseTwo">

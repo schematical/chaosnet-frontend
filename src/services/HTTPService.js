@@ -34,6 +34,15 @@ class HTTPService{
             )
         );
     }
+    static delete(url, body, options){
+
+        return HTTPService.wrapPromise(
+            axios.delete(
+                ConfigService.config.chaosnet.host + url,
+                HTTPService.authRequest(options)
+            )
+        );
+    }
     static authRequest(options){
         options = options || {};
         options.headers = options.headers || {};
@@ -47,6 +56,7 @@ class HTTPService{
         }else{
             delete(options._skipAuth);
         }
+        console.log("options", options);
         return options;
     }
     static wrapPromise(p){

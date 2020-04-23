@@ -219,6 +219,8 @@ class TrainingRoomPresetNeuronListPage extends Component {
                                             /<a href={"/" + this.props.username}>{this.props.username}</a>
                                             /<a href={"/" + this.props.username + "/trainingrooms"}>trainingrooms</a>
                                             /<a href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace}>{this.props.trainingRoomNamespace}</a>
+                                            /<a href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/roles"}>roles</a>
+                                            /<a href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/roles/" + this.props.role}>{this.props.role}</a>
                                             /presetneurons
                                         </h1>
 

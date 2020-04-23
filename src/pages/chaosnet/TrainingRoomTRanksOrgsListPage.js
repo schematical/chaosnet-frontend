@@ -111,6 +111,9 @@ class TrainingRoomTRanksOrgsListPage extends Component {
                                                             <th>
                                                                 Score
                                                             </th>
+                                                            <th>
+                                                                State
+                                                            </th>
                                                         </tr>
                                                         </thead>
                                                         <tbody>

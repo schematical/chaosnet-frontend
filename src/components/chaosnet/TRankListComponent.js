@@ -38,6 +38,7 @@ class TRankListComponent extends Component {
                 <td>
                     {this.state.trank.age}
                 </td>
+
                 <td>
                     {this.state.trank.currScore}
                 </td>
@@ -45,11 +46,18 @@ class TRankListComponent extends Component {
                     {this.state.trank.highScore}
                 </td>
                 <td>
+                    {this.state.trank.childrenSpawnedThisGen}
+                </td>
+                <td>
+                    {this.state.trank.childrenReportedThisGen}
+                </td>
+                <td>
                     {this.state.trank.lifeState}
                 </td>
                 <td>
                     {this.state.trank.evolveState}
                 </td>
+
                 <td>
                     {this.state.trank.complexityScore}
                     {this.state.trank.complexityScore &&
@@ -57,6 +65,9 @@ class TRankListComponent extends Component {
                             ({Math.round((this.state.trank.currScore/ this.state.trank.complexityScore) * 100) / 100})
                         </span>
                     }
+                </td>
+                <td>
+                    {this.state.trank.trainingRoomRoleNamespace}
                 </td>
                 {/*<td>
                     <div className="dropdown">
