@@ -47,13 +47,15 @@ class SidebarComponent extends Component {
                                 <a className="collapse-item" href="/login">Training Rooms</a>
                             }
                             <a href="https://github.com/schematical/chaoscraft-mod/wiki"  className="collapse-item">ChaosCraft Wiki</a>
+                            <a href="https://github.com/schematical/chaoscraft-mod"  className="collapse-item">Github</a>
+
                         </div>
                     </div>
 
 
                     <a className="nav-link collapsed" href="#" data-toggle="collapse"
                        data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-                        <i className="fas fa-fw fa-cog"/>
+                        <i className="fas fa-brush"></i>
                         <span>ChaosPixel</span>
                     </a>
                     <div id="collapseTwo" className="collapse" aria-labelledby="headingTwo"
@@ -66,6 +68,42 @@ class SidebarComponent extends Component {
                     </div>
                 </li>
 
+
+                <li class="nav-item active">
+                    <a class="nav-link" href="https://www.patreon.com/bePatron?u=12320615">
+                        <i class="fab fa-patreon"></i>
+                        <span>Support Us</span></a>
+                </li>
+                <li className="nav-item active">
+                    <a className="nav-link" href="https://discord.gg/Bqzy9ua">
+                        <i className="fab fa-discord"></i>
+                        <span>Discord</span></a>
+                </li>
+                <li className="nav-item active">
+                    <a className="nav-link" href="https://www.youtube.com/schematical">
+                        <i className="fab fa-youtube"></i>
+                        <span>Youtube</span></a>
+                </li>
+                <li className="nav-item active">
+                    <a className="nav-link" href="https://www.twitch.tv/schematicalgames">
+                        <i className="fab fa-twitch"></i>
+                        <span>Twitch</span></a>
+                </li>
+                <li className="nav-item active">
+                    <a className="nav-link" href="https://github.com/schematical">
+                        <i className="fab fa-github"></i>
+                        <span>Github</span></a>
+                </li>
+                <li className="nav-item active">
+                    <a className="nav-link" href="https://trello.com/b/THugAw4z/schematical-public">
+                        <i className="fab fa-trello"></i>
+                        <span>Trello</span></a>
+                </li>
+                <li className="nav-item active">
+                    <a className="nav-link" href="https://twitter.com/schematical">
+                        <i className="fab fa-twitter"></i>
+                        <span>Twitter</span></a>
+                </li>
 
 {/*
                  Divider

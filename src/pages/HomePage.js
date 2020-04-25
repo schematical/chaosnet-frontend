@@ -76,6 +76,7 @@ class HomePage extends Component {
                                                 </div>
                                             </div>
                                         </div>
+
                                         { !this.state.loaded &&
                                             <div className="col-xl-3 col-md-6 mb-4">
                                                 <LoadingComponent />

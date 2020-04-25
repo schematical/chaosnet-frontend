@@ -96,6 +96,10 @@ class TrainingRoomOrgDetailPage extends Component {
                                                            href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/tranks/" + this.state.organism.speciesNamespace}>
                                                             Species
                                                         </a>
+                                                        <a className="btn btn-secondary btn-sm"
+                                                           href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/roles/" + this.state.organism.trainingRoomRoleNamespace}>
+                                                            Role: {this.state.organism.trainingRoomRoleNamespace}
+                                                        </a>
                                                     </div>
 
                                                     <h3>
