@@ -100,17 +100,30 @@ class TrainingRoomRoleDetailPage extends Component {
         this.setState(state);
     }
     handleSubmit(event) {
+        let method = 'post';
+        let uri = '/' + this.state.role.trainingRoomUsername + '/trainingrooms/' + this.state.role.trainingRoomNamespace + '/roles';
+        if(!this.state.isNew){
+            method = 'put';
+            uri += '/' + this.state.role.namespace;
+        }
         event.preventDefault();
-        return HTTPService.put('/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/roles/' + this.props.role,
+        return HTTPService[method](
+            uri,
             this.state.role,
             {
             }
         )
             .then((response) => {
+                let blnWasNew = this.state.isNew;
+                let state = {
+                    isNew: false
+                }
+                state.role = response.data;
 
-                this.state.role = response.data;
-
-                this.setState(this.state);
+                this.setState(state);
+                if(blnWasNew){
+                    document.location.href = uri + '/' + this.state.role.namespace;
+                }
 
             })
             .catch((err) => {
