@@ -5,6 +5,7 @@ import AuthService from "../../services/AuthService";
 import FooterComponent from "../../components/FooterComponent";
 import HTTPService from "../../services/HTTPService";
 import LoadingComponent from "../../components/LoadingComponent";
+import ConfirmComponent from "../../components/chaosnet/ConfirmComponent";
 class TrainingRoomRoleDetailPage extends Component {
     constructor(props) {
         super(props);
@@ -18,6 +19,8 @@ class TrainingRoomRoleDetailPage extends Component {
         }
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.promptDelete = this.promptDelete.bind(this);
+        this.onConfirmDelete = this.onConfirmDelete.bind(this);
         this.state.canEdit = this.state.isNew;
         if(this.state.isNew){
             this.state.role = {
@@ -32,6 +35,7 @@ class TrainingRoomRoleDetailPage extends Component {
             HTTPService.get(this.state.uri, {})
                 .then((response) => {
                     let state = {};
+                    state.isNew = false;
                     state.role = response.data;
                     state.canEdit = (AuthService.userData && AuthService.userData.username == state.role.owner_username)
                     state.loaded = true;
@@ -46,6 +50,31 @@ class TrainingRoomRoleDetailPage extends Component {
         }
 
     }
+    promptDelete(event){
+        event.preventDefault();
+        this.refs.confirmComponent.show();
+    }
+    onConfirmDelete(){
+
+        return HTTPService.delete('/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/roles/' + this.props.role,
+            this.state.trainingroom,
+            {
+
+            }
+        )
+            .then((response) => {
+                let state = {};
+                state.trainingroom = response.data;
+                document.location.href = '/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/roles?delete=success';
+                this.setState(state);
+            })
+            .catch((err) => {
+                let state = {};
+                state.error = err;
+                this.setState(state);
+                console.error("Error: ", err.message);
+            })
+    }
     handleChange(event) {
         //console.log("TARGET:" , event.target.name, event.target.value, event.target);
         let state = {
@@ -53,12 +82,15 @@ class TrainingRoomRoleDetailPage extends Component {
         };
         switch(event.target.name){
             case('namespace'):
-                state.role.namespace = event.target.value.toLowerCase().replace(/[^0-9a-z]/g, '');
+                if(this.state.isNew) {
+                    state.role.namespace = event.target.value.toLowerCase().replace(/[^0-9a-z]/g, '');
+                }
                 break;
             case('name'):
-
                 state.role.name = event.target.value;
-                state.role.namespace = state.role.name.toLowerCase().replace(/[^0-9a-z]/g, '');
+                if(this.state.isNew) {
+                    state.role.namespace = state.role.name.toLowerCase().replace(/[^0-9a-z]/g, '');
+                }
                 break;
             default:
                 state.role[event.target.name] = event.target.value;
@@ -69,7 +101,7 @@ class TrainingRoomRoleDetailPage extends Component {
     }
     handleSubmit(event) {
         event.preventDefault();
-        return HTTPService.post('/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/roles',
+        return HTTPService.put('/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/roles/' + this.props.role,
             this.state.role,
             {
             }
@@ -79,7 +111,7 @@ class TrainingRoomRoleDetailPage extends Component {
                 this.state.role = response.data;
 
                 this.setState(this.state);
-                document.location.href = ("/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + '/roles/' + this.state.role.namespace);
+
             })
             .catch((err) => {
                 let state = {}
@@ -164,6 +196,35 @@ class TrainingRoomRoleDetailPage extends Component {
                                                         <a className="btn btn-primary btn-sm"
                                                            href={this.state.uri + "/presetneurons"}>Preset
                                                             Neurons</a>
+                                                        <div className="btn-group" role="group">
+                                                            <button id="btnGroupDrop1" type="button"
+                                                                    className="btn btn-secondary dropdown-toggle"
+                                                                    data-toggle="dropdown" aria-haspopup="true"
+                                                                    aria-expanded="false">
+                                                                Options
+                                                            </button>
+                                                            <div className="dropdown-menu"
+                                                                 aria-labelledby="btnGroupDrop1">
+                                                                {/*<a className="dropdown-item" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/presetneurons"}>
+                                                                    Preset Neurons
+                                                                </a>
+                                                                <a className="dropdown-item" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/fitnessrules"}>
+                                                                    Fitness Rules
+                                                                </a>*/}
+                                                               {/* <a className="dropdown-item" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/roles"}>
+                                                                    Roles
+                                                                </a>*/}
+
+                                                                {
+                                                                    this.state.canEdit &&
+                                                                    <a className="dropdown-item" href={this.state.uri + "/delete"} onClick={this.promptDelete}>
+                                                                        Delete
+                                                                    </a>
+                                                                }
+
+
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                     }
 
@@ -198,6 +259,19 @@ class TrainingRoomRoleDetailPage extends Component {
                                                                            onChange={this.handleChange}
                                                                     />
                                                                 </div>
+                                                                <div className="form-group">
+                                                                    <label>
+                                                                        Description
+                                                                    </label>
+                                                                    <textarea
+                                                                           className="form-control form-control-user"
+                                                                           id="desc" name="desc"
+                                                                           aria-describedby="desc"
+                                                                           placeholder="Description"
+                                                                           value={this.state.role.desc}
+                                                                           onChange={this.handleChange}
+                                                                    ></textarea>
+                                                                </div>
 
                                                                 <button className="btn btn-primary btn-user btn-block">
                                                                     Save
@@ -222,6 +296,8 @@ class TrainingRoomRoleDetailPage extends Component {
                             {/* End of Main Content */}
                             {/* Footer */}
                             <FooterComponent />
+                            <ConfirmComponent ref="confirmComponent" id={this.props.role + "_confirmComponent"} title={"Confirm Delete"} body={"Are you sure you want to delete this training room role? This will delete all Species, Organisms for everyone that ever trained on this room so think it over carefully."} onConfirm={this.onConfirmDelete} />
+
                             {/* End of Footer */}
                         </div>
                         {/* End of Content Wrapper */}

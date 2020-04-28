@@ -10,9 +10,15 @@ class TrainingRoomNewPage extends Component {
         super(props);
 
         this.state = {
-            trainingRoomName:"",
-            trainingRoomNamespace:"",
-            simModelNamespace:"chaoscraft",
+
+
+            trainingRoom:{
+                simModelNamespace:"chaoscraft",
+            },
+            trainingRoomRole:{
+                name: "Default",
+                namespace:"default"
+            },
             loaded: true
         }
         this.handleChange = this.handleChange.bind(this);
@@ -21,12 +27,27 @@ class TrainingRoomNewPage extends Component {
     handleChange(event) {
 
         let state = {};
-        state[event.target.name] = event.target.value;
-        switch(event.target.name){
-            case('trainingRoomName'):
-                state.trainingRoomNamespace = state.trainingRoomName.toLowerCase().replace(/[^0-9a-z]/g, '');
-            break;
+        let parts = event.target.name.split("_");
+        if(parts.length < 2){
+            throw new Error("This should not happen")
+            return;
         }
+
+        let entity = parts[0];
+        let field = parts[1];
+        if(!this.state[entity]){
+            throw new Error("Missing Entity: " + entity + " keys:" + Object.keys(this.state).join(","));
+            return;
+        }
+        state[entity] = this.state[entity];
+
+        state[entity][field] = event.target.value;
+        switch (field) {
+            case('name'):
+                state[entity].namespace = state[entity].name.toLowerCase().replace(/[^0-9a-z]/g, '');
+                break;
+        }
+
         this.setState(state);
     }
     handleSubmit(event) {
@@ -34,20 +55,27 @@ class TrainingRoomNewPage extends Component {
 
         event.preventDefault();
         return HTTPService.post('/trainingrooms' ,
-            {
-                namespace: this.state.trainingRoomNamespace,
-                name: this.state.trainingRoomName,
-                simModelNamespace: this.state.simModelNamespace
-            },
+            this.state.trainingRoom,
             {
             }
         )
             .then((response) => {
 
-                this.state.trainingroom = response.data;
+                this.state.trainingRoom = response.data;
 
                 this.setState(this.state);
-                document.location.href = ("/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace);
+                return HTTPService.post('/' + this.state.trainingRoom.owner_username + '/trainingrooms/' + this.state.trainingRoom.namespace + '/roles' ,
+                    this.state.trainingRoomRole,
+                    {
+                    }
+                );
+            })
+            .then((response) => {
+
+                this.state.trainingRoomRole = response.data;
+
+                this.setState(this.state);
+                document.location.href = ("/" + this.state.trainingRoom.owner_username + "/trainingrooms/" + this.state.trainingRoom.namespace + '/roles/' + this.state.trainingRoomRole.namespace + '/fitnessrules?wizzard=true');
             })
             .catch((err) => {
                 let state = {}
@@ -100,25 +128,37 @@ class TrainingRoomNewPage extends Component {
                                                         }
                                                         <div className="form-group">
                                                             <input type="text" className="form-control form-control-user"
-                                                                   id="trainingRoomName" name="trainingRoomName" aria-describedby="trainingRoomName"
-                                                                   placeholder="Training Room Name..."  value={this.state.trainingRoomName} onChange={this.handleChange}
+                                                                   id="trainingRoom_name" name="trainingRoom_name" aria-describedby="trainingRoom_name"
+                                                                   placeholder="Training Room Name..."  value={this.state.trainingRoom.name} onChange={this.handleChange}
                                                             />
                                                         </div>
                                                         <div className="form-group">
                                                             <input type="text" className="form-control form-control-user"
                                                                    readOnly={true}
-                                                                   id="trainingRoomNamespace" name="trainingRoomNamespace" aria-describedby="trainingRoomNamespace"
-                                                                   placeholder="Training Room Namespace..."  value={this.state.trainingRoomNamespace} onChange={this.handleChange}
+                                                                   id="trainingRoom_namespace" name="trainingRoom_namespace" aria-describedby="trainingRoom_namespace"
+                                                                   placeholder="Training Room Namespace..."  value={this.state.trainingRoom.namespace} onChange={this.handleChange}
                                                             />
                                                         </div>
                                                         <div className="form-group">
                                                             <input type="text" className="form-control form-control-user"
-                                                                   id="simModelNamespace" name="simModelNamespace" aria-describedby="simModelNamespace"
+                                                                   id="trainingRoom_simModelNamespace" name="trainingRoom_simModelNamespace" aria-describedby="trainingRoom_simModelNamespace"
                                                                    readOnly={true}
-                                                                   placeholder="Sim Model Namespace..."  value={this.state.simModelNamespace} onChange={this.handleChange}
+                                                                   placeholder="Sim Model Namespace..."  value={this.state.trainingRoom.simModelNamespace} onChange={this.handleChange}
                                                             />
                                                         </div>
-
+                                                        <div className="form-group">
+                                                            <input type="text" className="form-control form-control-user"
+                                                                   id="trainingRoomRole_name" name="trainingRoomRole_name" aria-describedby="trainingRoomRole_name"
+                                                                   placeholder="Training Room Role..."  value={this.state.trainingRoomRole.name} onChange={this.handleChange}
+                                                            />
+                                                        </div>
+                                                        <div className="form-group">
+                                                            <input type="text" className="form-control form-control-user"
+                                                                   readOnly={true}
+                                                                   id="trainingRoomRole_namespace" name="trainingRoomRole_namespace" aria-describedby="trainingRoomRole_namespace"
+                                                                   placeholder="Training Room Role Namespace..."  value={this.state.trainingRoomRole.namespace} onChange={this.handleChange}
+                                                            />
+                                                        </div>
                                                         <button className="btn btn-primary btn-user btn-block">
                                                             Save
                                                         </button>
