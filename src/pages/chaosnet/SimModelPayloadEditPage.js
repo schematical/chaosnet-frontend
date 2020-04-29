@@ -26,7 +26,8 @@ class SimModelPayloadEditPage extends Component {
         window.jsonLint = jsonlint;
         this.state = {
             simModel:null,
-            rendered: false
+            rendered: false,
+            isDev: this.props.simModelTag == 'dev'
 
         }
         this.handleChange = this.handleChange.bind(this);
@@ -34,8 +35,11 @@ class SimModelPayloadEditPage extends Component {
         this.isOwner = this.isOwner.bind(this);
         this.promptDelete = this.promptDelete.bind(this);
         this.onConfirmDelete = this.onConfirmDelete.bind(this);
-
-        HTTPService.get('/' + this.props.username + '/simmodels/' + this.props.simModelNamespace + '/payload')
+        let uri = '/' + this.props.username + '/simmodels/' + this.props.simModelNamespace + '/tags/' + this.props.simModelTag + '/payload';
+        if(this.state.isDev){
+           uri = '/' + this.props.username + '/simmodels/' + this.props.simModelNamespace + '/payload'
+        }
+        HTTPService.get(uri)
             .then((response) => {
                 let state = {};
                 state.simModel = response.data.simModel;
@@ -145,7 +149,8 @@ class SimModelPayloadEditPage extends Component {
                     matchBrackets: true,
                     mode: "application/json",
                     gutters: ["CodeMirror-lint-markers"],
-                    lint: true
+                    lint: true,
+                    readOnly:(!this.isOwner() || !this.state.isDev)
                 });
                 let state = {
                     rendered: true
@@ -186,7 +191,6 @@ class SimModelPayloadEditPage extends Component {
                                             /{this.props.simModelTag}
                                             /payload
                                         </h1>
-
                                     </div>
                                     <div className="row">
 
@@ -217,7 +221,7 @@ class SimModelPayloadEditPage extends Component {
                                             {
                                                 this.state.loaded &&
                                                 <div className="card shadow mb-4">
-                                                    <div className="btn-group" role="group" aria-label="Basic example">
+                                                    {/*<div className="btn-group" role="group" aria-label="Basic example">
 
                                                         <a className="btn btn-primary btn-sm"
                                                            href={"/" + this.state.simModel.owner_username + "/simmodels/" + this.state.simModel.namespace + "/tags"}>
@@ -237,13 +241,13 @@ class SimModelPayloadEditPage extends Component {
 
                                                                 {
                                                                     this.state.canEdit &&
-                                                                    <a className="dropdown-item" href={"/" + this.state.simModel.owner_username + "/trainingrooms/" + this.state.simModel.namespace + "/edit"}>
+                                                                    <a className="dropdown-item" href={"/" + this.state.simModel.owner_username + "/simmodels/" + this.state.simModel.namespace + "/edit"}>
                                                                         Edit
                                                                     </a>
                                                                 }
                                                                 {
                                                                     this.state.canEdit &&
-                                                                    <a className="dropdown-item" href={"/" + this.state.simModel.owner_username + "/trainingrooms/" + this.state.simModel.namespace + "/delete"} onClick={this.promptDelete}>
+                                                                    <a className="dropdown-item" href={"/" + this.state.simModel.owner_username + "/simmodels/" + this.state.simModel.namespace + "/delete"} onClick={this.promptDelete}>
                                                                         Delete
                                                                     </a>
                                                                 }
@@ -253,7 +257,7 @@ class SimModelPayloadEditPage extends Component {
                                                         </div>
 
 
-                                                    </div>
+                                                    </div>*/}
 
 
                                                 </div>
@@ -280,7 +284,7 @@ class SimModelPayloadEditPage extends Component {
                                                                             </label>
                                                                             <textarea
                                                                                    className="form-control form-control-user"
-                                                                                   readOnly={!this.isOwner()}
+                                                                                   readOnly={!this.isOwner() || !this.state.isDev}
                                                                                    id="payload"
                                                                                    name="payload"
                                                                                    aria-describedby="payload"
@@ -295,10 +299,21 @@ class SimModelPayloadEditPage extends Component {
 
                                                                         {
                                                                             this.isOwner() &&
+                                                                            this.state.isDev &&
                                                                             <button
                                                                                 className="btn btn-primary btn-user btn-block">
                                                                                 Save
                                                                             </button>
+                                                                        }
+                                                                        {
+                                                                            this.isOwner() &&
+                                                                            !this.state.isDev &&
+                                                                            <a
+                                                                                className="btn btn-primary btn-user btn-block"
+                                                                                href={"/" + this.state.simModel.owner_username + "/simmodels/" + this.state.simModel.namespace + "/tags/dev/payload"}
+                                                                            >
+                                                                                View Dev
+                                                                            </a>
                                                                         }
                                                                     </form>
                                                                 </div>

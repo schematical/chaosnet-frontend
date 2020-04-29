@@ -27,7 +27,7 @@ class SimModelListComponent extends Component {
 
             <tr>
                 <th scope="row">
-                    <a href={"/" + this.props.simModel.owner_username + "/trainingrooms/" + this.props.simModel.namespace}>
+                    <a href={"/" + this.props.simModel.owner_username + "/simmodels/" + this.props.simModel.namespace}>
                         {this.props.simModel.owner_username}:{this.props.simModel.namespace}
                     </a>
 
