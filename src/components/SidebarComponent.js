@@ -69,9 +69,9 @@ class SidebarComponent extends Component {
                 </li>
 
 
-                <li class="nav-item active">
-                    <a class="nav-link" href="https://www.patreon.com/bePatron?u=12320615">
-                        <i class="fab fa-patreon"></i>
+                <li className="nav-item active">
+                    <a className="nav-link" href="https://www.patreon.com/bePatron?u=12320615">
+                        <i className="fab fa-patreon"></i>
                         <span>Support Us</span></a>
                 </li>
                 <li className="nav-item active">

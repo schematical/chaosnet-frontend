@@ -32,9 +32,11 @@ class TRankListComponent extends Component {
                     </a>
 
                 </th>
-                <a href={this.state.uri}>
-                    {this.state.trank.name}
-                </a>
+                <td>
+                    <a href={this.state.uri}>
+                        {this.state.trank.name}
+                    </a>
+                </td>
                 <td>
                     {this.state.trank.age}
                 </td>

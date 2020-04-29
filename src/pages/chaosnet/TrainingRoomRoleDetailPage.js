@@ -113,25 +113,25 @@ class TrainingRoomRoleDetailPage extends Component {
             {
             }
         )
-            .then((response) => {
-                let blnWasNew = this.state.isNew;
-                let state = {
-                    isNew: false
-                }
-                state.role = response.data;
+        .then((response) => {
+            let blnWasNew = this.state.isNew;
+            let state = {
+                isNew: false
+            }
+            state.role = response.data;
 
-                this.setState(state);
-                if(blnWasNew){
-                    document.location.href = uri + '/' + this.state.role.namespace;
-                }
+            this.setState(state);
+            if(blnWasNew){
+                document.location.href = uri + '/' + this.state.role.namespace;
+            }
 
-            })
-            .catch((err) => {
-                let state = {}
-                state.error = err;
-                this.setState(state);
-                console.error("Error: ", err.message);
-            })
+        })
+        .catch((err) => {
+            let state = {}
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        })
     }
     render() {
 

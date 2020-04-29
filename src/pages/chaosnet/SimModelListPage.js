@@ -4,52 +4,32 @@ import TopbarComponent from '../../components/TopbarComponent';
 import AuthService from "../../services/AuthService";
 import TrainingRoomListComponent from "../../components/chaosnet/TrainingRoomListComponent";
 import FooterComponent from "../../components/FooterComponent";
-import OrgListComponent from "../../components/chaosnet/OrgListComponent";
-import TRankListComponent from "../../components/chaosnet/TRankListComponent";
 import HTTPService from "../../services/HTTPService";
 import LoadingComponent from "../../components/LoadingComponent";
+import SimModelListComponent from "../../components/chaosnet/SimModelListComponent";
 const axios = require('axios');
-class TrainingRoomTRanksListPage extends Component {
+class SimModelListPage extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            tranks:[],
-            _lifeState: "Active"
+            trainingrooms:[]
         }
-        this.handleChange = this.handleChange.bind(this);
-        this.refreshData();
-
-    }
-    refreshData(){
-        let qs = "state=" +this.state._lifeState;
-        let url = '/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks?' + qs;
-        if(this.props.session){
-            url = '/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions/' + this.props.session + '/species?' + qs;
-        }
-        HTTPService.get(url, {
+        HTTPService.get( "/" + this.props.username+ '/simmodels', {
 
         })
-            .then((response) => {
-                let state = {};
-                state.tranks = response.data;
-                state.loaded = true;
-                this.setState(state);
-            })
-            .catch((err) => {
-                let state = {};
-                state.error = err;
-                this.setState(state);
-                console.error("Error: ", err.message);
-            })
-    }
-    handleChange(event) {
-        let state = {};
-        state[event.target.name] = event.target.value;
-        this.state.loaded = false;
-        this.state.tranks = [];
-        this.setState(state);
-        this.refreshData();
+        .then((response) => {
+            let state = {};
+            state.simModels = response.data;
+            state.loaded = true;
+            this.setState(state);
+        })
+        .catch((err) => {
+            let state = {};
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        })
     }
     render() {
 
@@ -72,16 +52,9 @@ class TrainingRoomTRanksListPage extends Component {
                                     {/* Page Heading */}
                                     <div className="d-sm-flex align-items-center justify-content-between mb-4">
                                         <h1 className="h3 mb-0 text-gray-800">ChaosNet</h1>
-                                        <div className="d-sm-flex align-items-center justify-content-between mb-4">
-                                            <h1 className="h3 mb-0 text-gray-800">
-                                                /<a href={"/" + this.props.username}>{this.props.username}</a>
-                                                /<a href={"/" + this.props.username + "/trainingrooms"}>trainingrooms</a>
-                                                /<a
-                                                href={"/" + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace}>{this.props.trainingRoomNamespace}</a>
-                                                /tranks
-                                            </h1>
-
-                                        </div>
+                                        {/*<a href="#"
+                                           className="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                                            className="fas fa-download fa-sm text-white-50"/> Generate Report</a>*/}
                                     </div>
                                     <div className="row">
 
@@ -89,6 +62,7 @@ class TrainingRoomTRanksListPage extends Component {
 
 
                                         <div className="col-xl-12 col-lg-12">
+
                                             { !this.state.loaded && <LoadingComponent /> }
                                             {
                                                 this.state.loaded &&
@@ -97,8 +71,7 @@ class TrainingRoomTRanksListPage extends Component {
                                                     <div className="card-body">
                                                         {
                                                             this.state.error &&
-                                                            <div
-                                                                className="card mb-4 py-3  bg-danger text-white shadow">
+                                                            <div className="card mb-4 py-3  bg-danger text-white shadow">
                                                                 <div className="card-body">
                                                                     Error {this.state.error.status}
                                                                     <div className="text-white-50 small">
@@ -107,42 +80,30 @@ class TrainingRoomTRanksListPage extends Component {
                                                                 </div>
                                                             </div>
                                                         }
-                                                        <select id="_lifeState" name="_lifeState"
-                                                                value={this.state._lifeState}
-                                                                onChange={this.handleChange}>
-                                                            <option value="Active">Active</option>
-                                                            <option value="StalledOut">StalledOut</option>
-                                                            <option value="MarkedForColdStorage">MarkedForColdStorage
-                                                            </option>
-                                                        </select>
                                                         <table className="table">
                                                             <thead>
                                                             <tr>
-                                                                <th scope="col">Count {this.state.tranks.length}</th>
-                                                                <th scope="col">Name</th>
-                                                                <th scope="col">Age</th>
-                                                                <th scope="col">Current Score</th>
-                                                                <th scope="col">High Score</th>
-                                                                <th scope="col">Children Spawned</th>
-                                                                <th scope="col">Children Reported</th>
-                                                                <th scope="col">Life State</th>
-                                                                <th scope="col">Evolve State</th>
-                                                                <th scope="col">Complexity</th>
+                                                                <th scope="col">#</th>
+
                                                             </tr>
                                                             </thead>
                                                             <tbody>
                                                             {
-                                                                this.state.tranks.map((trank) => {
-                                                                    return <TRankListComponent key={trank.namespace} trank={trank}
-                                                                                               page={this}/>
+                                                                this.state.simModels.map((simModel) => {
+                                                                    return <SimModelListComponent
+                                                                        key={simModel.namespace}
+                                                                        simModel={simModel} page={this}/>
                                                                 })
                                                             }
 
                                                             </tbody>
                                                         </table>
-                                                        {/*<a  href={"/" + this.props.username + "/trainingrooms/new"} className="btn btn-danger btn-lg" onClick={this.createNewTrainingRoom}>Create New</a>*/}
+                                                        <a href={"/" + this.props.username + "/simmodels/new"}
+                                                           className="btn btn-danger btn-lg"
+                                                           /*onClick={this.createSimModel}*/>Sim Model</a>
                                                     </div>
                                                 </div>
+
                                             }
                                         </div>
 
@@ -164,7 +125,28 @@ class TrainingRoomTRanksListPage extends Component {
                     <a className="scroll-to-top rounded" href="#page-top">
                         <i className="fas fa-angle-up"/>
                     </a>
-
+                    {/* Logout Modal*/}
+                    <div className="modal fade" id="logoutModal" tabIndex={-1} role="dialog"
+                         aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div className="modal-dialog" role="document">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h5 className="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                                    <button className="close" type="button" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">×</span>
+                                    </button>
+                                </div>
+                                <div className="modal-body">Select "Logout" below if you are ready to end your current
+                                    session.
+                                </div>
+                                <div className="modal-footer">
+                                    <button className="btn btn-secondary" type="button" data-dismiss="modal">Cancel
+                                    </button>
+                                    <a className="btn btn-primary" href="login.html">Logout</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -172,4 +154,4 @@ class TrainingRoomTRanksListPage extends Component {
     }
 }
 
-export default TrainingRoomTRanksListPage;
+export default SimModelListPage;

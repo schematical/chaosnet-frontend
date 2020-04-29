@@ -11,6 +11,7 @@ import TrainingRoomListPage from './pages/chaosnet/TrainingRoomListPage.js';
 import TrainingRoomDetailPage from './pages/chaosnet/TrainingRoomDetailPage.js';
 import logo from './logo.svg';
 import './App.css';
+import '../node_modules/codemirror/lib/codemirror.css'
 import ChaosPixelSlicerPage from "./pages/ChaosPixelSlicerPage";
 import {useCookies} from "react-cookie";
 import ChaosPixelListTrainingDatasPage from "./pages/ChaosPixelListTrainingDatasPage";
@@ -33,6 +34,8 @@ import TrainingRoomTRanksImportPage from "./pages/chaosnet/TrainingRoomTRanksImp
 import ConfigService from "./services/ConfigService";
 import TrainingRoomRolesListPage from "./pages/chaosnet/TrainingRoomRolesListPage";
 import TrainingRoomRoleDetailPage from "./pages/chaosnet/TrainingRoomRoleDetailPage";
+import SimModelListPage from "./pages/chaosnet/SimModelListPage";
+import SimModelDetailPage from "./pages/chaosnet/SimModelDetailPage";
 class App extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired
@@ -52,6 +55,8 @@ class App extends Component {
             <Router.Location path="/" handler={HomePage} />
             <Router.Location path="/login" handler={LoginPage} />
             <Router.Location path="/signup" handler={SignupPage} />
+            <Router.Location path="/:username/simmodels" handler={SimModelListPage} />
+            <Router.Location path="/:username/simmodels/:simModelNamespace" handler={SimModelDetailPage} />
             <Router.Location path="/:username/trainingrooms" handler={TrainingRoomListPage} />
             <Router.Location path="/:username/trainingrooms/new" handler={TrainingRoomNewPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace" handler={TrainingRoomDetailPage} />
