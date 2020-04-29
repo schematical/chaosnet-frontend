@@ -300,7 +300,7 @@ class SimModelDetailPage extends Component {
                                                     <div className="row">
 
                                                         {
-                                                            this.state.isNew || this.state.editMode &&
+                                                            (this.state.isNew || this.state.editMode) &&
                                                             <div className="col-xl-6 col-md-12 mb-6">
                                                                 <div className="card shadow mb-4">
                                                                     <div className="card-header py-3">
@@ -430,6 +430,10 @@ class SimModelDetailPage extends Component {
                                                                                         <td>
                                                                                             <a href={"/" + this.state.simModel.owner_username + "/simmodels/" + this.state.simModel.namespace + "/tags/" + tag + "/payload"}>
                                                                                                 {tag}
+                                                                                                {
+                                                                                                    this.state.simModel.latestSimModelTag == tag &&
+                                                                                                        <span>  (LATEST)</span>
+                                                                                                }
                                                                                             </a>
                                                                                         </td>
                                                                                     </tr>

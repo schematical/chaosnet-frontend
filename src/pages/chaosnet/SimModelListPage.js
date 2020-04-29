@@ -15,7 +15,11 @@ class SimModelListPage extends Component {
         this.state = {
             trainingrooms:[]
         }
-        HTTPService.get( "/" + this.props.username+ '/simmodels', {
+        let uri = '/simmodels';
+        if(this.props.username){
+            uri = "/" + this.props.username+ '/simmodels';
+        }
+        HTTPService.get(uri , {
 
         })
         .then((response) => {

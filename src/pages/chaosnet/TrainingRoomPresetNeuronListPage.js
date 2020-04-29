@@ -44,7 +44,8 @@ class TrainingRoomPresetNeuronListPage extends Component {
 
                 this.setState(state);
 
-                return HTTPService.get('/simmodels/' + this.state.trainingroom.simModelNamespace , {
+
+                return HTTPService.get('/' + this.state.trainingroom.owner_username + '/trainingrooms/' + this.state.trainingroom.namespace + '/simmodel', {
 
                 })
             })

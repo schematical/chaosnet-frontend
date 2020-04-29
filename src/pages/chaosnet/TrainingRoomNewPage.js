@@ -68,6 +68,9 @@ class TrainingRoomNewPage extends Component {
                 }
 
                 this.setState(state);
+                if(!this.state.trainingRoom.simModelTag){
+                    this.state.trainingRoom.simModelTag = state.simModel.latestSimModelTag;
+                }
             })
             .catch((err) => {
                 let state = {}
@@ -167,12 +170,23 @@ class TrainingRoomNewPage extends Component {
                                                             />
                                                         </div>
                                                         <div className="form-group">
-                                                            <input type="text" className="form-control form-control-user"
-                                                                   id="trainingRoom_simModelNamespace" name="trainingRoom_simModelNamespace" aria-describedby="trainingRoom_simModelNamespace"
-                                                                   readOnly={true}
-                                                                   placeholder="Sim Model Namespace..."  value={this.state.trainingRoom.simModelNamespace} onChange={this.handleChange}
-                                                            />
+                                                            <div className="input-group mb-3">
+                                                                <input type="text" className="form-control form-control-user"
+                                                                       id="trainingRoom_simModelNamespace" name="trainingRoom_simModelNamespace" aria-describedby="trainingRoom_simModelNamespace"
+                                                                       readOnly={true}
+                                                                       placeholder="Sim Model Namespace..."  value={this.state.trainingRoom.simModelNamespace} onChange={this.handleChange}
+                                                                />
+                                                                    <div className="input-group-append">
+                                                                        <a className="btn btn-primary btn-user btn-block"
+                                                                           href={"/simmodels"}
+                                                                                >
+                                                                            Change
+                                                                        </a>
+                                                                    </div>
+                                                            </div>
+
                                                         </div>
+
                                                         {
                                                             this.state.simModel &&
                                                             <div className="form-group">

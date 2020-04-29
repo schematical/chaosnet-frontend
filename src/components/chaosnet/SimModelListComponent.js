@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Link  from 'react-router-component';
+import AuthService from "../../services/AuthService";
 
 class SimModelListComponent extends Component {
 
@@ -32,6 +33,26 @@ class SimModelListComponent extends Component {
                     </a>
 
                 </th>
+                <td>
+                    {
+                        AuthService.userData &&
+                        <a
+                            className="btn btn-info   btn-sm"
+                            href={"/" + AuthService.userData.username + "/trainingrooms/new?simModelUsername=" + this.state.simModel.owner_username + "&simModelNamespace=" + this.state.simModel.namespace }
+                        >
+                            Create Training Room
+                        </a>
+                    }
+                    {
+                        !AuthService.userData &&
+                        <a
+                            className="btn btn-info btn-sm"
+                            href={"/signup"}
+                        >
+                            Create Training Room
+                        </a>
+                    }
+                </td>
 
 
 

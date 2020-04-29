@@ -56,6 +56,7 @@ class App extends Component {
             <Router.Location path="/" handler={HomePage} />
             <Router.Location path="/login" handler={LoginPage} />
             <Router.Location path="/signup" handler={SignupPage} />
+            <Router.Location path="/simmodels" handler={SimModelListPage} />
             <Router.Location path="/:username/simmodels" handler={SimModelListPage} />
             <Router.Location path="/:username/simmodels/:simModelNamespace" handler={SimModelDetailPage} />
             <Router.Location path="/:username/simmodels/:simModelNamespace/tags/:simModelTag/payload" handler={SimModelPayloadEditPage} />
