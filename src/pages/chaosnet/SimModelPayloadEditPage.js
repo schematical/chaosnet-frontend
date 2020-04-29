@@ -26,6 +26,7 @@ class SimModelPayloadEditPage extends Component {
         window.jsonLint = jsonlint;
         this.state = {
             simModel:null,
+            rendered: false
 
         }
         this.handleChange = this.handleChange.bind(this);
@@ -37,7 +38,8 @@ class SimModelPayloadEditPage extends Component {
         HTTPService.get('/' + this.props.username + '/simmodels/' + this.props.simModelNamespace + '/payload')
             .then((response) => {
                 let state = {};
-                state.simModel = response.data;
+                state.simModel = response.data.simModel;
+                state.payload = response.data.payload;
                 state.loaded = true;
                 state.canEdit = AuthService.userData && (
                     AuthService.isAdmin() ||
@@ -96,24 +98,25 @@ class SimModelPayloadEditPage extends Component {
     }
     handleChange(event) {
         let state = {
-            simModel: this.state.simModel
         };
-        state.simModel[event.target.name] = event.target.value;
+        state[event.target.name] = event.target.value;
 
         this.setState( state);
     }
     handleSubmit(event) {
 
         event.preventDefault();
-        return HTTPService.put('/' + this.props.username + '/simmodels/' + this.props.simModel.namespace,
-            this.state.trainingroom,
+        return HTTPService.post('/' + this.props.username + '/simmodels/' + this.state.simModel.namespace + "/payload",
+            {
+                payload: this.editor.getValue()//this.state.payload
+            },
             {
 
             }
         )
             .then((response) => {
                 let state = {};
-                state.simModel = response.data;
+                state.message = "Success";
 
                 this.setState(state);
             })
@@ -132,15 +135,31 @@ class SimModelPayloadEditPage extends Component {
         return this.props.username === AuthService.userData.username;
     }
     render() {
-        setTimeout(()=>{
-            this.editor = CodeMirror.fromTextArea(document.getElementById("payload"), {
-                lineNumbers: true,
-                matchBrackets: true,
-                mode: "application/json",
-                gutters: ["CodeMirror-lint-markers"],
-                lint: true
-            });
-        }, 100);
+        if(
+            this.state.loaded &&
+            !this.state.rendered
+        ) {
+            setTimeout(() => {
+                this.editor = CodeMirror.fromTextArea(document.getElementById("payload"), {
+                    lineNumbers: true,
+                    matchBrackets: true,
+                    mode: "application/json",
+                    gutters: ["CodeMirror-lint-markers"],
+                    lint: true
+                });
+                let state = {
+                    rendered: true
+                };
+                this.setState(state);
+               /* this.editor.on('change', (codeMirror, changeObj)=>{
+                    console.log(changeObj);
+                    let state = {
+                        payload: this.editor.getValue()
+                    };
+                    this.setState(state);
+                })*/
+            }, 100);
+        }
         return (
             <div>
                 <div>
@@ -163,6 +182,8 @@ class SimModelPayloadEditPage extends Component {
                                             /<a href={"/" + this.props.username + "/simmodels"}>simmodels</a>
                                             /<a
                                             href={"/" + this.props.username + "/simmodels/" + this.props.simModelNamespace}>{this.props.simModelNamespace}</a>
+                                            /tags
+                                            /{this.props.simModelTag}
                                             /payload
                                         </h1>
 
@@ -179,6 +200,17 @@ class SimModelPayloadEditPage extends Component {
                                                         <div className="text-white-50 small">
                                                             {this.state.error.message}
                                                         </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                            {
+                                                this.state.message &&
+                                                <div className="card mb-4 py-3  bg-info text-white shadow">
+                                                    <div className="card-body">
+                                                         {this.state.message}
+                                                       {/* <div className="text-white-50 small">
+                                                            {this.state.message}
+                                                        </div>*/}
                                                     </div>
                                                 </div>
                                             }
@@ -234,7 +266,7 @@ class SimModelPayloadEditPage extends Component {
                                                     <div className="row">
 
 
-                                                        <div className="col-xl-6 col-md-12 mb-6">
+                                                        <div className="col-xl-12 col-md-12 mb-6">
                                                             <div className="card shadow mb-4">
                                                                 <div className="card-header py-3">
                                                                     <h1 className="h3 mb-0 text-gray-800">Info</h1>
