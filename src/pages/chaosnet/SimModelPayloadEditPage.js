@@ -19,50 +19,42 @@ const javascript = require('../../../node_modules/codemirror/mode/javascript/jav
 //const lint = require('../../../node_modules/codemirror/addon/lint/lint');
 
 //const jsonlint = require('../../../node_modules/codemirror/addon/lint/json-lint');
-class SimModelDetailPage extends Component {
+class SimModelPayloadEditPage extends Component {
     constructor(props) {
         super(props);
         window.javascript = javascript;
         window.jsonLint = jsonlint;
         this.state = {
             simModel:null,
-            isNew: this.props.simModelNamespace == 'new',
+
         }
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.isOwner = this.isOwner.bind(this);
-        this.onRawUpdate = this.onRawUpdate.bind(this);
-        this.showRawEdit = this.showRawEdit.bind(this);
         this.promptDelete = this.promptDelete.bind(this);
         this.onConfirmDelete = this.onConfirmDelete.bind(this);
-        if(this.state.isNew){
-            this.state.simModel = {
-                owner_username: AuthService.userData.username,
-            }
-            this.state.loaded = true;
 
-        }else {
-            HTTPService.get('/' + this.props.username + '/simmodels/' + this.props.simModelNamespace)
-                .then((response) => {
-                    let state = {};
-                    state.simModel = response.data;
-                    state.loaded = true;
-                    state.canEdit = AuthService.userData && (
-                        AuthService.isAdmin() ||
-                        AuthService.userData.username == state.trainingroom.owner_username
-                    );
+        HTTPService.get('/' + this.props.username + '/simmodels/' + this.props.simModelNamespace + '/payload')
+            .then((response) => {
+                let state = {};
+                state.simModel = response.data;
+                state.loaded = true;
+                state.canEdit = AuthService.userData && (
+                    AuthService.isAdmin() ||
+                    AuthService.userData.username == state.trainingroom.owner_username
+                );
 
-                    this.setState(state);
+                this.setState(state);
 
 
-                })
-                .catch((err) => {
-                    let state = {};
-                    state.error = err;
-                    this.setState(state);
-                    console.error("Error: ", err.message);
-                });
-        }
+            })
+            .catch((err) => {
+                let state = {};
+                state.error = err;
+                this.setState(state);
+                console.error("Error: ", err.message);
+            });
+
     }
     showRawEdit(event){
         event.preventDefault();
@@ -80,18 +72,18 @@ class SimModelDetailPage extends Component {
 
             }
         )
-            .then((response) => {
-                let state = {};
-                state.simModel = response.data;
-                document.location.href = '/' + this.props.username + '/simmodels?delete=success';
-                this.setState(state);
-            })
-            .catch((err) => {
-                let state = {};
-                state.error = err;
-                this.setState(state);
-                console.error("Error: ", err.message);
-            })
+        .then((response) => {
+            let state = {};
+            state.simModel = response.data;
+            document.location.href = '/' + this.props.username + '/simmodels?delete=success';
+            this.setState(state);
+        })
+        .catch((err) => {
+            let state = {};
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        })
     }
     onRawUpdate(config){
         let state = {
@@ -106,38 +98,15 @@ class SimModelDetailPage extends Component {
         let state = {
             simModel: this.state.simModel
         };
+        state.simModel[event.target.name] = event.target.value;
 
-        switch(event.target.name){
-            case('namespace'):
-                if(this.state.isNew) {
-                    state.simModel.namespace = event.target.value.toLowerCase().replace(/[^0-9a-z]/g, '');
-                }
-                break;
-            case('name'):
-                state.simModel.name = event.target.value;
-                if(this.state.isNew) {
-                    state.simModel.namespace = state.simModel.name.toLowerCase().replace(/[^0-9a-z]/g, '');
-                }
-                break;
-            default:
-                state.simModel[event.target.name] = event.target.value;
-
-        }
-
-        this.setState(state);
+        this.setState( state);
     }
     handleSubmit(event) {
 
         event.preventDefault();
-        let uri ='/simmodels';
-        let method = 'post'
-        if(!this.state.isNew){
-            uri += '/' + this.props.username + '/simmodels/' + this.state.simModel.namespace;
-            method = 'put';
-        }
-        return HTTPService[method](
-            uri,
-            this.state.simModel,
+        return HTTPService.put('/' + this.props.username + '/simmodels/' + this.props.simModel.namespace,
+            this.state.trainingroom,
             {
 
             }
@@ -145,9 +114,7 @@ class SimModelDetailPage extends Component {
             .then((response) => {
                 let state = {};
                 state.simModel = response.data;
-                if(this.state.isNew){
-                    document.location.href = '/' + this.props.username + '/simmodels/' + this.state.simModel.namespace;
-                }
+
                 this.setState(state);
             })
             .catch((err) => {
@@ -165,7 +132,15 @@ class SimModelDetailPage extends Component {
         return this.props.username === AuthService.userData.username;
     }
     render() {
-
+        setTimeout(()=>{
+            this.editor = CodeMirror.fromTextArea(document.getElementById("payload"), {
+                lineNumbers: true,
+                matchBrackets: true,
+                mode: "application/json",
+                gutters: ["CodeMirror-lint-markers"],
+                lint: true
+            });
+        }, 100);
         return (
             <div>
                 <div>
@@ -188,6 +163,7 @@ class SimModelDetailPage extends Component {
                                             /<a href={"/" + this.props.username + "/simmodels"}>simmodels</a>
                                             /<a
                                             href={"/" + this.props.username + "/simmodels/" + this.props.simModelNamespace}>{this.props.simModelNamespace}</a>
+                                            /payload
                                         </h1>
 
                                     </div>
@@ -211,10 +187,10 @@ class SimModelDetailPage extends Component {
                                                 <div className="card shadow mb-4">
                                                     <div className="btn-group" role="group" aria-label="Basic example">
 
-                                                      {/*  <a className="btn btn-primary btn-sm"
+                                                        <a className="btn btn-primary btn-sm"
                                                            href={"/" + this.state.simModel.owner_username + "/simmodels/" + this.state.simModel.namespace + "/tags"}>
                                                             Tags
-                                                        </a>*/}
+                                                        </a>
 
 
                                                         <div className="btn-group" role="group">
@@ -229,13 +205,13 @@ class SimModelDetailPage extends Component {
 
                                                                 {
                                                                     this.state.canEdit &&
-                                                                    <a className="dropdown-item" href={"/" + this.state.simModel.owner_username + "/simmodels/" + this.state.simModel.namespace + "/tags/dev/payload"}>
-                                                                        Payload
+                                                                    <a className="dropdown-item" href={"/" + this.state.simModel.owner_username + "/trainingrooms/" + this.state.simModel.namespace + "/edit"}>
+                                                                        Edit
                                                                     </a>
                                                                 }
                                                                 {
                                                                     this.state.canEdit &&
-                                                                    <a className="dropdown-item" href={"/" + this.state.simModel.owner_username + "/simmodels/" + this.state.simModel.namespace + "/delete"} onClick={this.promptDelete}>
+                                                                    <a className="dropdown-item" href={"/" + this.state.simModel.owner_username + "/trainingrooms/" + this.state.simModel.namespace + "/delete"} onClick={this.promptDelete}>
                                                                         Delete
                                                                     </a>
                                                                 }
@@ -265,38 +241,7 @@ class SimModelDetailPage extends Component {
                                                                 </div>
                                                                 <div className="card-body">
                                                                     <form className="user" onSubmit={this.handleSubmit}>
-                                                                        <div className="form-group">
-                                                                            <label>
-                                                                                Name
-                                                                            </label>
-                                                                            <input
-                                                                                className="form-control form-control-user"
-                                                                                readOnly={!this.isOwner()}
-                                                                                id="name"
-                                                                                name="name"
-                                                                                type="text"
-                                                                                aria-describedby="name"
-                                                                                placeholder="Name"
-                                                                                value={this.state.simModel.name}
-                                                                                onChange={this.handleChange}
-                                                                            />
-                                                                        </div>
-                                                                        <div className="form-group">
-                                                                            <label>
-                                                                                Namespace
-                                                                            </label>
-                                                                            <input
-                                                                                className="form-control form-control-user"
-                                                                                readOnly={!this.isOwner() || !this.state.isNew}
-                                                                                id="namespace"
-                                                                                name="namespace"
-                                                                                type="text"
-                                                                                aria-describedby="namespace"
-                                                                                placeholder="Namespace"
-                                                                                value={this.state.simModel.namespace}
-                                                                                onChange={this.handleChange}
-                                                                            />
-                                                                        </div>
+
                                                                         <div className="form-group">
                                                                             <label>
                                                                                 Description
@@ -304,11 +249,11 @@ class SimModelDetailPage extends Component {
                                                                             <textarea
                                                                                    className="form-control form-control-user"
                                                                                    readOnly={!this.isOwner()}
-                                                                                   id="desc"
-                                                                                   name="desc"
-                                                                                   aria-describedby="description"
-                                                                                   placeholder="description"
-                                                                                   value={this.state.simModel.desc}
+                                                                                   id="payload"
+                                                                                   name="payload"
+                                                                                   aria-describedby="payload"
+                                                                                   placeholder="payload"
+                                                                                   value={this.state.payload}
                                                                                    onChange={this.handleChange}
                                                                             ></textarea>
 
@@ -359,4 +304,4 @@ class SimModelDetailPage extends Component {
     }
 }
 
-export default SimModelDetailPage;
+export default SimModelPayloadEditPage;

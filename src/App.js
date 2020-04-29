@@ -36,6 +36,7 @@ import TrainingRoomRolesListPage from "./pages/chaosnet/TrainingRoomRolesListPag
 import TrainingRoomRoleDetailPage from "./pages/chaosnet/TrainingRoomRoleDetailPage";
 import SimModelListPage from "./pages/chaosnet/SimModelListPage";
 import SimModelDetailPage from "./pages/chaosnet/SimModelDetailPage";
+import SimModelPayloadEditPage from "./pages/chaosnet/SimModelPayloadEditPage";
 class App extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired
@@ -57,6 +58,7 @@ class App extends Component {
             <Router.Location path="/signup" handler={SignupPage} />
             <Router.Location path="/:username/simmodels" handler={SimModelListPage} />
             <Router.Location path="/:username/simmodels/:simModelNamespace" handler={SimModelDetailPage} />
+            <Router.Location path="/:username/simmodels/:simModelNamespace/tags/:simModelTag/payload" handler={SimModelPayloadEditPage} />
             <Router.Location path="/:username/trainingrooms" handler={TrainingRoomListPage} />
             <Router.Location path="/:username/trainingrooms/new" handler={TrainingRoomNewPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace" handler={TrainingRoomDetailPage} />

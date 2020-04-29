@@ -98,9 +98,12 @@ class SimModelListPage extends Component {
 
                                                             </tbody>
                                                         </table>
-                                                        <a href={"/" + this.props.username + "/simmodels/new"}
-                                                           className="btn btn-danger btn-lg"
-                                                           /*onClick={this.createSimModel}*/>Sim Model</a>
+                                                        {
+                                                            AuthService.isAdmin() &&
+                                                            <a href={"/" + this.props.username + "/simmodels/new"}
+                                                               className="btn btn-danger btn-lg"
+                                                                /*onClick={this.createSimModel}*/>Create New</a>
+                                                        }
                                                     </div>
                                                 </div>
 
