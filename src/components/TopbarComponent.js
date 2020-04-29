@@ -17,7 +17,7 @@ class TopbarComponent extends Component {
                     <i className="fa fa-bars"/>
                 </button>
                 {/* Topbar Search */}
-                <SearchbarComponent></SearchbarComponent>
+               {/* <SearchbarComponent></SearchbarComponent>*/}
 
                 {/* Topbar Navbar */}
                 <ul className="navbar-nav ml-auto">

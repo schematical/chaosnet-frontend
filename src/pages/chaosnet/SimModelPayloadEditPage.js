@@ -296,12 +296,12 @@ class SimModelPayloadEditPage extends Component {
 
 
                                                                         </div>
-
+                                                                        <div className="btn-group btn-group-sm" role="group" aria-label="Basic example">
                                                                         {
                                                                             this.isOwner() &&
                                                                             this.state.isDev &&
                                                                             <button
-                                                                                className="btn btn-primary btn-user btn-block">
+                                                                                className="btn btn-primary  btn-sm">
                                                                                 Save
                                                                             </button>
                                                                         }
@@ -309,12 +309,22 @@ class SimModelPayloadEditPage extends Component {
                                                                             this.isOwner() &&
                                                                             !this.state.isDev &&
                                                                             <a
-                                                                                className="btn btn-primary btn-user btn-block"
+                                                                                className="btn btn-primary  btn-sm"
                                                                                 href={"/" + this.state.simModel.owner_username + "/simmodels/" + this.state.simModel.namespace + "/tags/dev/payload"}
                                                                             >
                                                                                 View Dev
                                                                             </a>
                                                                         }
+                                                                            {
+                                                                                AuthService.userData &&
+                                                                                <a
+                                                                                    className="btn btn-info   btn-sm"
+                                                                                    href={"/" + this.state.simModel.owner_username + "/trainingrooms/new?simModelUsername=" + this.state.simModel.owner_username + "&simModelNamespace=" + this.state.simModel.namespace +"&simModelTag=" + this.props.simModelTag}
+                                                                                >
+                                                                                    Create Training Room
+                                                                                </a>
+                                                                            }
+                                                                        </div>
                                                                     </form>
                                                                 </div>
                                                             </div>

@@ -8,19 +8,23 @@ const axios = require('axios');
 class TrainingRoomNewPage extends Component {
     constructor(props) {
         super(props);
-
+        console.log('this.props', props);
         this.state = {
 
 
             trainingRoom:{
-                simModelNamespace:"chaoscraft",
+                simModelUsername: this.props._query.simModelUsername || "schematical",
+                simModelNamespace: this.props._query.simModelNamespace || "chaoscraft",
+                simModelTag: this.props._query.simModelTag,
             },
             trainingRoomRole:{
                 name: "Default",
-                namespace:"default"
+                namespace:"default",
+
             },
             loaded: true
         }
+        this.loadSimModel();
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -46,9 +50,32 @@ class TrainingRoomNewPage extends Component {
             case('name'):
                 state[entity].namespace = state[entity].name.toLowerCase().replace(/[^0-9a-z]/g, '');
                 break;
+            case('simModelNamespace'):
+                this.loadSimModel(event.target.value)
         }
 
         this.setState(state);
+    }
+    loadSimModel(){
+
+        return HTTPService.get('/' + this.state.trainingRoom.simModelUsername+ '/simmodels/' + this.state.trainingRoom.simModelNamespace,
+            {
+            }
+        )
+            .then((response)=>{
+                let state = {
+                    simModel: response.data
+                }
+
+                this.setState(state);
+            })
+            .catch((err) => {
+                let state = {}
+                state.error = err;
+                this.setState(state);
+                console.error("Error: ", err.message);
+            })
+
     }
     handleSubmit(event) {
 
@@ -146,6 +173,29 @@ class TrainingRoomNewPage extends Component {
                                                                    placeholder="Sim Model Namespace..."  value={this.state.trainingRoom.simModelNamespace} onChange={this.handleChange}
                                                             />
                                                         </div>
+                                                        {
+                                                            this.state.simModel &&
+                                                            <div className="form-group">
+
+                                                                <select
+                                                                    id="trainingRoom_simModelTag"
+                                                                    name="trainingRoom_simModelTag"
+                                                                    className="form-control"
+                                                                    value={this.state.trainingRoom.simModelTag}
+                                                                    onChange={this.handleChange}
+                                                                >
+                                                                    {
+                                                                        this.state.simModel.versionTags.map((tag) => {
+                                                                            return <option
+                                                                                key={tag}
+                                                                                value={tag}>{tag}
+                                                                            </option>
+
+                                                                        })
+                                                                    }
+                                                                </select>
+                                                            </div>
+                                                        }
                                                         <div className="form-group">
                                                             <input type="text" className="form-control form-control-user"
                                                                    id="trainingRoomRole_name" name="trainingRoomRole_name" aria-describedby="trainingRoomRole_name"
