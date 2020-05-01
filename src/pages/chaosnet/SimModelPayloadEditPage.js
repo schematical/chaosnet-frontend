@@ -14,6 +14,7 @@ import CodeMirror from 'codemirror';
 
 import '../../../node_modules/codemirror/addon/lint/lint.css';
 const axios = require('axios');
+const json = require('comment-json');
 //const CodeMirror = require('codemirror');
 const javascript = require('../../../node_modules/codemirror/mode/javascript/javascript');
 //const lint = require('../../../node_modules/codemirror/addon/lint/lint');
@@ -107,12 +108,30 @@ class SimModelPayloadEditPage extends Component {
 
         this.setState( state);
     }
+    jumpToLine(i) {
+        var t = this.editor.charCoords({line: i, ch: 0}, "local").top;
+        var middleHeight = this.editor.getScrollerElement().offsetHeight / 2;
+        this.editor.scrollTo(null, t - middleHeight - 5);
+    }
     handleSubmit(event) {
 
         event.preventDefault();
+        let payload = this.editor.getValue();
+        try{
+            json.parse(payload);
+        }catch(err){
+            err.message += "Line: " +  err.line + ":" + err.column;
+            let state = {
+                error: err
+            };
+            this.jumpToLine(err.line);//err.column,
+            console.error(state);
+            this.setState(state);
+            return;
+        }
         return HTTPService.post('/' + this.props.username + '/simmodels/' + this.state.simModel.namespace + "/payload",
             {
-                payload: this.editor.getValue()//this.state.payload
+                payload: payload//this.state.payload
             },
             {
 
