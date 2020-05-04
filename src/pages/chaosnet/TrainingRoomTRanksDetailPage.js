@@ -8,7 +8,9 @@ import OrgListComponent from "../../components/chaosnet/OrgListComponent";
 import TRankListComponent from "../../components/chaosnet/TRankListComponent";
 import HTTPService from "../../services/HTTPService";
 import LoadingComponent from "../../components/LoadingComponent";
+import Chart from 'chart.js';
 const _ = require('underscore');
+
 class TrainingRoomTRanksDetailPage extends Component {
     constructor(props) {
         super(props);
@@ -32,6 +34,8 @@ class TrainingRoomTRanksDetailPage extends Component {
                 state.trank = response.data;
                 state.loaded = true;
                 this.setState(state);
+                this.drawChart();
+
             })
             .catch((err) => {
                 let state = {};
@@ -41,6 +45,147 @@ class TrainingRoomTRanksDetailPage extends Component {
             })
 
 
+
+    }
+    drawChart(){
+        // Set new default font family and font color to mimic Bootstrap's default styling
+        Chart.defaults.global.defaultFontFamily = ['Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif'];
+        Chart.defaults.global.defaultFontColor = '#858796';
+
+
+
+// Area Chart Example
+        var ctx = document.getElementById("myAreaChart");
+        let labels = [];
+        let topAvgs = [];
+        let genAvgs = [];
+        let topMaxes = [];
+        this.state.trank.historicalScores.forEach((scoreData)=>{
+            labels.push(scoreData.age);
+            topAvgs.push(scoreData.topAvg);
+            genAvgs.push(scoreData.genAvg);
+            topMaxes.push(scoreData.topMax);
+        })
+        var myLineChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: "Top Avg",
+                        lineTension: 0.3,
+                        backgroundColor: "rgba(78, 115, 223, 0.05)",
+                        borderColor: "rgba(78, 115, 223, 1)",
+                        pointRadius: 3,
+                        pointBackgroundColor: "rgba(78, 115, 223, 1)",
+                        pointBorderColor: "rgba(78, 115, 223, 1)",
+                        pointHoverRadius: 3,
+                        pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+                        pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+                        pointHitRadius: 10,
+                        pointBorderWidth: 2,
+                        data:topAvgs,
+                    },
+                    {
+                        label: "Gen Avg",
+                        lineTension: 0.3,
+                        backgroundColor: "rgba(0, 0, 223, 0.05)",
+                        borderColor: "rgba(0, 0, 223, 1)",
+                        pointRadius: 3,
+                        pointBackgroundColor: "rgba(78, 115, 223, 1)",
+                        pointBorderColor: "rgba(78, 115, 223, 1)",
+                        pointHoverRadius: 3,
+                        pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+                        pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+                        pointHitRadius: 10,
+                        pointBorderWidth: 2,
+                        data:genAvgs,
+                    },
+                    {
+                        label: "Top Max",
+                        lineTension: 0.3,
+                        backgroundColor: "rgba(0, 115, 223, 0.05)",
+                        borderColor: "rgba(0, 115, 223, .5)",
+                        pointRadius: 3,
+                        pointBackgroundColor: "rgba(78, 115, 223, 1)",
+                        pointBorderColor: "rgba(78, 115, 223, 1)",
+                        pointHoverRadius: 3,
+                        pointHoverBackgroundColor: "rgba(78, 115, 223, 1)",
+                        pointHoverBorderColor: "rgba(78, 115, 223, 1)",
+                        pointHitRadius: 10,
+                        pointBorderWidth: 2,
+                        data:topMaxes,
+                    }
+
+                ],
+            },
+            options: {
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        left: 10,
+                        right: 25,
+                        top: 25,
+                        bottom: 0
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        time: {
+                            unit: 'date'
+                        },
+                        gridLines: {
+                            display: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            maxTicksLimit: 7
+                        }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            maxTicksLimit: 5,
+                            padding: 10,
+                            // Include a dollar sign in the ticks
+                            /*callback: function(value, index, values) {
+                                return '$' + number_format(value);
+                            }*/
+                        },
+                        gridLines: {
+                            color: "rgb(234, 236, 244)",
+                            zeroLineColor: "rgb(234, 236, 244)",
+                            drawBorder: false,
+                            borderDash: [2],
+                            zeroLineBorderDash: [2]
+                        }
+                    }],
+                },
+                legend: {
+                    display: false
+                },
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    titleMarginBottom: 10,
+                    titleFontColor: '#6e707e',
+                    titleFontSize: 14,
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    intersect: false,
+                    mode: 'index',
+                    caretPadding: 10,
+                    callbacks: {
+                        label: function(tooltipItem, chart) {
+                            var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                            return datasetLabel + ": " + tooltipItem.yLabel;
+                        }
+                    }
+                }
+            }
+        });
 
     }
     handleChange(event){
@@ -160,6 +305,21 @@ class TrainingRoomTRanksDetailPage extends Component {
                                             }
                                             {
                                                 this.state.loaded &&
+                                                <div class="card shadow mb-4">
+                                                    <div class="card-header py-3">
+                                                        <h6 class="m-0 font-weight-bold text-primary">Area Chart</h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="chart-area">
+                                                            <canvas id="myAreaChart"></canvas>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
+                                            }
+                                            {
+                                                this.state.loaded &&
                                                 <div className="card shadow mb-4">
 
                                                     <div className="card-body">
@@ -167,6 +327,10 @@ class TrainingRoomTRanksDetailPage extends Component {
                                                         <h1>
                                                             {this.state.trank.namespace}
                                                         </h1>
+
+
+
+
                                                         <h3>
                                                             State: {this.state.trank.lifeState}
                                                         </h3>
@@ -274,7 +438,7 @@ class TrainingRoomTRanksDetailPage extends Component {
                                                                 </div>
                                                         </form>
 
-                                                        {this.state.trank.historicalScores &&
+                                                        {/*{this.state.trank.historicalScores &&
                                                         <div>
                                                             <h2>Historical Scores: </h2>
                                                             <table>
@@ -312,7 +476,7 @@ class TrainingRoomTRanksDetailPage extends Component {
                                                                 }
                                                             </table>
                                                         </div>
-                                                        }
+                                                        }*/}
 
                                                         <h3>Brain Maker Config Data</h3>
                                                         <div>

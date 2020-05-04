@@ -112,8 +112,9 @@ class TrainingRoomPresetNeuronListPage extends Component {
     }
     addAll(baseNeuron, neuronType, key, biology){
         let state = {
-            trainingroom:this.state.trainingroom
+            presetNeurons:this.state.presetNeurons
         }
+
         for(let i = 1; i < biology["$COUNT"]; i++){
 
             let newNeuron = _.clone(baseNeuron);

@@ -5,6 +5,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "bootstrap": "^4.3.1",
+    "chart.js": "^2.9.3",
     "codemirror": "^5.53.2",
     "comment-json": "^3.0.2",
     "config": "^3.2.5",

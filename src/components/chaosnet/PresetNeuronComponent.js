@@ -151,7 +151,7 @@ class PresetNeuronComponent extends Component {
                         </div>
                         {
                             this.state.canEdit &&
-                            <button className="btn btn-sm btn-danger " onClick={()=>{this.state.page.addAll(this.state.presetNeuron, this.state.neuronType, key, biologyTypes);}}>Add All</button>
+                            <button className="btn btn-sm btn-danger " onClick={()=>{this.state.page.addAll(this.state.presetNeuron, this.state.neuronType, key, biologyTypes[0]);}}>Add All</button>
                         }
 
 
