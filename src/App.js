@@ -4,20 +4,21 @@ import $ from 'jquery';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 
 import Router  from 'react-router-component';
+
+import logo from './logo.svg';
+import './App.css';
+import '../node_modules/codemirror/lib/codemirror.css'
+import ChaosPixelSlicerPage from "./pages/chaospixel/ChaosPixelSlicerPage";
+
+import ChaosPixelListTrainingDatasPage from "./pages/chaospixel/ChaosPixelListTrainingDatasPage";
+import AuthService from "./services/AuthService";
+import {Cookies, withCookies} from "react-cookie";
+import {instanceOf} from "prop-types";
 import HomePage from './pages/HomePage.js';
 import LoginPage from './pages/LoginPage.js';
 import SignupPage from './pages/SignupPage.js';
 import TrainingRoomListPage from './pages/chaosnet/TrainingRoomListPage.js';
 import TrainingRoomDetailPage from './pages/chaosnet/TrainingRoomDetailPage.js';
-import logo from './logo.svg';
-import './App.css';
-import '../node_modules/codemirror/lib/codemirror.css'
-import ChaosPixelSlicerPage from "./pages/ChaosPixelSlicerPage";
-import {useCookies} from "react-cookie";
-import ChaosPixelListTrainingDatasPage from "./pages/ChaosPixelListTrainingDatasPage";
-import AuthService from "./services/AuthService";
-import {Cookies, withCookies} from "react-cookie";
-import {instanceOf} from "prop-types";
 import TrainingRoomNewPage from "./pages/chaosnet/TrainingRoomNewPage";
 import TrainingRoomFitnessRuleListPage from "./pages/chaosnet/TrainingRoomFitnessRuleListPage";
 import TrainingRoomOrgListPage from "./pages/chaosnet/TrainingRoomOrgListPage";

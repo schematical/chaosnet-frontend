@@ -1,12 +1,13 @@
 import React, {Component} from 'react';
 import * as _ from 'underscore';
-import SidebarComponent from '../components/SidebarComponent';
-import TopbarComponent from '../components/TopbarComponent';
-import AuthService from '../services/AuthService';
-import SpriteGroupComponent from "../components/SpriteGroupComponent";
-import TagTextComponent from "../components/TagTextComponent";
-import HTTPService from "../services/HTTPService";
-const axios = require('axios');
+import * as axios from'axios';
+import SidebarComponent from '../../components/SidebarComponent';
+import TopbarComponent from '../../components/TopbarComponent';
+import AuthService from '../../services/AuthService';
+import SpriteGroupComponent from "../../components/SpriteGroupComponent";
+import TagTextComponent from "../../components/TagTextComponent";
+import HTTPService from "../../services/HTTPService";
+
 
 class ChaosPixelSlicerPage extends Component {
 

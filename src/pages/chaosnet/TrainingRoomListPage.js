@@ -14,29 +14,25 @@ class TrainingRoomListPage extends Component {
         this.state = {
             trainingrooms:[]
         }
+        HTTPService.get( "/" + this.props.username+ '/trainingrooms', {
 
+        })
+        .then((response) => {
+            let state = {};
+            state.trainingrooms = response.data;
+            state.loaded = true;
+            this.setState(state);
+        })
+        .catch((err) => {
+            let state = {};
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        })
     }
     render() {
 
-        if(!this.state.loaded) {
-            setTimeout(() => {
-                return HTTPService.get('/' + "/" + this.props.username+ '/trainingrooms', {
 
-                })
-                    .then((response) => {
-                        let state = {};
-                        state.trainingrooms = response.data;
-                        state.loaded = true;
-                        this.setState(state);
-                    })
-                    .catch((err) => {
-                        let state = {};
-                        state.error = err;
-                        this.setState(state);
-                        console.error("Error: ", err.message);
-                    })
-            }, 1000);
-        }
         return (
             <div>
                 <div>

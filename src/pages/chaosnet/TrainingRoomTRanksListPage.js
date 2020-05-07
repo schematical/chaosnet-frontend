@@ -18,11 +18,11 @@ class TrainingRoomTRanksListPage extends Component {
             _lifeState: "Active"
         }
         this.handleChange = this.handleChange.bind(this);
-        this.refreshData();
+        this.refreshData(this.state);
 
     }
-    refreshData(){
-        let qs = "state=" +this.state._lifeState;
+    refreshData(state){
+        let qs = "state=" + state._lifeState;//this.state._lifeState;
         let url = '/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/tranks?' + qs;
         if(this.props.session){
             url = '/' + this.props.username+ '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions/' + this.props.session + '/species?' + qs;
@@ -46,10 +46,10 @@ class TrainingRoomTRanksListPage extends Component {
     handleChange(event) {
         let state = {};
         state[event.target.name] = event.target.value;
-        this.state.loaded = false;
-        this.state.tranks = [];
+        state.loaded = false;
+        state.tranks = [];
         this.setState(state);
-        this.refreshData();
+        this.refreshData(state);
     }
     render() {
 

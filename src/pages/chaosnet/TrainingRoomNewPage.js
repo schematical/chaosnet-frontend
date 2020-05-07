@@ -14,7 +14,7 @@ class TrainingRoomNewPage extends Component {
 
             trainingRoom:{
                 simModelUsername: this.props._query.simModelUsername || "schematical",
-                simModelNamespace: this.props._query.simModelNamespace || "chaoscraft",
+                simModelNamespace: this.props._query.simModelNamespace || "chaoscraftdiscovery",
                 simModelTag: this.props._query.simModelTag,
             },
             trainingRoomRole:{

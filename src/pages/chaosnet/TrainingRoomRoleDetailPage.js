@@ -6,6 +6,7 @@ import FooterComponent from "../../components/FooterComponent";
 import HTTPService from "../../services/HTTPService";
 import LoadingComponent from "../../components/LoadingComponent";
 import ConfirmComponent from "../../components/chaosnet/ConfirmComponent";
+import SettingsCollectionComponent from "../../components/chaosnet/SettingsCollectionComponent";
 class TrainingRoomRoleDetailPage extends Component {
     constructor(props) {
         super(props);
@@ -296,10 +297,30 @@ class TrainingRoomRoleDetailPage extends Component {
 
 
                                                     </div>
+
+
+
+
+
                                                 </div>
                                             }
                                         </div>
 
+                                        {
+                                            this.state.loaded &&
+                                            <div className="col-xl-12 col-lg-12">
+                                                <div className="card shadow mb-4">
+
+                                                    <div className="card-body">
+                                                        <SettingsCollectionComponent uri={this.state.uri}
+                                                                                     canEdit={(AuthService.userData && AuthService.userData.username == this.state.role.owner_username)}/>
+
+
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        }
 
                                     </div>
 
