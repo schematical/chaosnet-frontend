@@ -3,9 +3,27 @@ import AuthService from '../services/AuthService';
 import SearchbarComponent from './SearchbarComponent';
 import {instanceOf} from "prop-types";
 import {Cookies, withCookies} from "react-cookie";
+import HTTPService from "../services/HTTPService";
 
 class TopbarComponent extends Component {
+    gotoCurrentSession(event){
+        event.preventDefault();
 
+        AuthService.getActiveSession()
+        .then((session) => {
+            if(!session) {
+                return;
+            }
+           document.location.href = '/' + session.trainingRoomUsername + '/trainingrooms/' + session.trainingRoomNamespace + '/sessions/' + session.namespace;
+        })
+        .catch((err) => {
+            let state = {};
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        })
+
+    }
     render() {
         return (
 
@@ -197,12 +215,12 @@ class TopbarComponent extends Component {
                             <a className="dropdown-item" href="#">
                                 <i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"/>
                                 Settings
-                            </a>
-                            <a className="dropdown-item" href="#">
+                            </a>*/}
+                            <a className="dropdown-item" href="#" onClick={this.gotoCurrentSession}>
                                 <i className="fas fa-list fa-sm fa-fw mr-2 text-gray-400"/>
-                                Activity Log
+                                Current Session
                             </a>
-                            <div className="dropdown-divider"/>*/}
+                            <div className="dropdown-divider"/>
                             <a className="dropdown-item" href="#" data-toggle="modal"
                                data-target="#logoutModal">
                                 <i className="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"/>

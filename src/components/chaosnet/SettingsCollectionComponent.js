@@ -108,7 +108,7 @@ class SettingsCollectionComponent extends Component {
                                             {setting.namespace}
                                         </label>
                                         <div className="col-sm-16">
-                                            <input type="text" readOnly={(!this.props.canEdit && !(setting.s != 'admin' || AuthService.isAdmin()))} className="form-control form-control-user"
+                                            <input type="text" readOnly={(!(this.props.canEdit && (setting.s != 'admin' || AuthService.isAdmin())))} className="form-control form-control-user"
                                                    id={setting.namespace} name={setting.namespace}  value={setting.value}
                                                    onChange={this.handleChange} />
                                         </div>

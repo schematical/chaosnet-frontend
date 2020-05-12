@@ -1,5 +1,5 @@
 import HTTPService from "./HTTPService";
-
+const _ = require('underscore');
 const axios = require('axios');
 
 
@@ -26,6 +26,15 @@ class AuthService{
         AuthService.userData = null;
         AuthService.accessToken = null;
     }
+    static hasScope(scope){
+        if(!AuthService.userData){
+            return false;
+        }
+        if(!AuthService.userData["cognito:groups"]){
+            return false;
+        }
+        return _.indexOf(AuthService.userData["cognito:groups"], scope) !== -1;
+    }
 
     static whoami(accessToken){
         return HTTPService.get(
@@ -36,6 +45,39 @@ class AuthService{
                 }
             }
         );
+    }
+    static getActiveSession(options){
+        options = options || {};
+        if(!options.forceRefresh) {
+            let activeSessionJSON = AuthService.cookies.get("active_session");
+            if (activeSessionJSON) {
+                //try {
+                    return Promise.resolve(activeSessionJSON);
+                /*} catch (err) {
+                    return Promise.reject(err);
+                    //console.error(err);//Just refresh I guess
+                }*/
+            }
+        }
+        return HTTPService.get(
+            '/me/session',
+            {
+               /* headers: {
+                    "Authorization":accessToken
+                }*/
+            }
+        )
+        .then((response)=> {
+           AuthService.cookies.set("active_session", response.data,
+                {
+                    expires: new Date(Date.now() * 3600 * 1000 * 24)
+                },
+                {
+                    // _skipAuth: true
+                }
+            );
+            return response;
+        });
     }
     static signup(data){
         return HTTPService.post('/auth/signup', data)

@@ -13,11 +13,45 @@ class TrainingRoomSessionDetailPage extends Component {
             session:{},
             showHardReset: false,
             loaded:false,
-            canEdit: false
+            canEdit: false,
+            canSleep: false,
+            uri: '/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions/' + this.props.session
         }
         this.repairSession = this.repairSession.bind(this);
         this.hardReset = this.hardReset.bind(this);
         this.showHardResetButton = this.showHardResetButton.bind(this);
+        this.sleepSession = this.sleepSession.bind(this);
+        HTTPService.get(this.state.uri, {
+
+        })
+        .then((response) => {
+            let state = {};
+            state.session = response.data;
+            state.canHardReset = (AuthService.userData && AuthService.userData.username == state.session.owner_username)
+            state.loaded = true;
+
+            this.setState(state);
+            if( state.canHardReset){
+                return AuthService.getActiveSession()
+                    .then((session)=>{
+                        console.log("ACTIVE SESSION: " + session);
+                        if(!session){
+                            return;
+                        }
+                        if(session._id == state.session._id){
+                            this.setState({
+                                canSleep: true
+                            })
+                        }
+                    })
+            }
+        })
+        .catch((err) => {
+            let state = {};
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        })
     }
     showHardResetButton(){
         let state = {};
@@ -45,7 +79,7 @@ class TrainingRoomSessionDetailPage extends Component {
             })
     }
     repairSession(){
-        let url = '/'  + this.props.username + "/trainingrooms/" + this.props.trainingRoomNamespace + "/sessions/" +  this.props.session + "/repair"
+        let url = this.state.uri + "/repair"
         return HTTPService.post(url, {}, {
 
         })
@@ -64,31 +98,29 @@ class TrainingRoomSessionDetailPage extends Component {
         })
 
     }
-    render() {
+    sleepSession(){
+        let url = this.state.uri + "/sleep"
+        return HTTPService.post(url, {}, {
 
-        if(!this.state.loaded) {
-
-            let url = '/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + '/sessions/' + this.props.session;
-
-            HTTPService.get(url, {
-
-            })
+        })
             .then((response) => {
-                let state = {};
-                state.session = response.data
-                state.canHardReset = (AuthService.userData && AuthService.userData.username == state.session.owner_username)
-                state.loaded = true;
+                let state  = {};
+                state.message = response.data.message  || "success";;
+
                 this.setState(state);
             })
             .catch((err) => {
-                let state = {};
+
+                let state  = {};
                 state.error = err;
                 this.setState(state);
                 console.error("Error: ", err.message);
             })
 
+    }
+    render() {
 
-        }
+
         return (
             <div>
                 <div>
@@ -168,6 +200,14 @@ class TrainingRoomSessionDetailPage extends Component {
                                                         </h3>
                                                         <div className="btn-group" role="group"
                                                              aria-label="Basic example">
+                                                            {
+                                                                this.state.canSleep &&
+
+                                                                <button className="btn btn-primary btn-sm"
+                                                                        onClick={this.sleepSession}>
+                                                                    Sleep
+                                                                </button>
+                                                            }
                                                             {
                                                                 this.state.canHardReset &&
 
