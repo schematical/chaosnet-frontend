@@ -38,7 +38,11 @@ class SignupPage extends Component {
     handleChange(event) {
 
         let state = {};
-        state[event.target.name.toLowerCase()] = event.target.value;
+        if(event.target.name == 'signupKey'){
+            state[event.target.name] = event.target.value;
+        }else {
+            state[event.target.name.toLowerCase()] = event.target.value;
+        }
         this.setState(state);
     }
     signup(){
@@ -50,9 +54,10 @@ class SignupPage extends Component {
                 })
             })
             .catch((err, response)=>{
+
                 if(err.response && err.response.status == 426){
                     this.setState({
-                        showSignup: true
+                        showSignup: false
                     });
                     return;
                 }
