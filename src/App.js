@@ -39,6 +39,7 @@ import SimModelListPage from "./pages/chaosnet/SimModelListPage";
 import SimModelDetailPage from "./pages/chaosnet/SimModelDetailPage";
 import SimModelPayloadEditPage from "./pages/chaosnet/SimModelPayloadEditPage";
 import AdminHomePage from "./pages/admin/AdminHomePage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 class App extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired
@@ -58,6 +59,7 @@ class App extends Component {
             <Router.Location path="/" handler={HomePage} />
             <Router.Location path="/login" handler={LoginPage} />
             <Router.Location path="/signup" handler={SignupPage} />
+            <Router.Location path="/forgot_password" handler={ForgotPasswordPage} />
             <Router.Location path="/admin" handler={AdminHomePage} />
             <Router.Location path="/simmodels" handler={SimModelListPage} />
             <Router.Location path="/:username/simmodels" handler={SimModelListPage} />

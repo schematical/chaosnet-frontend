@@ -13,7 +13,7 @@ class LoginPage extends Component {
        /* const { cookies } = props;
         this.cookies = cookies;*/
         this.state = {
-            username: "",
+            username:  this.props._query.username  || "",
             password:""
         }
         this.handleChange = this.handleChange.bind(this);

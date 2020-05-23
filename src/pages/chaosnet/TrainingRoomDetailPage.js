@@ -15,7 +15,7 @@ class TrainingRoomDetailPage extends Component {
         this.state = {
             trainingroom:null
         }
-        this.handleConfigChange = this.handleConfigChange.bind(this);
+        this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
         this.isOwner = this.isOwner.bind(this);
         this.onRawUpdate = this.onRawUpdate.bind(this);
@@ -26,6 +26,8 @@ class TrainingRoomDetailPage extends Component {
             .then((response) => {
                 let state = {};
                 state.trainingroom = response.data;
+                state.trainingroom.observedAttributes = state.trainingroom.observedAttributes || {};
+                state.trainingroom._observedAttributes = JSON.stringify(state.trainingroom.observedAttributes, null, 3)
                 state.loaded = true;
                 state.canEdit = AuthService.userData && (
                     AuthService.isAdmin() ||
@@ -41,9 +43,24 @@ class TrainingRoomDetailPage extends Component {
                 console.error("Error: ", err.message);
             });
     }
+    handleChange(event) {
+        let state = {
+            trainingroom: this.state.trainingroom
+        };
+        /*switch(event.target.name){
+            case("observedAttributes"):
+
+                break;
+            default:*/
+                state.trainingroom[event.target.name] = event.target.value;
+        //}
+
+
+        this.setState(state);
+    }
     showRawEdit(event){
         event.preventDefault();
-        this.refs.rawEditComponent.show(this.state.trainingroom.config);
+        this.refs.rawEditComponent.show(this.state.trainingroom);
     }
     promptDelete(event){
         event.preventDefault();
@@ -75,37 +92,42 @@ class TrainingRoomDetailPage extends Component {
             trainingroom: this.state.trainingroom
         }
 
-        state.trainingroom.config = config;
-        this.setState(state);
 
-    }
-    handleConfigChange(event) {
-        //let state = {};
-        this.state.trainingroom.config[event.target.name] = event.target.value;
-
-        this.setState( this.state);
+        this.setState( state);
     }
     handleSubmit(event) {
-
         event.preventDefault();
+        let state = {
+            trainingroom: this.state.trainingroom
+        };
+
+        try {
+
+            state.trainingroom.observedAttributes = JSON.parse( state.trainingroom._observedAttributes);
+        }catch(err){
+            console.error(err);
+            state.error = err;
+            this.setState(state);
+            return;
+        }
         return HTTPService.put('/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace,
             this.state.trainingroom,
             {
 
             }
         )
-            .then((response) => {
-                let state = {};
-                state.trainingroom = response.data;
+        .then((response) => {
 
-                this.setState(state);
-            })
-            .catch((err) => {
-                let state = {};
-                state.error = err;
-                this.setState(state);
-                console.error("Error: ", err.message);
-            })
+            state.trainingroom = response.data;
+
+            this.setState(state);
+        })
+        .catch((err) => {
+            let state = {};
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        })
     }
     isOwner(){
 
@@ -188,7 +210,9 @@ class TrainingRoomDetailPage extends Component {
                                                                 <a className="dropdown-item" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/roles"}>
                                                                     Roles
                                                                 </a>
-
+                                                              {/*  <a className="dropdown-item" href={"/" + this.state.trainingroom.simModelUsername + "/simmodels/" + this.state.trainingroom.simModelNamespace + "/tags/" + this.state.trainingroom.simModelTag + "/payload"}>
+                                                                    Sim Model
+                                                                </a>*/}
                                                                 {
                                                                     this.state.canEdit &&
                                                                     <a className="dropdown-item" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/delete"} onClick={this.promptDelete}>
@@ -227,7 +251,7 @@ class TrainingRoomDetailPage extends Component {
                                                                                 Description
                                                                             </label>
                                                                             <textarea
-                                                                                   className="form-control form-control-user"
+                                                                                   className="form-control"
                                                                                    readOnly={!this.isOwner()}
                                                                                    id="desc"
                                                                                    name="desc"
@@ -237,6 +261,37 @@ class TrainingRoomDetailPage extends Component {
                                                                                    onChange={this.handleConfigChange}
                                                                             ></textarea>
                                                                         </div>
+                                                                        <div className="form-group">
+                                                                            <label>
+                                                                                Observe Mode
+                                                                            </label>
+                                                                            <select id="observeMode" name="observeMode"
+                                                                                    className="form-control"
+                                                                                    value={this.state.trainingroom.observeMode}
+                                                                                    onChange={this.handleChange}>
+                                                                                <option value="Dynamic">Dynamic</option>
+                                                                                <option value="Fixed">Fixed</option>
+                                                                            </select>
+
+                                                                        </div>
+                                                                        {
+                                                                            this.state.trainingroom.observeMode == "Fixed" &&
+                                                                            <div className="form-group">
+                                                                                <label>
+                                                                                    Observed Attributes
+                                                                                </label>
+                                                                                <textarea
+                                                                                    className="form-control"
+                                                                                    readOnly={!this.isOwner()}
+                                                                                    id="_observedAttributes"
+                                                                                    name="_observedAttributes"
+                                                                                    aria-describedby="description"
+                                                                                    placeholder="description"
+                                                                                    value={this.state.trainingroom._observedAttributes}
+                                                                                    onChange={this.handleChange}
+                                                                                ></textarea>
+                                                                            </div>
+                                                                        }
 
                                                                         {
                                                                             this.isOwner() &&
