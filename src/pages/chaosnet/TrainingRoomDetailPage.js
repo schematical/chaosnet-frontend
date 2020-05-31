@@ -127,6 +127,7 @@ class TrainingRoomDetailPage extends Component {
             this.setState(state);
             return;
         }
+        $('#editSimModel').modal('hide');
         return HTTPService.put('/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace,
             this.state.trainingroom,
             {
