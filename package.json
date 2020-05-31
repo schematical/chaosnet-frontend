@@ -17,7 +17,7 @@
     "datatables.net-bs4": "^1.10.21",
     "datatables.net-dt": "^1.10.21",
     "datatables.net-editor": "^1.6.5",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "jquery-thin": "^3.2.3",
     "jquery.easing": "^1.4.1",
     "path-to-regexp": "^6.1.0",
