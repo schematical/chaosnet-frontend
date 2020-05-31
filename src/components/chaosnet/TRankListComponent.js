@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Link  from 'react-router-component';
-
+import $ from 'jquery';
 class TRankListComponent extends Component {
 
     constructor(props) {

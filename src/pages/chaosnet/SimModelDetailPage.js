@@ -46,7 +46,13 @@ class SimModelDetailPage extends Component {
             this.state.loaded = true;
 
         }else {
-            HTTPService.get('/' + this.props.username + '/simmodels/' + this.props.simModelNamespace)
+            let uri = null;
+            if(this.props.simModelId){
+                uri = '/simmodels/' + this.props.simModelId;
+            }else if(this.props.username &&  this.props.simModelNamespace){
+                uri = '/' + this.props.username + '/simmodels/' + this.props.simModelNamespace
+            }
+            HTTPService.get(uri)
                 .then((response) => {
                     let state = {};
                     state.simModel = response.data;
@@ -84,7 +90,7 @@ class SimModelDetailPage extends Component {
     createNewTag(event){
         event.preventDefault();
         return HTTPService.post(
-            '/' + this.props.username + '/simmodels/' + this.state.simModel.namespace + '/tags',
+            '/' + this.state.simModel.owner_username + '/simmodels/' + this.state.simModel.namespace + '/tags',
             {
                 tag: this.state.tag
             },
@@ -111,7 +117,7 @@ class SimModelDetailPage extends Component {
     }
     onConfirmDelete(){
 
-        return HTTPService.delete('/' + this.props.username + '/simmodels/' + this.props.simModelNamespace,
+        return HTTPService.delete('/' + this.state.simModel.owner_username + '/simmodels/' + this.props.simModelNamespace,
             this.state.simModel,
             {
 
@@ -120,7 +126,7 @@ class SimModelDetailPage extends Component {
             .then((response) => {
                 let state = {};
                 state.simModel = response.data;
-                document.location.href = '/' + this.props.username + '/simmodels?delete=success';
+                document.location.href = '/' + this.state.simModel.owner_username + '/simmodels?delete=success';
                 this.setState(state);
             })
             .catch((err) => {
@@ -187,7 +193,7 @@ class SimModelDetailPage extends Component {
                 let state = {};
                 state.simModel = response.data;
                 if(this.state.isNew){
-                    document.location.href = '/' + this.props.username + '/simmodels/' + this.state.simModel.namespace;
+                    document.location.href = '/' + this.state.simModel.owner_username + '/simmodels/' + this.state.simModel.namespace;
                 }
                 this.setState(state);
             })
@@ -223,15 +229,20 @@ class SimModelDetailPage extends Component {
                                 {/* Begin Page Content */}
                                 <div className="container-fluid">
                                     {/* Page Heading */}
-                                    <div className="d-sm-flex align-items-center justify-content-between mb-4">
-                                        <h1 className="h3 mb-0 text-gray-800">
-                                            /<a href={"/" + this.props.username}>{this.props.username}</a>
-                                            /<a href={"/" + this.props.username + "/simmodels"}>simmodels</a>
-                                            /<a
-                                            href={"/" + this.props.username + "/simmodels/" + this.props.simModelNamespace}>{this.props.simModelNamespace}</a>
-                                        </h1>
+                                    {
+                                        this.state.simModel &&
+                                        <div className="d-sm-flex align-items-center justify-content-between mb-4">
+                                            <h1 className="h3 mb-0 text-gray-800">
+                                                /<a
+                                                href={"/" + this.state.simModel.owner_username}>{this.state.simModel.owner_username}</a>
+                                                /<a
+                                                href={"/" + this.state.simModel.owner_username + "/simmodels"}>simmodels</a>
+                                                /<a
+                                                href={"/" + this.state.simModel.owner_username + "/simmodels/" + this.state.simModel.namespace}>{this.state.simModel.namespace}</a>
+                                            </h1>
 
-                                    </div>
+                                        </div>
+                                    }
                                     <div className="row">
 
                                         <div className="col-xl-12 col-lg-12">

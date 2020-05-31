@@ -7,6 +7,7 @@ import HTTPService from "../../services/HTTPService";
 import RawEditComponent from "../../components/chaosnet/RawEditComponent";
 import LoadingComponent from "../../components/LoadingComponent";
 import ConfirmComponent from "../../components/chaosnet/ConfirmComponent";
+import $ from "jquery";
 const axios = require('axios');
 class TrainingRoomDetailPage extends Component {
     constructor(props) {
@@ -22,6 +23,7 @@ class TrainingRoomDetailPage extends Component {
         this.showRawEdit = this.showRawEdit.bind(this);
         this.promptDelete = this.promptDelete.bind(this);
         this.onConfirmDelete = this.onConfirmDelete.bind(this);
+        this.promptEditSimModel = this.promptEditSimModel.bind(this);
         HTTPService.get('/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace )
             .then((response) => {
                 let state = {};
@@ -66,6 +68,21 @@ class TrainingRoomDetailPage extends Component {
         event.preventDefault();
         this.refs.confirmComponent.show();
     }
+    promptEditSimModel(event){
+        event.preventDefault();
+
+        return HTTPService.get('/simmodels/' + this.state.trainingroom.simModelId, //'/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace + "/simmodel",
+            {}
+        )
+        .then((response)=> {
+            let state = {};
+            state.simModel = response.data;
+            this.setState(state);
+
+            $('#editSimModel').modal('show');
+        });
+
+    }
     onConfirmDelete(){
 
         return HTTPService.delete('/' + this.props.username + '/trainingrooms/' + this.props.trainingRoomNamespace,
@@ -74,18 +91,18 @@ class TrainingRoomDetailPage extends Component {
 
             }
         )
-            .then((response) => {
-                let state = {};
-                state.trainingroom = response.data;
-                document.location.href = '/' + this.props.username + '/trainingrooms?delete=success';
-                this.setState(state);
-            })
-            .catch((err) => {
-                let state = {};
-                state.error = err;
-                this.setState(state);
-                console.error("Error: ", err.message);
-            })
+        .then((response) => {
+            let state = {};
+            state.trainingroom = response.data;
+            document.location.href = '/' + this.props.username + '/trainingrooms?delete=success';
+            this.setState(state);
+        })
+        .catch((err) => {
+            let state = {};
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        })
     }
     onRawUpdate(config){
         let state = {
@@ -191,7 +208,10 @@ class TrainingRoomDetailPage extends Component {
                                                            href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/sessions"}>
                                                             Sessions
                                                         </a>
-
+                                                        <a className="btn btn-primary btn-sm"
+                                                           href={"/simmodels/" + this.state.trainingroom.simModelId }>
+                                                            Sim Model
+                                                        </a>
                                                         <div className="btn-group" role="group">
                                                             <button id="btnGroupDrop1" type="button"
                                                                     className="btn btn-secondary dropdown-toggle"
@@ -210,9 +230,12 @@ class TrainingRoomDetailPage extends Component {
                                                                 <a className="dropdown-item" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/roles"}>
                                                                     Roles
                                                                 </a>
-                                                              {/*  <a className="dropdown-item" href={"/" + this.state.trainingroom.simModelUsername + "/simmodels/" + this.state.trainingroom.simModelNamespace + "/tags/" + this.state.trainingroom.simModelTag + "/payload"}>
-                                                                    Sim Model
-                                                                </a>*/}
+                                                                {
+                                                                    this.state.canEdit &&
+                                                                    <a className="dropdown-item" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/delete"} onClick={this.promptEditSimModel}>
+                                                                        Sim Model Tag
+                                                                    </a>
+                                                                }
                                                                 {
                                                                     this.state.canEdit &&
                                                                     <a className="dropdown-item" href={"/" + this.state.trainingroom.owner_username + "/trainingrooms/" + this.state.trainingroom.namespace + "/delete"} onClick={this.promptDelete}>
@@ -322,7 +345,54 @@ class TrainingRoomDetailPage extends Component {
                         {/* End of Content Wrapper */}
                     </div>
                     <ConfirmComponent ref="confirmComponent" id={this.props.trainingroom + "_confirmComponent"} title={"Confirm Delete"} body={"Are you sure you want to delete this training room? This will delete all Species, Sessions, Roles, Organisms for everyone that ever trained on this room so think it over carefully."} onConfirm={this.onConfirmDelete} />
+                    {
+                        this.state.trainingroom &&
 
+                        <div className="modal fade" id="editSimModel" tabIndex={-1} role="dialog"
+                             aria-labelledby="editSimModel" aria-hidden="true">
+                            <div className="modal-dialog" role="document">
+                                <div className="modal-content">
+                                    <div className="modal-header">
+                                        <h5 className="modal-title" id="editSimModel">Edit Sim Model</h5>
+                                        <button className="close" type="button" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">×</span>
+                                        </button>
+                                    </div>
+                                    <div className="modal-body">
+                                        {this.state.error &&
+                                        <div className="alert alert-danger">{this.state.error.message}</div>
+                                        }
+                                        Are you sure you want to edit the sim model?
+                                        There is about a 99% chance your organisms wont work anymore and you will have
+                                        to do a hard reset. You have been warned.
+                                        {
+                                            this.state.simModel &&
+                                            <select id="simModelTag" name="simModelTag" className="form-control"
+                                                    value={this.state.trainingroom.simModelTag}
+                                                    onChange={this.handleChange}>
+                                                {
+                                                    this.state.simModel.versionTags.map((tag) => {
+
+                                                        return <option key={tag} value={tag}>{tag}</option>
+
+                                                    })
+                                                }
+                                            </select>
+                                        }
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button className="btn btn-secondary" type="button" data-dismiss="modal">
+                                            Cancel
+                                        </button>
+                                        <button className="btn btn-secondary btn-danger" type="button"
+                                                onClick={this.handleSubmit}>
+                                            Confirm
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
                     {/* End of Page Wrapper */}
                     {/* Scroll to Top Button*/}
                     <a className="scroll-to-top rounded" href="#page-top">

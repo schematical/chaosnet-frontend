@@ -8,6 +8,10 @@ import OrgListComponent from "../../components/chaosnet/OrgListComponent";
 import TRankListComponent from "../../components/chaosnet/TRankListComponent";
 import HTTPService from "../../services/HTTPService";
 import LoadingComponent from "../../components/LoadingComponent";
+import $ from "jquery";
+import dt from 'datatables.net';
+import dtbs from  'datatables.net-bs4';
+
 const axios = require('axios');
 class TrainingRoomTRanksListPage extends Component {
     constructor(props) {
@@ -19,6 +23,7 @@ class TrainingRoomTRanksListPage extends Component {
         }
         this.handleChange = this.handleChange.bind(this);
         this.refreshData(this.state);
+
 
     }
     refreshData(state){
@@ -52,7 +57,16 @@ class TrainingRoomTRanksListPage extends Component {
         this.refreshData(state);
     }
     render() {
+        if(this.state.loaded ) {
+            setTimeout(function () {
+                //dtbs(window, $ );
+                let datatable = $('#table').DataTable({
+                    pageLength: 100
+                });
+                //datatable.page.len(100);
 
+            }, 100);
+        }
 
         return (
             <div>
@@ -115,25 +129,26 @@ class TrainingRoomTRanksListPage extends Component {
                                                             <option value="MarkedForColdStorage">MarkedForColdStorage
                                                             </option>
                                                         </select>
-                                                        <table className="table">
+                                                        <table id="table" className="tableclass table-striped table-bordered">
                                                             <thead>
-                                                            <tr>
-                                                                <th scope="col">Count {this.state.tranks.length}</th>
-                                                                <th scope="col">Name</th>
-                                                                <th scope="col">Age</th>
-                                                                <th scope="col">Current Score</th>
-                                                                <th scope="col">High Score</th>
-                                                                <th scope="col">Children Spawned</th>
-                                                                <th scope="col">Children Reported</th>
-                                                                <th scope="col">Life State</th>
-                                                                <th scope="col">Evolve State</th>
-                                                                <th scope="col">Complexity</th>
-                                                            </tr>
+                                                                <tr>
+                                                                    <th scope="col">Count {this.state.tranks.length}</th>
+                                                                    <th scope="col">Name</th>
+                                                                    <th scope="col">Age</th>
+                                                                    <th scope="col">Current Score</th>
+                                                                    <th scope="col">High Score</th>
+                                                                    <th scope="col">Children Spawned</th>
+                                                                    <th scope="col">Children Reported</th>
+                                                                    <th scope="col">Life State</th>
+                                                                    <th scope="col">Evolve State</th>
+                                                                    <th scope="col">Complexity</th>
+                                                                    <th scope="col">Role</th>
+                                                                </tr>
                                                             </thead>
                                                             <tbody>
                                                             {
                                                                 this.state.tranks.map((trank) => {
-                                                                    return <TRankListComponent key={trank.namespace} trank={trank}
+                                                                    return <TRankListComponent id={trank.namespace} key={trank.namespace} trank={trank}
                                                                                                page={this}/>
                                                                 })
                                                             }
