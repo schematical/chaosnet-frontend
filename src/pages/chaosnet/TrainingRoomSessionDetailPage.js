@@ -32,7 +32,7 @@ class TrainingRoomSessionDetailPage extends Component {
 
             this.setState(state);
             if( state.canHardReset){
-                return AuthService.getActiveSession()
+                return AuthService.getActiveSession({forceRefresh: true})
                     .then((session)=>{
                         console.log("ACTIVE SESSION: " + session);
                         if(!session){

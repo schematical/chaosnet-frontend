@@ -76,7 +76,7 @@ class AuthService{
                     // _skipAuth: true
                 }
             );
-            return response;
+            return response.data;
         });
     }
     static signup(data){

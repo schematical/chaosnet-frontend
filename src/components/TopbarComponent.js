@@ -9,7 +9,7 @@ class TopbarComponent extends Component {
     gotoCurrentSession(event){
         event.preventDefault();
 
-        AuthService.getActiveSession()
+        AuthService.getActiveSession({forceRefresh: true})
         .then((session) => {
             if(!session) {
                 return;
