@@ -149,48 +149,50 @@ class AdminHomePage extends Component {
                                                             }
                                                             </tbody>
                                                         </table>
-                                                        <form className="user" onSubmit={this.handleKeySubmit}>
+                                                        {
+                                                            AuthService.hasScope("admin") &&
+                                                            <form className="user" onSubmit={this.handleKeySubmit}>
 
-                                                            <div className="form-group">
-                                                                <label>
-                                                                    Count
-                                                                </label>
-                                                                <input
-                                                                    className="form-control form-control-user"
+                                                                <div className="form-group">
+                                                                    <label>
+                                                                        Count
+                                                                    </label>
+                                                                    <input
+                                                                        className="form-control form-control-user"
 
-                                                                    id="count"
-                                                                    name="count"
-                                                                    type="number"
-                                                                    aria-describedby="count"
-                                                                    placeholder="count"
-                                                                    value={this.state.keyPayload.count}
-                                                                    onChange={this.handelKeyChange}
-                                                                ></input>
-                                                            </div>
-                                                            <div className="form-group">
-                                                                <label>
-                                                                    Count
-                                                                </label>
-                                                                <textarea
-                                                                    className="form-control form-control-user"
+                                                                        id="count"
+                                                                        name="count"
+                                                                        type="number"
+                                                                        aria-describedby="count"
+                                                                        placeholder="count"
+                                                                        value={this.state.keyPayload.count}
+                                                                        onChange={this.handelKeyChange}
+                                                                    ></input>
+                                                                </div>
+                                                                <div className="form-group">
+                                                                    <label>
+                                                                        Count
+                                                                    </label>
+                                                                    <textarea
+                                                                        className="form-control form-control-user"
 
-                                                                    id="notes"
-                                                                    name="notes"
-                                                                    aria-describedby="notes"
-                                                                    placeholder="notes"
-                                                                    onChange={this.handelKeyChange}
-                                                                    value={this.state.keyPayload.notes}
-                                                                ></textarea>
-                                                            </div>
+                                                                        id="notes"
+                                                                        name="notes"
+                                                                        aria-describedby="notes"
+                                                                        placeholder="notes"
+                                                                        onChange={this.handelKeyChange}
+                                                                        value={this.state.keyPayload.notes}
+                                                                    ></textarea>
+                                                                </div>
 
-                                                            {
-                                                                <button
-                                                                    className="btn btn-primary btn-user btn-block">
-                                                                    Save
-                                                                </button>
-                                                            }
-                                                        </form>
-
+                                                                {
+                                                                    <button
+                                                                        className="btn btn-primary btn-user btn-block">
+                                                                        Save
+                                                                    </button>
+                                                                }
+                                                            </form>
+                                                        }
 
                                                     </div>
                                                 </div>

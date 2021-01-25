@@ -26,7 +26,7 @@ class FooterComponent extends Component {
 
                 <div className="container my-auto">
                     <div className="copyright text-center my-auto">
-                        <span>Copyright © Schematical.com 2020</span>
+                        <span>Copyright © Schematical.com 2021</span>
                     </div>
                 </div>
 
