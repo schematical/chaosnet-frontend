@@ -129,7 +129,7 @@ class AdminHomePage extends Component {
                                         }
                                         {
                                             this.state.loaded &&
-                                            AuthService.hasScope("admin") &&
+                                            AuthService.hasScope("moderator") &&
                                             <div className="col-xl-6 col-md-12 mb-6">
                                                 <div className="card shadow mb-4">
                                                     <div className="card-header py-3">
