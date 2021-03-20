@@ -82,6 +82,7 @@ class SidebarComponent extends Component {
                             <h6 className="collapse-header">ChaosPixel:</h6>
                             <a className="collapse-item" href="/chaospixel">Home</a>
                             <a className="collapse-item" href="/chaospixel/slicer">Slicer</a>
+                            <a className="collapse-item" href="/chaospixel/boxer">Boxer</a>
                         </div>
                     </div>
                 </li>
