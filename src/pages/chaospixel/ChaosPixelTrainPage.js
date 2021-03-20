@@ -17,8 +17,8 @@ import * as tf from '@tensorflow/tfjs';
 const CANVAS_SIZE = 224;  // Matches the input size of MobileNet.
 
 // Name prefixes of layers that will be unfrozen during fine-tuning.
-const topLayerGroupNames = ['conv_pw_9', 'conv_pw_10', 'conv_pw_11'];
-
+// const topLayerGroupNames = ['conv_pw_9', 'conv_pw_10', 'conv_pw_11'];
+const topLayerGroupNames = [ 'conv_pw_11'];
 // Name of the layer that will become the top layer of the truncated base.
 const topLayerName =
     `${topLayerGroupNames[topLayerGroupNames.length - 1]}_relu`;
@@ -42,7 +42,7 @@ class ChaosPixelTrainPage extends Component {
         }
 
         this.onTrainClick = this.onTrainClick.bind(this);
-        this.onPredictClick = this.onPredictClick.bind(this);
+        this.handleImage = this.handleImage.bind(this);
 
 
     }
@@ -64,7 +64,7 @@ class ChaosPixelTrainPage extends Component {
         let p = Promise.resolve();
         this.state.images.forEach((image)=>{
             p = p.then(()=>{
-                return this.loadAndShapeImage(image)
+                return this.loadAndShapeImage(image.imgSrc)
                     .then((imageEle)=>{
                         imageEleDict[image.id] = imageEle;
                     });
@@ -93,7 +93,7 @@ class ChaosPixelTrainPage extends Component {
             image.boxes.forEach((box)=>{
                 box.tags.forEach((tag)=> {
                     let data = tf.tidy(() => {
-                        const imageTensor = tf.browser.fromPixels(imageEleDict[image.id]);
+                        const imageTensor = tf.browser.fromPixels(imageEleDict[image.id]).cast('float32');
                         const shapeClassIndicator = tagsDict[tag].id;
                         const targetTensor =
                             tf.tensor1d([shapeClassIndicator].concat(box.bbox));
@@ -111,7 +111,11 @@ class ChaosPixelTrainPage extends Component {
 
 
         const {model, fineTuningLayers} = await this.buildObjectDetectionModel();
-        model.compile({loss: this.customLossFunction, optimizer: tf.train.rmsprop(5e-3)});
+        model.compile({
+            loss: this.customLossFunction,
+            optimizer: tf.train.rmsprop(5e-3),
+            metrics: ['accuracy']
+        });
         model.summary();
 
         // Initial phase of transfer learning.
@@ -144,7 +148,11 @@ class ChaosPixelTrainPage extends Component {
         for (const layer of fineTuningLayers) {
             layer.trainable = true;
         }
-        model.compile({loss: this.customLossFunction, optimizer: tf.train.rmsprop(2e-3)});
+        model.compile({
+            loss: this.customLossFunction,
+            optimizer: tf.train.rmsprop(2e-3),
+            metrics: ['accuracy']
+        });
         model.summary();
 
         // Do fine-tuning.
@@ -188,7 +196,6 @@ class ChaosPixelTrainPage extends Component {
         });
     }
     async loadTruncatedBase() {
-        // TODO(cais): Add unit test.
         const mobilenet = await tf.loadLayersModel(
             'https://storage.googleapis.com/tfjs-models/tfjs/mobilenet_v1_0.25_224/model.json');
 
@@ -235,22 +242,179 @@ class ChaosPixelTrainPage extends Component {
         newHead.add(tf.layers.dense({units: 5}));
         return newHead;
     }
-    async onPredictClick(e){
+
+    async handleImage(e){
+
+        this.canvas = document.getElementById('predictCanvas');
+
+
+
+        let scaledTestImg = await new Promise((resolve, reject) => {
+            var reader = new FileReader();
+            reader.onload = (event) => {
+                return this.loadAndShapeImage(event.target.result)
+                    .then(resolve)
+                    .catch(reject);
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        });
+        const predictCtx = this.canvas.getContext('2d');
+        predictCtx.drawImage(scaledTestImg, 0, 0);
         let model = null;
         try {
             model = await tf.loadLayersModel('indexeddb://my-model-1');
             if (model) {
-               this.log("Loaded!");
+                this.log("Loaded!");
             }
         }catch(err){
-           this.log(err.message);
+            this.log(err.message);
         }
-        const imageEle = await this.loadAndShapeImage(this.state.images[0])
 
-        const imageTensor = tf.browser.fromPixels(imageEle);
+
+        const imageTensor = tf.browser.fromPixels(scaledTestImg);
         const images = tf.stack([imageTensor]);
         const modelOut = await model.predict(images).data();
-        this.log(JSON.stringify(modelOut));
+        const predictBoundingBox = modelOut.slice(1);
+        this.log(JSON.stringify( predictBoundingBox, null, 3));
+
+        tf.util.assert(
+            predictBoundingBox != null && predictBoundingBox.length === 4,
+            `Expected boundingBoxArray to have length 4, ` +
+            `but got ${predictBoundingBox} instead`);
+        const ctx = this.canvas.getContext('2d');
+
+
+        let left = predictBoundingBox[0];
+        let right = predictBoundingBox[1];
+        let top = predictBoundingBox[2];
+        let bottom = predictBoundingBox[3];
+
+        ctx.beginPath();
+       /* ctx.strokeStyle = PREDICT_BOUNDING_BOX_STYLE;
+        ctx.lineWidth = PREDICT_BOUNDING_BOX_LINE_WIDTH;*/
+        ctx.lineWidth = "2";
+        ctx.strokeStyle = "red";
+        ctx.moveTo(left, top);
+        ctx.lineTo(right, top);
+        ctx.lineTo(right, bottom);
+        ctx.lineTo(left, bottom);
+        ctx.lineTo(left, top);
+        ctx.stroke();
+    }
+
+
+
+
+    async predictImageBox(image, box){
+
+        this.canvas = document.getElementById('predictCanvas');
+
+
+
+        let scaledTestImg = await this.loadAndShapeImage(image.imgSrc);
+        const predictCtx = this.canvas.getContext('2d');
+        predictCtx.drawImage(scaledTestImg, 0, 0);
+        let model = null;
+        try {
+            model = await tf.loadLayersModel('indexeddb://my-model-1');
+            if (model) {
+                this.log("Loaded!");
+            }
+        }catch(err){
+            this.log(err.message);
+        }
+
+
+        const imageTensor = tf.browser.fromPixels(scaledTestImg);
+        const images = tf.stack([imageTensor]);
+        const modelOut = await model.predict(images).data();
+        const predictBoundingBox = modelOut.slice(1);
+        this.log(JSON.stringify( predictBoundingBox, null, 3));
+
+        tf.util.assert(
+            predictBoundingBox != null && predictBoundingBox.length === 4,
+            `Expected boundingBoxArray to have length 4, ` +
+            `but got ${predictBoundingBox} instead`);
+
+
+        /*
+                let left = predictBoundingBox[0];
+                let right = predictBoundingBox[1];
+                let top = predictBoundingBox[2];
+                let bottom =redictBoundingBox[3];
+
+               /* ctx.beginPath();
+                ctx.lineWidth = "2";
+                ctx.strokeStyle = "red";
+                ctx.moveTo(left, top);
+                ctx.lineTo(right, top);
+                ctx.lineTo(right, bottom);
+                ctx.lineTo(left, bottom);
+                ctx.lineTo(left, top);
+                ctx.stroke();*/
+
+        predictCtx.beginPath();
+        predictCtx.lineWidth = "2";
+        predictCtx.strokeStyle = "blue";
+        predictCtx.rect(
+            predictBoundingBox[0],
+            predictBoundingBox[1],
+            predictBoundingBox[2] - predictBoundingBox[0],
+            predictBoundingBox[3] - predictBoundingBox[1]
+        );
+        predictCtx.stroke();
+        if(!box){
+            return;
+        }
+
+        this.log(JSON.stringify( box.bbox, null, 3));
+        predictCtx.beginPath();
+        predictCtx.lineWidth = "2";
+        predictCtx.strokeStyle = "green";
+        predictCtx.rect(
+            box.bbox[0],
+            box.bbox[1],
+            box.bbox[2] - box.bbox[0],
+            box.bbox[3] - box.bbox[1]
+        );
+        predictCtx.stroke();
+        this.log("Canvas.height: ");
+        this.log(this.canvas.height);
+        this.log("Canvas.width: ");
+        this.log(this.canvas.width);
+    }
+    loadAndShapeImage(imgSrc) {
+        return new Promise((resolve, reject)=>{
+            const fakeCanvas = document.createElement("canvas");
+            const fakeCtx = fakeCanvas.getContext('2d');
+            let imageEle = new Image();
+            imageEle.onload = ()=>{
+
+
+                fakeCanvas.height = CANVAS_SIZE;
+                fakeCanvas.width = CANVAS_SIZE;
+                fakeCtx.fillStyle = 'green';
+                fakeCtx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+                document.body.appendChild(fakeCanvas);
+                fakeCtx.drawImage(
+                    imageEle,
+                    0,
+                    0,
+                    CANVAS_SIZE,
+                    CANVAS_SIZE
+                );
+                imageEle.onload = ()=>{
+
+                    document.body.removeChild(fakeCanvas);
+                    return resolve(imageEle);
+                }
+                imageEle.src = fakeCanvas.toDataURL();
+                imageEle.height = CANVAS_SIZE;
+                imageEle.width = CANVAS_SIZE;
+
+            }
+            imageEle.src = imgSrc;
+        });
     }
     render() {
 
@@ -284,7 +448,7 @@ class ChaosPixelTrainPage extends Component {
                                         }
                                         {
                                             this.state.loaded &&
-                                            <div className="col-xl-3 col-md-12 mb-3">
+                                            <div className="col-xl-3 col-md-3 mb-3 col-sm-12">
 
                                                 <div className="card shadow mb-4">
 
@@ -295,6 +459,10 @@ class ChaosPixelTrainPage extends Component {
                                                         <div className="form-group">
 
                                                             <button className="btn btn-info" onClick={this.onTrainClick}>Train</button>
+                                                            <div className="form-group">
+                                                                <label htmlFor="exampleInputEmail1">Upload Image </label>
+                                                                <input type="file" id="imageLoader" name="imageLoader" onChange={this.handleImage}/>
+                                                            </div>
                                                             <button className="btn btn-info" onClick={this.onPredictClick}>Predict</button>
                                                         </div>
                                                     </div>
@@ -326,13 +494,14 @@ class ChaosPixelTrainPage extends Component {
                                                 </div>
                                             </div>
                                         }
-                                        <div className="col-xl-9 col-lg-9">
+                                        <div className="col-xl-9 col-lg-9 col-md-9 col-sm-12">
                                             <div className="card shadow mb-4">
                                                 <div className="card-header py-3">
                                                     <h1 className="h3 mb-0 text-gray-800">Box</h1>
                                                 </div>
 
                                                 <div className="card-body">
+                                                    <canvas id="predictCanvas" height={256} width={256}></canvas>
                                                     <div id='console'>
 Waiting...
                                                     </div>
@@ -360,37 +529,7 @@ Waiting...
         );
     }
 
-    loadAndShapeImage(image) {
-        return new Promise((resolve, reject)=>{
-            const fakeCanvas = document.createElement("canvas");
-            const fakeCtx = fakeCanvas.getContext('2d');
-            let imageEle = new Image();
-            imageEle.onload = ()=>{
 
-
-                fakeCanvas.height = CANVAS_SIZE;
-                fakeCanvas.width = CANVAS_SIZE;
-                document.body.appendChild(fakeCanvas);
-                fakeCtx.drawImage(
-                    imageEle,
-                    0,
-                    0,
-                    CANVAS_SIZE,
-                    CANVAS_SIZE
-                );
-                imageEle.onload = ()=>{
-
-                    document.body.removeChild(fakeCanvas);
-                    return resolve(imageEle);
-                }
-                imageEle.src = fakeCanvas.toDataURL();
-                imageEle.height = CANVAS_SIZE;
-                imageEle.width = CANVAS_SIZE;
-
-            }
-            imageEle.src = image.imgSrc;
-        });
-    }
 }
 
 export default ChaosPixelTrainPage;

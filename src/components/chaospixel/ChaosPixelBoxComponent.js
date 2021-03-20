@@ -3,15 +3,24 @@ import CanvasHelper from "../../services/CanvasHelper";
 
 class ChaosPixelBoxComponent extends Component {
 
+
     constructor(props) {
         super(props);
 
         this.state = {
             id: "canvas_" + Math.floor(Math.random() * 9999),
             box: props.box,
-            image: props.image
+            image: props.image,
+            page: props.page
         }
-
+        this.onPredictClick = this.onPredictClick.bind(this);
+    }
+    onPredictClick(e){
+        e.preventDefault();
+        this.state.page.predictImageBox(
+            this.state.image,
+            this.state.box
+        );
     }
     componentDidMount(){
         this.canvas = document.getElementById(this.state.id)
@@ -71,6 +80,9 @@ class ChaosPixelBoxComponent extends Component {
                             return  <span className="badge badge-pill badge-info">{{tag}}</span>
                         })
                     }*/}
+                </td>
+                <td>
+                    <button className='btn btn-sm btn-info' onClick={this.onPredictClick}>Predict</button>
                 </td>
             </tr>
         );
