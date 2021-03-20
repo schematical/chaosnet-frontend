@@ -17,36 +17,14 @@ class ChaosPixelBoxerPage extends Component {
         this.state = {
             loaded: true,
             scale: 1,
-            boxes: []
+            images:[],//spriteGroup._component.previewCanvas.toDataURL()
         }
 
-        this.handelKeyChange = this.handelKeyChange.bind(this);
-        this.handleKeySubmit = this.handleKeySubmit.bind(this);
+
         this.handleImage = this.handleImage.bind(this);
-        this.resetCanvasWithImage = this.resetCanvasWithImage.bind(this);
 
         this.onConfirmBoxClick = this.onConfirmBoxClick.bind(this);
-        // this.onCanvasMouseDown = this.onCanvasMouseDown.bind(this);
-        /*HTTPService.get('/admin/home', {})
-            .then((response) => {
-                let state = {};
-                state.stats = response.data;
-                this.setState(state);
-                return HTTPService.get('/admin/keys', {})
 
-            })
-            .then((response) => {
-                let state = {};
-                state.loaded = true;
-                state.keys = response.data;
-                this.setState(state);
-            })
-            .catch((err) => {
-                let state = {};
-                state.error = err;
-                this.setState(state);
-                console.error("Error: ", err.message);
-            });*/
 
     }
     componentDidMount(){
@@ -58,11 +36,11 @@ class ChaosPixelBoxerPage extends Component {
     }
     onConfirmBoxClick(event){
         let state = {
-            boxes: this.state.boxes
+            currImage: this.state.currImage
         };
         const previewCanvas = document.getElementById('previewCanvas');
         const previewCtx = previewCanvas.getContext('2d');
-        state.boxes.push({
+        state.currImage.boxes.push({
             previewImageData: previewCtx.getImageData(
                 0,
                 0,
@@ -74,64 +52,31 @@ class ChaosPixelBoxerPage extends Component {
         })
         this.setState(state);
     }
-    handelKeyChange(event){
-        let state = {
-            keyPayload: this.state.keyPayload
-        }
-        state.keyPayload[event.target.name] = event.target.value;
-        this.setState(state);
-    }
-    handleKeySubmit(event){
-        event.preventDefault();
-        /*HTTPService.post(
-            '/admin/keys',
-            this.state.keyPayload
-        )
-            .then((response) => {
-                let state = {};
-                state.keys = response.data;
-                this.setState(state);
 
-            })
-            .catch((err) => {
-                let state = {};
-                state.error = err;
-                this.setState(state);
-                console.error("Error: ", err.message);
-            });*/
 
-    }
-    resetCanvasWithImage(){
-        if(!this.canvas){
-            this.canvas = document.getElementById('imageCanvas');
-        }
-        var ctx = this.canvas.getContext('2d');
-        let scaledWidth = this.img.width * this.state.scale;
-        let scaledHeight = this.img.height * this.state.scale;
-        this.canvas.width = scaledWidth;
-        this.canvas.height = scaledHeight;
-        ctx.drawImage(this.img,0,0, scaledWidth, scaledHeight);
-        let imageData = ctx.getImageData(0, 0, 1, 1);
-        let state = {
-            background_color: this.canvasHelper.rgbToHex(
-                imageData.data[0],
-                imageData.data[1],
-                imageData.data[2]
-            )
-        };
-
-        this.setState(state);
-    }
     handleImage(e){
 
         this.canvas = document.getElementById('imageCanvas');
         this.canvas.imageSmoothingEnabled = false;
+
         var reader = new FileReader();
         reader.onload = (event) =>{
             this.img = new Image();
             this.img.onload = ()=>{
                 this.canvasHelper.resetCanvasWithImage(this.img);
+                const state = {
+                    images:this.state.images,
+                }
+                let imageObj = {
+                    id: this.state.images.length,
+                    imgSrc: this.img.src,
+                    boxes:[]
+                }
+                state.images.push(imageObj);
+                state.currImage = imageObj;
+                this.setState(state);
             }
+            console.log("event.target.", event.target);
             this.img.src = event.target.result;
             this.spriteGroups = [];
             this.setState({
@@ -209,15 +154,24 @@ class ChaosPixelBoxerPage extends Component {
                                                 <div className="card shadow mb-4">
 
                                                     <div className="card-body">
-                                                        <table>
-                                                            <tbody>
-                                                            {
-                                                                this.state.boxes.map((box) => {
-                                                                    return <ChaosPixelBoxComponent box={box} page={this}/>
-                                                                })
-                                                            }
-                                                            </tbody>
-                                                        </table>
+                                                        {
+                                                            this.state.images.map((image) => {
+                                                                return <div>
+                                                                    <h3>Image {image.id}</h3>
+                                                                    <img src={image.imageSrc} width={64} />
+                                                                    <table>
+                                                                        <tbody>
+                                                                        {
+                                                                            image.boxes.map((box) => {
+                                                                                return <ChaosPixelBoxComponent box={box} page={this}/>
+                                                                            })
+                                                                        }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            })
+                                                        }
+
                                                     </div>
                                                 </div>
                                             </div>

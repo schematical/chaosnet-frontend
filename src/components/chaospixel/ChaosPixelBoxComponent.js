@@ -32,7 +32,9 @@ class ChaosPixelBoxComponent extends Component {
                     <canvas id={this.state.id}  height={32} width={32}></canvas>
                 </td>
                 <td>
+                    <span className="badge badge-pill badge-info">
                     {this.state.box.tags.join(", ")}
+                    </span>
                     {/*{
                         this.state.box.tags.map((tag) => {
                             return  <span className="badge badge-pill badge-info">{{tag}}</span>
