@@ -19,11 +19,14 @@ class ChaosPixelBoxerPage extends Component {
             scale: 1,
             images:[],//spriteGroup._component.previewCanvas.toDataURL()
         }
-
-
+        const strData = localStorage.getItem('chaospixel:images');
+        if(strData){
+            this.state.images = JSON.parse(strData);
+        }
         this.handleImage = this.handleImage.bind(this);
 
         this.onConfirmBoxClick = this.onConfirmBoxClick.bind(this);
+        this.onSaveClick = this.onSaveClick.bind(this);
 
 
     }
@@ -38,22 +41,28 @@ class ChaosPixelBoxerPage extends Component {
         let state = {
             currImage: this.state.currImage
         };
-        const previewCanvas = document.getElementById('previewCanvas');
-        const previewCtx = previewCanvas.getContext('2d');
         state.currImage.boxes.push({
-            previewImageData: previewCtx.getImageData(
-                0,
-                0,
-                previewCanvas.width,
-                previewCanvas.height
-            ),
             bbox: this.canvasHelper.getBBox(),
             tags: [ 'zelda.link']
         })
         this.setState(state);
     }
+    onSaveClick(e){
+        const strData = JSON.stringify(this.state.images);
+        localStorage.setItem('chaospixel:images', strData);
+    }
 
-
+    onSelectImage(imageObj) {
+        this.img = new Image();
+        this.img.onload = ()=>{
+            this.canvasHelper.resetCanvasWithImage(this.img);
+            const state = {
+                currImage:imageObj,
+            }
+            this.setState(state);
+        }
+        this.img.src = imageObj.imgSrc;
+    }
     handleImage(e){
 
         this.canvas = document.getElementById('imageCanvas');
@@ -78,10 +87,7 @@ class ChaosPixelBoxerPage extends Component {
             }
             console.log("event.target.", event.target);
             this.img.src = event.target.result;
-            this.spriteGroups = [];
-            this.setState({
-                selectedSpriteGroups:[]
-            })
+
         }
         reader.readAsDataURL(e.target.files[0]);
 
@@ -136,7 +142,10 @@ class ChaosPixelBoxerPage extends Component {
                                                             <label htmlFor="exampleInputEmail1">Upload Image </label>
                                                             <input type="file" id="imageLoader" name="imageLoader" onChange={this.handleImage}/>
                                                         </div>
+                                                        <div className="form-group">
 
+                                                            <button className="btn btn-info" onClick={this.onSaveClick}>Save</button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div className="card shadow mb-4">
@@ -157,13 +166,15 @@ class ChaosPixelBoxerPage extends Component {
                                                         {
                                                             this.state.images.map((image) => {
                                                                 return <div>
-                                                                    <h3>Image {image.id}</h3>
-                                                                    <img src={image.imageSrc} width={64} />
+                                                                    <h3>
+                                                                        <a href="#" onClick={(e)=>{ this.onSelectImage(image); }}>Image {image.id}</a>
+                                                                    </h3>
+                                                                    <img src={image.imgSrc} width={64} />
                                                                     <table>
                                                                         <tbody>
                                                                         {
                                                                             image.boxes.map((box) => {
-                                                                                return <ChaosPixelBoxComponent box={box} page={this}/>
+                                                                                return <ChaosPixelBoxComponent box={box} page={this} image={image}/>
                                                                             })
                                                                         }
                                                                         </tbody>
@@ -209,6 +220,7 @@ class ChaosPixelBoxerPage extends Component {
             </div>
         );
     }
+
 }
 
 export default ChaosPixelBoxerPage;

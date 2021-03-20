@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@tensorflow/tfjs": "^3.3.0",
+    "@tensorflow/tfjs-node": "^3.3.0",
     "axios": "^0.18.0",
     "bootstrap": "^4.3.1",
     "chart.js": "^2.9.3",

@@ -104,10 +104,10 @@ class CanvasHelper{
     }
     getBBox(){
         return [
-            this.state.mouseDownPos.x,
-            this.state.mouseDownPos.y,
-            this.state.mouseUpPos.x - this.state.mouseDownPos.x,
-            this.state.mouseUpPos.y - this.state.mouseDownPos.y
+            this.state.mouseDownPos.x / this.options.scale,
+            this.state.mouseDownPos.y / this.options.scale,
+            (this.state.mouseUpPos.x - this.state.mouseDownPos.x) / this.options.scale,
+            (this.state.mouseUpPos.y - this.state.mouseDownPos.y) / this.options.scale
         ];
     }
     onCanvasMouseMove(e){

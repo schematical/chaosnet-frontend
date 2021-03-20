@@ -41,6 +41,7 @@ import SimModelPayloadEditPage from "./pages/chaosnet/SimModelPayloadEditPage";
 import AdminHomePage from "./pages/admin/AdminHomePage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ChaosPixelBoxerPage from "./pages/chaospixel/ChaosPixelBoxerPage";
+import ChaosPixelTrainPage from "./pages/chaospixel/ChaosPixelTrainPage";
 class App extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired
@@ -93,6 +94,7 @@ class App extends Component {
             <Router.Location path="/chaospixel" handler={ChaosPixelListTrainingDatasPage} />
             <Router.Location path="/chaospixel/slicer" handler={ChaosPixelSlicerPage} />
             <Router.Location path="/chaospixel/boxer" handler={ChaosPixelBoxerPage} />
+            <Router.Location path="/chaospixel/train" handler={ChaosPixelTrainPage} />
             <Router.NotFound handler={HomePage} />
         </Router.Locations>
     );

@@ -8,18 +8,49 @@ class ChaosPixelBoxComponent extends Component {
 
         this.state = {
             id: "canvas_" + Math.floor(Math.random() * 9999),
-            box: props.box
+            box: props.box,
+            image: props.image
         }
 
     }
     componentDidMount(){
         this.canvas = document.getElementById(this.state.id)
         const ctx = this.canvas.getContext('2d');
-        ctx.putImageData(
-            this.state.box.previewImageData,
-            0,
-            0
-        );
+        const fakeCanvas = document.createElement("canvas");
+        const fakeCtx = fakeCanvas.getContext('2d');
+
+        let img = new Image();
+        let _this = this;
+        img.onload = ()=>{
+            console.log(" this.state.box.bbox",  this.state.box.bbox);
+            fakeCanvas.height = img.height;
+            fakeCanvas.width = img.width;
+            document.body.appendChild(fakeCanvas);
+            fakeCtx.drawImage(
+                img,
+                0, //_this.state.box.bbox[0] * -1,
+                0, // _this.state.box.bbox[1] * -1,
+
+               //  img.width,
+                // img.height,
+            );
+            const imageData = fakeCtx.getImageData(
+                _this.state.box.bbox[0],
+                _this.state.box.bbox[1],
+                _this.state.box.bbox[2],
+                _this.state.box.bbox[3],
+            );
+            ctx.putImageData(
+                imageData,
+                0,
+                0
+            );
+            document.body.removeChild(fakeCanvas);
+
+        }
+
+        img.src = this.state.image.imgSrc;
+
     }
     render() {
 
