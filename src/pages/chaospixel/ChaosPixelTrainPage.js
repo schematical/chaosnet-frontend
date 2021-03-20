@@ -43,16 +43,26 @@ class ChaosPixelTrainPage extends Component {
 
         this.onTrainClick = this.onTrainClick.bind(this);
         this.handleImage = this.handleImage.bind(this);
-
+        this.onMouseMove = this.onMouseMove.bind(this);
 
     }
     componentDidMount(){
 
+
+        this.canvasHelper = new CanvasHelper({
+            canvas: document.getElementById('predictCanvas'),
+            canvasSize: CANVAS_SIZE
+
+        });
+        this.canvasHelper.on(CanvasHelper.Events.MOUSE_MOVE, this.onMouseMove);
+    }
+    onMouseMove(e){
+        console.log(e.mousePos)
     }
     async onTrainClick(event){
         const args = {
             numExamples: 2000,
-            validationSplit: 0.15,
+            validationSplit: 0.05,
             batchSize: 128,
             initialTransferEpochs: 100,
             fineTuningEpochs: 100,
@@ -64,7 +74,7 @@ class ChaosPixelTrainPage extends Component {
         let p = Promise.resolve();
         this.state.images.forEach((image)=>{
             p = p.then(()=>{
-                return this.loadAndShapeImage(image.imgSrc)
+                return this.canvasHelper.loadAndShapeImage(image.imgSrc)
                     .then((imageEle)=>{
                         imageEleDict[image.id] = imageEle;
                     });
@@ -245,61 +255,19 @@ class ChaosPixelTrainPage extends Component {
 
     async handleImage(e){
 
-        this.canvas = document.getElementById('predictCanvas');
 
 
 
-        let scaledTestImg = await new Promise((resolve, reject) => {
+        let imgSrc = await new Promise((resolve, reject) => {
             var reader = new FileReader();
             reader.onload = (event) => {
-                return this.loadAndShapeImage(event.target.result)
-                    .then(resolve)
-                    .catch(reject);
+                return resolve(event.target.result);
             }
             reader.readAsDataURL(e.target.files[0]);
         });
-        const predictCtx = this.canvas.getContext('2d');
-        predictCtx.drawImage(scaledTestImg, 0, 0);
-        let model = null;
-        try {
-            model = await tf.loadLayersModel('indexeddb://my-model-1');
-            if (model) {
-                this.log("Loaded!");
-            }
-        }catch(err){
-            this.log(err.message);
-        }
-
-
-        const imageTensor = tf.browser.fromPixels(scaledTestImg);
-        const images = tf.stack([imageTensor]);
-        const modelOut = await model.predict(images).data();
-        const predictBoundingBox = modelOut.slice(1);
-        this.log(JSON.stringify( predictBoundingBox, null, 3));
-
-        tf.util.assert(
-            predictBoundingBox != null && predictBoundingBox.length === 4,
-            `Expected boundingBoxArray to have length 4, ` +
-            `but got ${predictBoundingBox} instead`);
-        const ctx = this.canvas.getContext('2d');
-
-
-        let left = predictBoundingBox[0];
-        let right = predictBoundingBox[1];
-        let top = predictBoundingBox[2];
-        let bottom = predictBoundingBox[3];
-
-        ctx.beginPath();
-       /* ctx.strokeStyle = PREDICT_BOUNDING_BOX_STYLE;
-        ctx.lineWidth = PREDICT_BOUNDING_BOX_LINE_WIDTH;*/
-        ctx.lineWidth = "2";
-        ctx.strokeStyle = "red";
-        ctx.moveTo(left, top);
-        ctx.lineTo(right, top);
-        ctx.lineTo(right, bottom);
-        ctx.lineTo(left, bottom);
-        ctx.lineTo(left, top);
-        ctx.stroke();
+        await this.predictImageBox({
+            imgSrc: imgSrc
+        })
     }
 
 
@@ -307,13 +275,18 @@ class ChaosPixelTrainPage extends Component {
 
     async predictImageBox(image, box){
 
-        this.canvas = document.getElementById('predictCanvas');
 
+        let scaledTestImg = await this.canvasHelper.loadAndShapeImage(image.imgSrc);
 
-
-        let scaledTestImg = await this.loadAndShapeImage(image.imgSrc);
-        const predictCtx = this.canvas.getContext('2d');
-        predictCtx.drawImage(scaledTestImg, 0, 0);
+       /* let unscaledTestImg = await new Promise((resolve, reject)=> { //await this.loadAndShapeImage(image.imgSrc);
+            let img = new Image();
+            img.onload = ()=>{
+                return resolve(img);
+            }
+            img.src = image.imgSrc;
+        });*/
+        this.canvasHelper.setImage(scaledTestImg);
+        this.canvasHelper.resetCanvasWithImage();
         let model = null;
         try {
             model = await tf.loadLayersModel('indexeddb://my-model-1');
@@ -328,7 +301,7 @@ class ChaosPixelTrainPage extends Component {
         const imageTensor = tf.browser.fromPixels(scaledTestImg);
         const images = tf.stack([imageTensor]);
         const modelOut = await model.predict(images).data();
-        const predictBoundingBox = modelOut.slice(1);
+        let predictBoundingBox = modelOut.slice(1);
         this.log(JSON.stringify( predictBoundingBox, null, 3));
 
         tf.util.assert(
@@ -352,70 +325,27 @@ class ChaosPixelTrainPage extends Component {
                 ctx.lineTo(left, bottom);
                 ctx.lineTo(left, top);
                 ctx.stroke();*/
+        predictBoundingBox = this.canvasHelper.applyScaleToBBox(predictBoundingBox);
+        this.canvasHelper.drawRect({
+            lineWidth: "2",
+            strokeStyle: "blue",
+            bbox:predictBoundingBox
+        })
 
-        predictCtx.beginPath();
-        predictCtx.lineWidth = "2";
-        predictCtx.strokeStyle = "blue";
-        predictCtx.rect(
-            predictBoundingBox[0],
-            predictBoundingBox[1],
-            predictBoundingBox[2] - predictBoundingBox[0],
-            predictBoundingBox[3] - predictBoundingBox[1]
-        );
-        predictCtx.stroke();
         if(!box){
             return;
         }
 
         this.log(JSON.stringify( box.bbox, null, 3));
-        predictCtx.beginPath();
-        predictCtx.lineWidth = "2";
-        predictCtx.strokeStyle = "green";
-        predictCtx.rect(
-            box.bbox[0],
-            box.bbox[1],
-            box.bbox[2] - box.bbox[0],
-            box.bbox[3] - box.bbox[1]
-        );
-        predictCtx.stroke();
-        this.log("Canvas.height: ");
-        this.log(this.canvas.height);
-        this.log("Canvas.width: ");
-        this.log(this.canvas.width);
+        this.canvasHelper.drawRect({
+            lineWidth: "2",
+            strokeStyle: "green",
+            bbox: this.canvasHelper.applyScaleToBBox(box.bbox)
+        })
+
+
     }
-    loadAndShapeImage(imgSrc) {
-        return new Promise((resolve, reject)=>{
-            const fakeCanvas = document.createElement("canvas");
-            const fakeCtx = fakeCanvas.getContext('2d');
-            let imageEle = new Image();
-            imageEle.onload = ()=>{
 
-
-                fakeCanvas.height = CANVAS_SIZE;
-                fakeCanvas.width = CANVAS_SIZE;
-                fakeCtx.fillStyle = 'green';
-                fakeCtx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
-                document.body.appendChild(fakeCanvas);
-                fakeCtx.drawImage(
-                    imageEle,
-                    0,
-                    0,
-                    CANVAS_SIZE,
-                    CANVAS_SIZE
-                );
-                imageEle.onload = ()=>{
-
-                    document.body.removeChild(fakeCanvas);
-                    return resolve(imageEle);
-                }
-                imageEle.src = fakeCanvas.toDataURL();
-                imageEle.height = CANVAS_SIZE;
-                imageEle.width = CANVAS_SIZE;
-
-            }
-            imageEle.src = imgSrc;
-        });
-    }
     render() {
 
         return (
@@ -501,7 +431,7 @@ class ChaosPixelTrainPage extends Component {
                                                 </div>
 
                                                 <div className="card-body">
-                                                    <canvas id="predictCanvas" height={256} width={256}></canvas>
+                                                    <canvas id="predictCanvas" height={CANVAS_SIZE} width={CANVAS_SIZE}></canvas>
                                                     <div id='console'>
 Waiting...
                                                     </div>

@@ -10,13 +10,14 @@ import CanvasHelper from "../../services/CanvasHelper";
 import * as _ from "underscore";
 import FitnessRuleComponent from "../../components/chaosnet/FitnessRuleComponent";
 import ChaosPixelBoxComponent from "../../components/chaospixel/ChaosPixelBoxComponent";
+const CANVAS_SIZE = 224;  // Matches the input size of MobileNet.
+
 class ChaosPixelBoxerPage extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
             loaded: true,
-            scale: 1,
             images:[],//spriteGroup._component.previewCanvas.toDataURL()
         }
         const strData = localStorage.getItem('chaospixel:images');
@@ -34,7 +35,8 @@ class ChaosPixelBoxerPage extends Component {
         this.canvasHelper = new CanvasHelper({
             canvas: document.getElementById('imageCanvas'),
             previewCanvas: document.getElementById('previewCanvas'),
-            mode: CanvasHelper.Mode.BOX_SELECT
+            mode: CanvasHelper.Mode.BOX_SELECT,
+            canvasSize: CANVAS_SIZE
         });
     }
     onConfirmBoxClick(event){
@@ -48,20 +50,30 @@ class ChaosPixelBoxerPage extends Component {
         this.setState(state);
     }
     onSaveClick(e){
-        const strData = JSON.stringify(this.state.images);
+        let cleanImages = [];
+        this.state.images.forEach((imageObj)=>{
+            if(!imageObj.boxes || imageObj.boxes.length === 0){
+                return;
+            }
+            cleanImages.push(imageObj);
+
+        })
+        let state = {
+            images: cleanImages
+        }
+        this.setState(state);
+        const strData = JSON.stringify(cleanImages);
         localStorage.setItem('chaospixel:images', strData);
     }
 
-    onSelectImage(imageObj) {
-        this.img = new Image();
-        this.img.onload = ()=>{
-            this.canvasHelper.resetCanvasWithImage(this.img);
-            const state = {
-                currImage:imageObj,
-            }
-            this.setState(state);
+    async onSelectImage(imageObj) {
+        const imageEle = await this.canvasHelper.loadAndShapeImage(imageObj.imgSrc)
+        this.canvasHelper.resetCanvasWithImage(imageEle);
+        const state = {
+            currImage:imageObj,
         }
-        this.img.src = imageObj.imgSrc;
+        this.setState(state);
+
     }
     handleImage(e){
 
@@ -69,24 +81,21 @@ class ChaosPixelBoxerPage extends Component {
         this.canvas.imageSmoothingEnabled = false;
 
         var reader = new FileReader();
-        reader.onload = (event) =>{
-            this.img = new Image();
-            this.img.onload = ()=>{
-                this.canvasHelper.resetCanvasWithImage(this.img);
-                const state = {
-                    images:this.state.images,
-                }
-                let imageObj = {
-                    id: this.state.images.length,
-                    imgSrc: this.img.src,
-                    boxes:[]
-                }
-                state.images.push(imageObj);
-                state.currImage = imageObj;
-                this.setState(state);
+        reader.onload = async (event) =>{
+            const imageEle = await this.canvasHelper.loadAndShapeImage(event.target.result)
+            this.canvasHelper.resetCanvasWithImage(imageEle);
+            const state = {
+                images:this.state.images,
             }
-            console.log("event.target.", event.target);
-            this.img.src = event.target.result;
+            let imageObj = {
+                id: this.state.images.length,
+                imgSrc: imageEle.src,
+                boxes:[]
+            }
+            state.images.push(imageObj);
+            state.currImage = imageObj;
+            this.setState(state);
+
 
         }
         reader.readAsDataURL(e.target.files[0]);

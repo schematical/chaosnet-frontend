@@ -20,6 +20,9 @@ class CanvasHelper{
             throw new Error("Missing `canvas` argument");
         }
         this.options.scale = this.options.scale || 2;
+        if(!this.options.canvasSize){
+            throw new Error("Missing `canvasSize`");
+        }
         this.canvas = this.options.canvas;
         this.canvas.onmousemove = this.onCanvasMouseMove.bind(this);
         this.canvas.onmousedown = this.onCanvasMouseDown.bind(this);
@@ -30,6 +33,47 @@ class CanvasHelper{
             mouseDownPos: null
         }
         this._listeners = {};
+    }
+    applyScaleToBBox(bbox){
+        return [
+            bbox[0] * this.options.scale,
+            bbox[1] * this.options.scale,
+            bbox[2] * this.options.scale,
+            bbox[3] * this.options.scale
+        ]
+    }
+    loadAndShapeImage(imgSrc) {
+        return new Promise((resolve, reject)=>{
+            const fakeCanvas = document.createElement("canvas");
+            const fakeCtx = fakeCanvas.getContext('2d');
+            let imageEle = new Image();
+            imageEle.onload = ()=>{
+
+
+                fakeCanvas.height = this.options.canvasSize;
+                fakeCanvas.width = this.options.canvasSize;
+                fakeCtx.fillStyle = 'green';
+                fakeCtx.fillRect(0, 0, this.options.canvasSize, this.options.canvasSize);
+                document.body.appendChild(fakeCanvas);
+                fakeCtx.drawImage(
+                    imageEle,
+                    0,
+                    0,
+                    this.options.canvasSize,
+                    this.options.canvasSize
+                );
+                imageEle.onload = ()=>{
+
+                    document.body.removeChild(fakeCanvas);
+                    return resolve(imageEle);
+                }
+                imageEle.src = fakeCanvas.toDataURL();
+                imageEle.height = this.options.canvasSize;
+                imageEle.width = this.options.canvasSize;
+
+            }
+            imageEle.src = imgSrc;
+        });
     }
     on(eventKey, cb){
         this._listeners[eventKey] = this._listeners[eventKey] || [];
