@@ -19,7 +19,7 @@ class CanvasHelper{
         if(!this.options.canvas){
             throw new Error("Missing `canvas` argument");
         }
-        this.options.scale = this.options.scale || 2;
+        this.options.scale = this.options.scale || 4;
         this.options.previewScale = this.options.previewScale || 8;
         if(!this.options.canvasSize){
             throw new Error("Missing `canvasSize`");
@@ -154,6 +154,12 @@ class CanvasHelper{
         return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
     }
     getBBox(){
+        if(
+            !this.state.mouseDownPos ||
+            !this.state.mouseUpPos
+        ){
+            return null;
+        }
         return [
             this.state.mouseDownPos.x / this.options.scale,
             this.state.mouseDownPos.y / this.options.scale,

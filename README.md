@@ -72,3 +72,7 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/tr
 
 aws lambda add-permission --function-name chaosnet-frontend-lambda-v1-prod --action lambda:InvokeFunction --statement-id apigateway \
 --principal apigateway.amazonaws.com --source-arn arn:aws:execute-api:us-east-1:368590945923:rbllyhd641/** --output text
+
+
+
+ffmpeg -ss 4 -t 1 -i video.mp4 -vf fps=1 thumb%04d.jpg -hide_banner 

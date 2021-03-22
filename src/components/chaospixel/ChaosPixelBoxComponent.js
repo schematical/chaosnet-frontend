@@ -11,7 +11,8 @@ class ChaosPixelBoxComponent extends Component {
             id: "canvas_" + Math.floor(Math.random() * 9999),
             box: props.box,
             image: props.image,
-            page: props.page
+            page: props.page,
+            buttons: props.buttons || []
         }
         this.onPredictClick = this.onPredictClick.bind(this);
     }
@@ -31,7 +32,6 @@ class ChaosPixelBoxComponent extends Component {
         let img = new Image();
         let _this = this;
         img.onload = ()=>{
-            console.log(" this.state.box.bbox",  this.state.box.bbox);
             fakeCanvas.height = img.height;
             fakeCanvas.width = img.width;
             document.body.appendChild(fakeCanvas);
@@ -82,7 +82,21 @@ class ChaosPixelBoxComponent extends Component {
                     }*/}
                 </td>
                 <td>
-                    <button className='btn btn-sm btn-info' onClick={this.onPredictClick}>Predict</button>
+                    <div className='btn-group'>
+                        {
+                            this.state.buttons.map((button) => {
+                                return   <button className='btn btn-sm btn-info' onClick={(event => {
+                                    button.onClick(
+                                        event,
+                                        this.state.image,
+                                        this.state.box,
+                                        this
+                                    );
+                                })}>{button.text}</button>
+                            })
+                        }
+                    </div>
+
                 </td>
             </tr>
         );

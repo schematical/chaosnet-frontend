@@ -43,7 +43,7 @@ class ChaosPixelBoxerPage extends Component {
         document.body.onkeypress = this.onKeyPress
     }
     onNextImageClick(e){
-
+        this.onConfirmBoxClick(e);
         if(!this.state.currImage){
             this.setImageById(0);
         }else{
@@ -52,6 +52,7 @@ class ChaosPixelBoxerPage extends Component {
 
     }
     onPrevImageClick(e){
+        this.onConfirmBoxClick(e);
         if(!this.state.currImage){
             this.setImageById(0);
         }else{
@@ -79,11 +80,16 @@ class ChaosPixelBoxerPage extends Component {
 
     }
     onConfirmBoxClick(event){
+        const bbox = this.canvasHelper.getBBox();
+        if(!bbox){
+            return;
+        }
+        console.log("BBOX: ", bbox);
         let state = {
             currImage: this.state.currImage
         };
         state.currImage.boxes.push({
-            bbox: this.canvasHelper.getBBox(),
+            bbox: bbox,
             tags: [ 'zelda.link']
         })
         this.setState(state);
@@ -108,6 +114,11 @@ class ChaosPixelBoxerPage extends Component {
     async onSelectImage(imageObj) {
         const imageEle = await this.canvasHelper.loadAndShapeImage(imageObj.imgSrc)
         this.canvasHelper.resetCanvasWithImage(imageEle);
+        imageObj.boxes.forEach((box)=>{
+            this.canvasHelper.drawRect({
+                bbox: this.canvasHelper.applyScaleToBBox(box.bbox)
+            })
+        })
         const state = {
             currImage:imageObj,
         }
@@ -128,15 +139,15 @@ class ChaosPixelBoxerPage extends Component {
                 return new Promise((resolve, reject) =>{
                     const reader = new FileReader();
                     reader.onload = async (event) =>{
-
+                        const imageEle = await this.canvasHelper.loadAndShapeImage(event.target.result)
                         let imageObj = {
                             id: this.state.images.length,
-                            imgSrc: event.target.result,// imageEle.src,
+                            imgSrc: imageEle.src,//  event.target.result,
                             boxes:[]
                         }
                         state.images.push(imageObj);
                         if(i === 0){
-                            const imageEle = await this.canvasHelper.loadAndShapeImage(event.target.result)
+
                             this.canvasHelper.resetCanvasWithImage(imageEle);
                             state.currImage = imageObj;
                         }
@@ -164,7 +175,7 @@ class ChaosPixelBoxerPage extends Component {
                this.onPrevImageClick(event);
                break;
            case('e'):
-               this.onPrevImageClick(event);
+               this.onNextImageClick(event);
                break;
         }
     }
@@ -250,7 +261,7 @@ class ChaosPixelBoxerPage extends Component {
                                                                         <tbody>
                                                                         {
                                                                             image.boxes.map((box) => {
-                                                                                return <ChaosPixelBoxComponent box={box} page={this} image={image}/>
+                                                                                return <ChaosPixelBoxComponent box={box} page={this} image={image} buttons={this.getBoxButtons()}/>
                                                                             })
                                                                         }
                                                                         </tbody>
@@ -302,6 +313,34 @@ class ChaosPixelBoxerPage extends Component {
         );
     }
 
+    getBoxButtons() {
+
+        return [
+            {
+                text:'delete',
+                onClick: (event, img, box, component) =>{
+                    let boxIndex = -1;
+                    img.boxes.forEach((testBox, index) => {
+                        if(
+                            testBox.bbox[0] == box.bbox[0] &&
+                            testBox.bbox[1] == box.bbox[1] &&
+                            testBox.bbox[2] == box.bbox[2] &&
+                            testBox.bbox[3] == box.bbox[3]
+                        ){
+                            boxIndex = index;
+                        }
+                    });
+                    if(boxIndex === -1){
+                        throw new Error("Could not find box");
+                    }
+                    img.boxes.splice(boxIndex, 1);
+                    this.setState({
+                        images: this.state.images
+                    });
+                }
+            }
+        ]
+    }
 }
 
 export default ChaosPixelBoxerPage;
