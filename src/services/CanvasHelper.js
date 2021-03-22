@@ -20,6 +20,7 @@ class CanvasHelper{
             throw new Error("Missing `canvas` argument");
         }
         this.options.scale = this.options.scale || 2;
+        this.options.previewScale = this.options.previewScale || 8;
         if(!this.options.canvasSize){
             throw new Error("Missing `canvasSize`");
         }
@@ -34,12 +35,13 @@ class CanvasHelper{
         }
         this._listeners = {};
     }
-    applyScaleToBBox(bbox){
+    applyScaleToBBox(bbox, scale){
+        scale = scale || this.options.scale;
         return [
-            bbox[0] * this.options.scale,
-            bbox[1] * this.options.scale,
-            bbox[2] * this.options.scale,
-            bbox[3] * this.options.scale
+            bbox[0] * scale,
+            bbox[1] * scale,
+            bbox[2] * scale,
+            bbox[3] * scale
         ]
     }
     loadAndShapeImage(imgSrc) {
@@ -48,7 +50,12 @@ class CanvasHelper{
             const fakeCtx = fakeCanvas.getContext('2d');
             let imageEle = new Image();
             imageEle.onload = ()=>{
-
+                let height = this.options.canvasSize;
+                let width = this.options.canvasSize * imageEle.height / imageEle.width;
+                if(imageEle.height > imageEle.width){
+                     height = this.options.canvasSize * imageEle.width / imageEle.height
+                     width = this.options.canvasSize;
+                }
 
                 fakeCanvas.height = this.options.canvasSize;
                 fakeCanvas.width = this.options.canvasSize;
@@ -59,8 +66,8 @@ class CanvasHelper{
                     imageEle,
                     0,
                     0,
-                    this.options.canvasSize,
-                    this.options.canvasSize
+                    height,//this.options.canvasSize,
+                    width//this.options.canvasSize
                 );
                 imageEle.onload = ()=>{
 
@@ -193,7 +200,11 @@ class CanvasHelper{
                 previewCtx.putImageData(
                     imageData,
                     0,
-                    0
+                    0,
+                    0,
+                    0,
+                    (mousePos.x - this.state.mouseDownPos.x) * this.options.previewScale,
+                    (mousePos.y - this.state.mouseDownPos.y) * this.options.previewScale
                 );
 
 

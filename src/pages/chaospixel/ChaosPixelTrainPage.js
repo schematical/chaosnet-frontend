@@ -298,7 +298,7 @@ class ChaosPixelTrainPage extends Component {
         }
 
 
-        const imageTensor = tf.browser.fromPixels(scaledTestImg);
+        const imageTensor = tf.browser.fromPixels(scaledTestImg).cast('float32');
         const images = tf.stack([imageTensor]);
         const modelOut = await model.predict(images).data();
         let predictBoundingBox = modelOut.slice(1);
