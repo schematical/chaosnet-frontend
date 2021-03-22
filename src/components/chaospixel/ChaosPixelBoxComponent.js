@@ -14,15 +14,9 @@ class ChaosPixelBoxComponent extends Component {
             page: props.page,
             buttons: props.buttons || []
         }
-        this.onPredictClick = this.onPredictClick.bind(this);
+
     }
-    onPredictClick(e){
-        e.preventDefault();
-        this.state.page.predictImageBox(
-            this.state.image,
-            this.state.box
-        );
-    }
+
     componentDidMount(){
         this.canvas = document.getElementById(this.state.id)
         const ctx = this.canvas.getContext('2d');
@@ -61,6 +55,7 @@ class ChaosPixelBoxComponent extends Component {
         img.src = this.state.image.imgSrc;
 
     }
+
     render() {
 
 
@@ -86,6 +81,7 @@ class ChaosPixelBoxComponent extends Component {
                         {
                             this.state.buttons.map((button) => {
                                 return   <button className='btn btn-sm btn-info' onClick={(event => {
+                                    event.preventDefault();
                                     button.onClick(
                                         event,
                                         this.state.image,

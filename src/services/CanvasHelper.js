@@ -99,6 +99,11 @@ class CanvasHelper{
 
     setImage(image){
         this.img = image;
+        this.state = {
+            mouseIsDown: false,
+            mouseDownPos: null,
+            mouseUpPos: null
+        };
     }
 
     resetCanvasWithImage(image){
@@ -118,6 +123,7 @@ class CanvasHelper{
             imageData.data[1],
             imageData.data[2]
         );
+
 
     }
     isTransparent(c){
@@ -218,7 +224,6 @@ class CanvasHelper{
         }
     }
     onCanvasMouseDown(e){
-        console.log("MOUSE DOWN");
         this.state.mouseIsDown = true;
         let mousePos = this.getMousePos(e)
         this.state.mouseDownPos = mousePos;

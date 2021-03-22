@@ -10,6 +10,7 @@ import CanvasHelper from "../../services/CanvasHelper";
 import * as _ from "underscore";
 import FitnessRuleComponent from "../../components/chaosnet/FitnessRuleComponent";
 import ChaosPixelBoxComponent from "../../components/chaospixel/ChaosPixelBoxComponent";
+import axios from 'axios';
 const CANVAS_SIZE = 224;  // Matches the input size of MobileNet.
 
 class ChaosPixelBoxerPage extends Component {
@@ -31,6 +32,9 @@ class ChaosPixelBoxerPage extends Component {
         this.onNextImageClick = this.onNextImageClick.bind(this);
         this.onPrevImageClick = this.onPrevImageClick.bind(this);
         this.onKeyPress = this.onKeyPress.bind(this);
+        this.onDownloadClick = this.onDownloadClick.bind(this);
+        this.onSaveToServerClick = this.onSaveToServerClick.bind(this);
+        this.onLoadFromServerClick = this.onLoadFromServerClick.bind(this);
 
     }
     componentDidMount(){
@@ -60,7 +64,6 @@ class ChaosPixelBoxerPage extends Component {
         }
     }
     setImageById(imgId){
-        console.log("SETTING: " + imgId);
         if(this.state.images.length == 0){
             return;
         }
@@ -84,7 +87,6 @@ class ChaosPixelBoxerPage extends Component {
         if(!bbox){
             return;
         }
-        console.log("BBOX: ", bbox);
         let state = {
             currImage: this.state.currImage
         };
@@ -94,7 +96,7 @@ class ChaosPixelBoxerPage extends Component {
         })
         this.setState(state);
     }
-    onSaveClick(e){
+    getCleanImages(){
         let cleanImages = [];
         this.state.images.forEach((imageObj)=>{
             if(!imageObj.boxes || imageObj.boxes.length === 0){
@@ -103,12 +105,87 @@ class ChaosPixelBoxerPage extends Component {
             cleanImages.push(imageObj);
 
         })
+
+        return cleanImages;
+    }
+    onSaveClick(e){
+        const cleanImages = this.getCleanImages();
         let state = {
             images: cleanImages
         }
         this.setState(state);
         const strData = JSON.stringify(cleanImages);
         localStorage.setItem('chaospixel:images', strData);
+    }
+    onSaveToServerClick(e){
+        const cleanImages = this.getCleanImages();
+        let state = {
+            images: cleanImages
+        }
+        this.setState(state);
+        //const strData = JSON.stringify(cleanImages);
+        //localStorage.setItem('chaospixel:images', strData);
+        HTTPService.post(
+            '/' + AuthService.userData.username + '/chaospixel',
+            cleanImages
+        )
+        .then((response) => {
+            return axios.put(response.data.url, cleanImages, {
+              /*  headers: {
+                    'Content-Type': 'application/json'
+                }*/
+            });
+
+        })
+        .then(()=>{
+            /*let state = {};
+            state.keys = response.data;
+            this.setState(state);*/
+            alert("Saved");
+
+        })
+        .catch((err) => {
+            let state = {};
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        });
+    }
+    onLoadFromServerClick(e){
+
+
+        HTTPService.get(
+            '/' + AuthService.userData.username + '/chaospixel'
+        )
+            .then((response) => {
+                return axios.get(response.data.url);
+
+            })
+            .then((response) => {
+                console.log("response", response.data);
+                let state = {
+                    images: response.data
+                }
+                this.setState(state);
+            })
+            .catch((err) => {
+                let state = {};
+                state.error = err;
+                this.setState(state);
+                console.error("Error: ", err.message);
+            });
+    }
+    onDownloadClick(e){
+        const cleanImages = this.getCleanImages();
+        let state = {
+            images: cleanImages
+        }
+        this.setState(state);
+        const strData = JSON.stringify(cleanImages);
+        var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(strData);
+        e.target.setAttribute("href",     dataStr     );
+        e.target.setAttribute("download", "chaospixel.json");
+        e.target.click();
     }
 
     async onSelectImage(imageObj) {
@@ -226,8 +303,39 @@ class ChaosPixelBoxerPage extends Component {
                                                             <input type="file" id="imageLoader" name="imageLoader" onChange={this.handleImage}  multiple/>
                                                         </div>
                                                         <div className="form-group">
+                                                            <div className='btn-group'>
+                                                                <div className="dropdown">
+                                                                    <button className="btn btn-secondary dropdown-toggle"
+                                                                            type="button" id="dropdownMenuButton"
+                                                                            data-toggle="dropdown" aria-haspopup="true"
+                                                                            aria-expanded="false">
+                                                                        Save
+                                                                    </button>
+                                                                    <div className="dropdown-menu"
+                                                                         aria-labelledby="dropdownMenuButton">
+                                                                        <a className="dropdown-item" href="#" onClick={this.onSaveClick}>Save in Browser</a>
+                                                                        <a className="dropdown-item" href="#" onClick={this.onDownloadClick}>Download</a>
+                                                                        <a className="dropdown-item" href="#" onClick={this.onSaveToServerClick}>Save to Server</a>
+                                                                    </div>
+                                                                </div>
 
-                                                            <button className="btn btn-info" onClick={this.onSaveClick}>Save</button>
+                                                                <div className="dropdown">
+                                                                    <button className="btn btn-secondary dropdown-toggle"
+                                                                            type="button" id="dropdownMenuButton"
+                                                                            data-toggle="dropdown" aria-haspopup="true"
+                                                                            aria-expanded="false">
+                                                                        Load
+                                                                    </button>
+                                                                    <div className="dropdown-menu"
+                                                                         aria-labelledby="dropdownMenuButton">
+                                                                        {/*<a className="dropdown-item" href="#" onClick={this.onSaveClick}>Save in Browser</a>
+                                                                        <a className="dropdown-item" href="#" onClick={this.onDownloadClick}>Upload
+                                                                            n</a>*/}
+                                                                        <a className="dropdown-item" href="#" onClick={this.onLoadFromServerClick}>Load from Server</a>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>

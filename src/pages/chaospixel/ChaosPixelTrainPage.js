@@ -44,6 +44,7 @@ class ChaosPixelTrainPage extends Component {
         this.onTrainClick = this.onTrainClick.bind(this);
         this.handleImage = this.handleImage.bind(this);
         this.onMouseMove = this.onMouseMove.bind(this);
+        this.predictImageBox = this.predictImageBox.bind(this);
 
     }
     componentDidMount(){
@@ -57,7 +58,7 @@ class ChaosPixelTrainPage extends Component {
         this.canvasHelper.on(CanvasHelper.Events.MOUSE_MOVE, this.onMouseMove);
     }
     onMouseMove(e){
-        console.log(e.mousePos)
+       // console.log(e.mousePos)
     }
     async onTrainClick(event){
         const args = {
@@ -265,16 +266,19 @@ class ChaosPixelTrainPage extends Component {
             }
             reader.readAsDataURL(e.target.files[0]);
         });
-        await this.predictImageBox({
-            imgSrc: imgSrc
-        })
+        await this.predictImageBox(
+            {},
+            {
+                imgSrc: imgSrc
+            }
+        )
     }
 
 
 
 
-    async predictImageBox(image, box){
-
+    async predictImageBox(event, image, box){
+console.log("event, image, box", event, image, box);
 
         let scaledTestImg = await this.canvasHelper.loadAndShapeImage(image.imgSrc);
 
@@ -345,7 +349,15 @@ class ChaosPixelTrainPage extends Component {
 
 
     }
+    getBoxButtons() {
 
+        return [
+            {
+                text:'Predict',
+                onClick: this.predictImageBox
+            }
+        ]
+    }
     render() {
 
         return (
@@ -411,7 +423,7 @@ class ChaosPixelTrainPage extends Component {
                                                                         <tbody>
                                                                         {
                                                                             image.boxes.map((box) => {
-                                                                                return <ChaosPixelBoxComponent box={box} page={this} image={image}/>
+                                                                                return <ChaosPixelBoxComponent box={box} page={this} image={image} buttons={this.getBoxButtons()}/>
                                                                             })
                                                                         }
                                                                         </tbody>
