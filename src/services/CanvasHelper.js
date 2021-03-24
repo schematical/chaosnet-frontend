@@ -21,18 +21,24 @@ class CanvasHelper{
         }
         this.options.scale = this.options.scale || 1;
         this.options.previewScale = this.options.previewScale || 8;
-        if(!this.options.canvasSize){
-            throw new Error("Missing `canvasSize`");
+        if(!this.options.canvasWidth){
+            throw new Error("Missing `canvasWidth`");
+        }
+        if(!this.options.canvasHeight){
+            throw new Error("Missing `canvasHeight`");
         }
         this.canvas = this.options.canvas;
         this.canvas.onmousemove = this.onCanvasMouseMove.bind(this);
         this.canvas.onmousedown = this.onCanvasMouseDown.bind(this);
         this.canvas.onmouseup = this.onCanvasMouseUp.bind(this);
-        this.canvas.height = this.options.canvasSize * this.options.scale;
-        this.canvas.width = this.options.canvasSize * this.options.scale;
+
+        this.canvas.width = this.options.canvasWidth * this.options.scale;
+        this.canvas.height = this.options.canvasHeight * this.options.scale;
+
         const ctx = this.canvas.getContext('2d');
         ctx.mozImageSmoothingEnabled = false;
         ctx.webkitImageSmoothingEnabled = false;
+        ctx.imageSmoothingEnabled = false;
         this.state = {
             mouseIsDown: false,
             mouseDownPos: null
@@ -50,10 +56,12 @@ class CanvasHelper{
     }
     setScale(scale){
         this.options.scale = scale;
+        this.canvas.width = this.options.canvasWidth * this.options.scale;
+        this.canvas.height = this.options.canvasHeight * this.options.scale;
         this.resetCanvasWithImage();
     }
     loadAndShapeImage(imgSrc) {
-       /* return new Promise((resolve, reject)=>{
+        /*return new Promise((resolve, reject)=>{
 
             let imageEle = new Image();
             imageEle.onload = ()=>{
@@ -67,27 +75,29 @@ class CanvasHelper{
             const fakeCtx = fakeCanvas.getContext('2d');
             fakeCtx.mozImageSmoothingEnabled = false;
             fakeCtx.webkitImageSmoothingEnabled = false;
+            fakeCtx.imageSmoothingEnabled = false;
             let imageEle = new Image();
             imageEle.onload = ()=>{
-                let scaledWidth = imageEle.width * this.options.scale;
-                let scaledHeight = imageEle.height * this.options.scale;
+                let scale = this.options.canvasWidth / imageEle.width;
+                /*if(imageEle.height < imageEle.width){
+                    scale = this.options.canvasHeight / imageEle.height;
+                }*/
+                let width = imageEle.width * scale;
+                let height = imageEle.height * scale;
 
-                let height = scaledHeight;
-                let width = scaledWidth * imageEle.height / imageEle.width;
-                if(imageEle.height < imageEle.width){
-                    height = scaledHeight * imageEle.width / imageEle.height
-                    width = scaledWidth;
-                }
-                fakeCanvas.width = height;
-                fakeCanvas.height = width;
+
+                fakeCanvas.width = width / scale;
+                fakeCanvas.height = height / scale;
                 fakeCtx.fillStyle = 'green';
-                fakeCtx.fillRect(0, 0, this.options.canvasSize, this.options.canvasSize);
-                fakeCtx.drawImage(imageEle,0,0, scaledWidth, scaledHeight);
+                fakeCtx.fillRect(0, 0, this.options.canvasWidth, this.options.canvasHeight);
+                fakeCtx.drawImage(imageEle,0,0, imageEle.width, imageEle.height);
+                fakeCtx.scale(1/scale, 1/scale)
 
 
 
-                imageEle.height = this.options.canvasSize;
-                imageEle.width = this.options.canvasSize;
+                imageEle.width = width;// this.options.canvasWidth;
+                imageEle.height = height;// this.options.canvasHeight;
+
                 let newImageEle = new Image();
                 newImageEle.onload = ()=>{
 
@@ -130,17 +140,12 @@ class CanvasHelper{
             this.setImage(image);
         }
         var ctx = this.canvas.getContext('2d');
-        let scaledWidth = this.img.width * this.options.scale;
-        let scaledHeight = this.img.height * this.options.scale;
+        let scaledWidth = this.options.canvasWidth/*this.img.width*/ * this.options.scale;
+        let scaledHeight =  this.options.canvasHeight/*this.img.height*/ * this.options.scale;
 
-        let height = scaledHeight;
-        let width = scaledWidth * this.img.height / this.img.width;
-        if(this.img.height < this.img.width){
-            height = scaledHeight * this.img.width / this.img.height
-            width = scaledWidth;
-        }
-        this.canvas.width = height;
-        this.canvas.height = width;
+
+        this.canvas.width = scaledWidth;
+        this.canvas.height = scaledHeight;
         ctx.drawImage(this.img,0,0, scaledWidth, scaledHeight);
         let imageData = ctx.getImageData(0, 0, 1, 1);
 

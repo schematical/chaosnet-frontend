@@ -11,8 +11,8 @@ import * as _ from "underscore";
 import FitnessRuleComponent from "../../components/chaosnet/FitnessRuleComponent";
 import ChaosPixelBoxComponent from "../../components/chaospixel/ChaosPixelBoxComponent";
 import axios from 'axios';
-const CANVAS_SIZE = 320;//640;//224;  // Matches the input size of MobileNet.
-
+const CANVAS_WIDTH = 320;//640;//224;  // Matches the input size of MobileNet.
+const CANVAS_HEIGHT = 240;
 class ChaosPixelBoxerPage extends Component {
 
     constructor(props) {
@@ -62,7 +62,8 @@ class ChaosPixelBoxerPage extends Component {
             canvas: document.getElementById('imageCanvas'),
             previewCanvas: document.getElementById('previewCanvas'),
             mode: CanvasHelper.Mode.BOX_SELECT,
-            canvasSize: CANVAS_SIZE,
+            canvasWidth: CANVAS_WIDTH,
+            canvasHeight: CANVAS_HEIGHT,
             scale: this.state.scale
         });
         document.body.onkeypress = this.onKeyPress
@@ -367,7 +368,7 @@ class ChaosPixelBoxerPage extends Component {
 
                                                     <div className="card-body">
                                                         <div>
-                                                            <canvas id="imageCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE}></canvas>
+                                                            <canvas id="imageCanvas" width={CANVAS_WIDTH} height={CANVAS_HEIGHT}></canvas>
                                                         </div>
                                                     </div>
                                                 </div>

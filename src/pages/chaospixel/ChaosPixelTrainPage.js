@@ -15,8 +15,8 @@ import axios from "axios";
 
 
 
-const CANVAS_SIZE = 224;  // Matches the input size of MobileNet.
-
+const CANVAS_WIDTH = 320;  // Matches the input size of MobileNet.
+const CANVAS_HEIGHT = 240;
 // Name prefixes of layers that will be unfrozen during fine-tuning.
 // const topLayerGroupNames = ['conv_pw_9', 'conv_pw_10', 'conv_pw_11'];
 const topLayerGroupNames = [ 'conv_pw_11'];
@@ -27,7 +27,7 @@ const topLayerName =
 // Used to scale the first column (0-1 shape indicator) of `yTrue`
 // in order to ensure balanced contributions to the final loss value
 // from shape and bounding-box predictions.
-const LABEL_MULTIPLIER = [CANVAS_SIZE, 1, 1, 1, 1];
+const LABEL_MULTIPLIER = [CANVAS_WIDTH, 1, 1, 1, 1];
 class ChaosPixelTrainPage extends Component {
     constructor(props) {
         super(props);
@@ -70,7 +70,8 @@ class ChaosPixelTrainPage extends Component {
 
         this.canvasHelper = new CanvasHelper({
             canvas: document.getElementById('predictCanvas'),
-            canvasSize: CANVAS_SIZE
+            canvasWidth: CANVAS_WIDTH,
+            canvasHeight: CANVAS_HEIGHT
 
         });
         this.canvasHelper.on(CanvasHelper.Events.MOUSE_MOVE, this.onMouseMove);
@@ -154,10 +155,12 @@ class ChaosPixelTrainPage extends Component {
 
 
 
-        const {model, fineTuningLayers} = await this.buildObjectDetectionModel();
+        const {model, fineTuningLayers} = await this.buildObjectDetectionModel({
+            classCount: Object.keys(tagsDict).length
+        });
         model.compile({
-            loss: this.customLossFunction,
-            optimizer: tf.train.rmsprop(5e-3),
+            loss: this.customLossFunction, //  'categoricalCrossentropy',
+            optimizer: tf.train.rmsprop(5e-3), // tf.train.adam(0.01);
             metrics: ['accuracy']
         });
         model.summary();
@@ -264,16 +267,33 @@ class ChaosPixelTrainPage extends Component {
             `Did not find any layers that match the prefixes ${topLayerGroupNames}`);
         return {truncatedBase, fineTuningLayers};
     }
-    async buildObjectDetectionModel() {
+    async buildObjectDetectionModel(options) {
         const {truncatedBase, fineTuningLayers} = await this.loadTruncatedBase();
 
         // Build the new head model.
 
         let model = this.state.model;
         if(!model){
-            const newHead = await this.buildNewHead(truncatedBase.outputs[0].shape.slice(1));
+           /* const newHead = await this.buildNewHead(truncatedBase.outputs[0].shape.slice(1));
             const newOutput = newHead.apply(truncatedBase.outputs[0]);
-            model = tf.model({inputs: truncatedBase.inputs, outputs: newOutput});
+            model = tf.model({inputs: truncatedBase.inputs, outputs: newOutput});*/
+
+
+
+
+            model = tf.sequential();
+            model.add(tf.layers.depthwiseConv2d({
+                depthMultiplier: 8,
+                kernelSize: [32, 32],
+                activation: 'relu',
+                inputShape: [CANVAS_WIDTH, CANVAS_HEIGHT, 3]
+            }));
+            model.add(tf.layers.maxPooling2d({poolSize: [1, 2], strides: [2, 2]}));
+            model.add(tf.layers.flatten());
+            model.add(tf.layers.dense({units: options.classCount, activation: 'softmax'}));
+
+
+
         }
 
         return {model, fineTuningLayers};
@@ -503,7 +523,7 @@ console.log("event, image, box", event, image, box);
                                                 </div>
 
                                                 <div className="card-body">
-                                                    <canvas id="predictCanvas" height={CANVAS_SIZE} width={CANVAS_SIZE}></canvas>
+                                                    <canvas id="predictCanvas" height={CANVAS_WIDTH} width={CANVAS_WIDTH}></canvas>
                                                     <div id='console'>
 Waiting...
                                                     </div>
