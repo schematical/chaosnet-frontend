@@ -19,7 +19,7 @@ class CanvasHelper{
         if(!this.options.canvas){
             throw new Error("Missing `canvas` argument");
         }
-        this.options.scale = this.options.scale || 4;
+        this.options.scale = this.options.scale || 1;
         this.options.previewScale = this.options.previewScale || 8;
         if(!this.options.canvasSize){
             throw new Error("Missing `canvasSize`");
@@ -28,7 +28,11 @@ class CanvasHelper{
         this.canvas.onmousemove = this.onCanvasMouseMove.bind(this);
         this.canvas.onmousedown = this.onCanvasMouseDown.bind(this);
         this.canvas.onmouseup = this.onCanvasMouseUp.bind(this);
-        console.log("this.canvas", this.canvas);
+        this.canvas.height = this.options.canvasSize * this.options.scale;
+        this.canvas.width = this.options.canvasSize * this.options.scale;
+        const ctx = this.canvas.getContext('2d');
+        ctx.mozImageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
         this.state = {
             mouseIsDown: false,
             mouseDownPos: null
@@ -45,38 +49,49 @@ class CanvasHelper{
         ]
     }
     loadAndShapeImage(imgSrc) {
-        return new Promise((resolve, reject)=>{
-            const fakeCanvas = document.createElement("canvas");
-            const fakeCtx = fakeCanvas.getContext('2d');
+       /* return new Promise((resolve, reject)=>{
+
             let imageEle = new Image();
             imageEle.onload = ()=>{
-                let height = this.options.canvasSize;
-                let width = this.options.canvasSize * imageEle.height / imageEle.width;
-                if(imageEle.height > imageEle.width){
-                     height = this.options.canvasSize * imageEle.width / imageEle.height
-                     width = this.options.canvasSize;
-                }
+                return resolve(imageEle);
+            }
+            imageEle.src = imgSrc;
+        });*/
+        return new Promise((resolve, reject)=>{
+            const fakeCanvas = document.createElement("canvas");
+            document.body.appendChild(fakeCanvas);
+            const fakeCtx = fakeCanvas.getContext('2d');
+            fakeCtx.mozImageSmoothingEnabled = false;
+            fakeCtx.webkitImageSmoothingEnabled = false;
+            let imageEle = new Image();
+            imageEle.onload = ()=>{
+                let scaledWidth = imageEle.width * this.options.scale;
+                let scaledHeight = imageEle.height * this.options.scale;
 
-                fakeCanvas.height = this.options.canvasSize;
-                fakeCanvas.width = this.options.canvasSize;
+                let height = scaledHeight;
+                let width = scaledWidth * imageEle.height / imageEle.width;
+                if(imageEle.height < imageEle.width){
+                    height = scaledHeight * imageEle.width / imageEle.height
+                    width = scaledWidth;
+                }
+                fakeCanvas.width = height;
+                fakeCanvas.height = width;
                 fakeCtx.fillStyle = 'green';
                 fakeCtx.fillRect(0, 0, this.options.canvasSize, this.options.canvasSize);
-                document.body.appendChild(fakeCanvas);
-                fakeCtx.drawImage(
-                    imageEle,
-                    0,
-                    0,
-                    height,//this.options.canvasSize,
-                    width//this.options.canvasSize
-                );
-                imageEle.onload = ()=>{
+                fakeCtx.drawImage(imageEle,0,0, scaledWidth, scaledHeight);
 
-                    document.body.removeChild(fakeCanvas);
-                    return resolve(imageEle);
-                }
-                imageEle.src = fakeCanvas.toDataURL();
+
+
                 imageEle.height = this.options.canvasSize;
                 imageEle.width = this.options.canvasSize;
+                let newImageEle = new Image();
+                newImageEle.onload = ()=>{
+
+                    document.body.removeChild(fakeCanvas);
+                    return resolve(newImageEle);
+                }
+                newImageEle.src = fakeCanvas.toDataURL();
+
 
             }
             imageEle.src = imgSrc;
@@ -113,8 +128,15 @@ class CanvasHelper{
         var ctx = this.canvas.getContext('2d');
         let scaledWidth = this.img.width * this.options.scale;
         let scaledHeight = this.img.height * this.options.scale;
-        this.canvas.width = scaledWidth;
-        this.canvas.height = scaledHeight;
+
+        let height = scaledHeight;
+        let width = scaledWidth * this.img.height / this.img.width;
+        if(this.img.height < this.img.width){
+            height = scaledHeight * this.img.width / this.img.height
+            width = scaledWidth;
+        }
+        this.canvas.width = height;
+        this.canvas.height = width;
         ctx.drawImage(this.img,0,0, scaledWidth, scaledHeight);
         let imageData = ctx.getImageData(0, 0, 1, 1);
 

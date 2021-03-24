@@ -11,6 +11,7 @@ import * as _ from "underscore";
 import FitnessRuleComponent from "../../components/chaosnet/FitnessRuleComponent";
 import ChaosPixelBoxComponent from "../../components/chaospixel/ChaosPixelBoxComponent";
 import * as tf from '@tensorflow/tfjs';
+import axios from "axios";
 
 
 
@@ -36,15 +37,32 @@ class ChaosPixelTrainPage extends Component {
             scale: 1,
             images:[],//spriteGroup._component.previewCanvas.toDataURL()
         }
-        const strData = localStorage.getItem('chaospixel:images');
-        if(strData){
-            this.state.images = JSON.parse(strData);
-        }
+        HTTPService.get(
+            '/' + AuthService.userData.username + '/chaospixel'
+        )
+        .then((response) => {
+            return axios.get(response.data.url);
+
+        })
+        .then((response) => {
+            console.log("response", response.data);
+            let state = {
+                images: response.data
+            }
+            this.setState(state);
+        })
+        .catch((err) => {
+            let state = {};
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        });
 
         this.onTrainClick = this.onTrainClick.bind(this);
         this.handleImage = this.handleImage.bind(this);
         this.onMouseMove = this.onMouseMove.bind(this);
         this.predictImageBox = this.predictImageBox.bind(this);
+        this.handelModel = this.handelModel.bind(this);
 
     }
     componentDidMount(){
@@ -56,6 +74,21 @@ class ChaosPixelTrainPage extends Component {
 
         });
         this.canvasHelper.on(CanvasHelper.Events.MOUSE_MOVE, this.onMouseMove);
+    }
+    async handelModel(e){
+        const uploadJSONInput = document.getElementById('modelLoader');
+        const uploadWeightsInput = document.getElementById('weightLoader');
+        const model = await tf.loadLayersModel(
+            tf.io.browserFiles(
+            [
+                    uploadJSONInput.files[0],
+                    uploadWeightsInput.files[0]
+                ]
+            )
+        );
+        this.setState({
+            model: model
+        })
     }
     onMouseMove(e){
        // console.log(e.mousePos)
@@ -235,9 +268,13 @@ class ChaosPixelTrainPage extends Component {
         const {truncatedBase, fineTuningLayers} = await this.loadTruncatedBase();
 
         // Build the new head model.
-        const newHead = await this.buildNewHead(truncatedBase.outputs[0].shape.slice(1));
-        const newOutput = newHead.apply(truncatedBase.outputs[0]);
-        const model = tf.model({inputs: truncatedBase.inputs, outputs: newOutput});
+
+        let model = this.state.model;
+        if(!model){
+            const newHead = await this.buildNewHead(truncatedBase.outputs[0].shape.slice(1));
+            const newOutput = newHead.apply(truncatedBase.outputs[0]);
+            model = tf.model({inputs: truncatedBase.inputs, outputs: newOutput});
+        }
 
         return {model, fineTuningLayers};
     }
@@ -291,15 +328,15 @@ console.log("event, image, box", event, image, box);
         });*/
         this.canvasHelper.setImage(scaledTestImg);
         this.canvasHelper.resetCanvasWithImage();
-        let model = null;
-        try {
+        let model = this.state.model;
+        /*try {
             model = await tf.loadLayersModel('indexeddb://my-model-1');
             if (model) {
                 this.log("Loaded!");
             }
         }catch(err){
             this.log(err.message);
-        }
+        }*/
 
 
         const imageTensor = tf.browser.fromPixels(scaledTestImg).cast('float32');
@@ -400,12 +437,35 @@ console.log("event, image, box", event, image, box);
 
                                                         <div className="form-group">
 
+
+                                                            <div className="form-group">
+                                                                <label htmlFor="exampleInputEmail1">Upload Model </label>
+                                                                <input type="file" id="modelLoader" name="modelLoader"   multiple/>
+                                                            </div>
+                                                            <div className="form-group">
+                                                                <label htmlFor="exampleInputEmail1">Upload Weight </label>
+                                                                <input type="file" id="weightLoader" name="weightLoader" onChange={this.handelModel}  multiple/>
+                                                            </div>
+                                                            <button className="btn btn-info" onClick={this.handelModel}>Load Model</button>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="card shadow mb-4">
+
+                                                    <div className="card-body">
+
+
+
+                                                        <div className="form-group">
+
                                                             <button className="btn btn-info" onClick={this.onTrainClick}>Train</button>
                                                             <div className="form-group">
                                                                 <label htmlFor="exampleInputEmail1">Upload Image </label>
                                                                 <input type="file" id="imageLoader" name="imageLoader" onChange={this.handleImage}/>
                                                             </div>
-                                                            <button className="btn btn-info" onClick={this.onPredictClick}>Predict</button>
+
+
                                                         </div>
                                                     </div>
                                                 </div>

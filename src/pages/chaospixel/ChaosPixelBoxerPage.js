@@ -11,9 +11,10 @@ import * as _ from "underscore";
 import FitnessRuleComponent from "../../components/chaosnet/FitnessRuleComponent";
 import ChaosPixelBoxComponent from "../../components/chaospixel/ChaosPixelBoxComponent";
 import axios from 'axios';
-const CANVAS_SIZE = 224;  // Matches the input size of MobileNet.
+const CANVAS_SIZE = 320;//640;//224;  // Matches the input size of MobileNet.
 
 class ChaosPixelBoxerPage extends Component {
+
     constructor(props) {
         super(props);
 
@@ -21,10 +22,27 @@ class ChaosPixelBoxerPage extends Component {
             loaded: true,
             images:[],//spriteGroup._component.previewCanvas.toDataURL()
         }
-        const strData = localStorage.getItem('chaospixel:images');
-        if(strData){
-            this.state.images = JSON.parse(strData);
-        }
+        HTTPService.get(
+            '/' + AuthService.userData.username + '/chaospixel'
+        )
+            .then((response) => {
+                return axios.get(response.data.url);
+
+            })
+            .then((response) => {
+                console.log("response", response.data);
+                let state = {
+                    images: response.data
+                }
+                this.setState(state);
+                this.reorderImages();
+            })
+            .catch((err) => {
+                let state = {};
+                state.error = err;
+                this.setState(state);
+                console.error("Error: ", err.message);
+            });
         this.handleImage = this.handleImage.bind(this);
 
         this.onConfirmBoxClick = this.onConfirmBoxClick.bind(this);
@@ -62,6 +80,15 @@ class ChaosPixelBoxerPage extends Component {
         }else{
             this.setImageById(this.state.currImage.id - 1);
         }
+    }
+    reorderImages(){
+        for(let i = 0; i < this.state.images.length; i++){
+            let imgObj = this.state.images[i];
+            imgObj.id = i;
+        }
+        this.setState({
+            images: this.state.images
+        });
     }
     setImageById(imgId){
         if(this.state.images.length == 0){
@@ -126,8 +153,7 @@ class ChaosPixelBoxerPage extends Component {
         //const strData = JSON.stringify(cleanImages);
         //localStorage.setItem('chaospixel:images', strData);
         HTTPService.post(
-            '/' + AuthService.userData.username + '/chaospixel',
-            cleanImages
+            '/' + AuthService.userData.username + '/chaospixel'
         )
         .then((response) => {
             return axios.put(response.data.url, cleanImages, {
@@ -185,7 +211,7 @@ class ChaosPixelBoxerPage extends Component {
         var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(strData);
         e.target.setAttribute("href",     dataStr     );
         e.target.setAttribute("download", "chaospixel.json");
-        e.target.click();
+        //e.target.click();
     }
 
     async onSelectImage(imageObj) {
@@ -302,6 +328,9 @@ class ChaosPixelBoxerPage extends Component {
                                                             <label htmlFor="exampleInputEmail1">Upload Image </label>
                                                             <input type="file" id="imageLoader" name="imageLoader" onChange={this.handleImage}  multiple/>
                                                         </div>
+
+
+
                                                         <div className="form-group">
                                                             <div className='btn-group'>
                                                                 <div className="dropdown">
@@ -385,7 +414,7 @@ class ChaosPixelBoxerPage extends Component {
                                         <div className="col-xl-9 col-lg-9">
                                             <div className="card shadow mb-4">
                                                 <div className="card-header py-3">
-                                                    <h1 className="h3 mb-0 text-gray-800">Box</h1>
+                                                    <h1 className="h3 mb-0 text-gray-800">Box {this.state.currImage &&this.state.currImage.id}</h1>
                                                     <div className='btn-group'>
 
                                                         <button className="btn btn-info" onClick={this.onPrevImageClick}>Prev</button>
@@ -395,7 +424,7 @@ class ChaosPixelBoxerPage extends Component {
 
                                                 <div className="card-body">
                                                     <div>
-                                                        <canvas id="imageCanvas"></canvas>
+                                                        <canvas id="imageCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE}></canvas>
                                                     </div>
                                                 </div>
                                             </div>
