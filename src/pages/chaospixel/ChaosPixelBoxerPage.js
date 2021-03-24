@@ -21,6 +21,7 @@ class ChaosPixelBoxerPage extends Component {
         this.state = {
             loaded: true,
             images:[],//spriteGroup._component.previewCanvas.toDataURL()
+            scale: 1
         }
         HTTPService.get(
             '/' + AuthService.userData.username + '/chaospixel'
@@ -53,6 +54,7 @@ class ChaosPixelBoxerPage extends Component {
         this.onDownloadClick = this.onDownloadClick.bind(this);
         this.onSaveToServerClick = this.onSaveToServerClick.bind(this);
         this.onLoadFromServerClick = this.onLoadFromServerClick.bind(this);
+        this.onScaleChange = this.onScaleChange.bind(this);
 
     }
     componentDidMount(){
@@ -60,9 +62,17 @@ class ChaosPixelBoxerPage extends Component {
             canvas: document.getElementById('imageCanvas'),
             previewCanvas: document.getElementById('previewCanvas'),
             mode: CanvasHelper.Mode.BOX_SELECT,
-            canvasSize: CANVAS_SIZE
+            canvasSize: CANVAS_SIZE,
+            scale: this.state.scale
         });
         document.body.onkeypress = this.onKeyPress
+    }
+    onScaleChange(e){
+        const scale =  e.target.value;
+        this.setState({
+            scale: scale
+        })
+        this.canvasHelper.setScale(scale);
     }
     onNextImageClick(e){
         this.onConfirmBoxClick(e);
@@ -282,174 +292,6 @@ class ChaosPixelBoxerPage extends Component {
                break;
         }
     }
-
-    render() {
-
-        return (
-            <div>
-                <div>
-                    {/* Page Wrapper */}
-                    <div id="wrapper">
-                        <SidebarComponent></SidebarComponent>
-                        {/* Content Wrapper */}
-                        <div id="content-wrapper" className="d-flex flex-column">
-                            {/* Main Content */}
-                            <div id="content">
-                                {/* Topbar */}
-                                <TopbarComponent></TopbarComponent>
-                                {/* End of Topbar */}
-                                {/* Begin Page Content */}
-                                <div className="container-fluid">
-
-                                    <div className="row">
-
-                                        {
-                                            this.state.error &&
-                                            <div className="alert alert-danger">
-                                                {this.state.error.message}
-                                            </div>
-                                        }
-                                        {
-                                            !this.state.loaded &&
-                                            <LoadingComponent />
-                                        }
-                                        {
-                                            this.state.loaded &&
-                                            <div className="col-xl-3 col-md-12 mb-3">
-                                                <div className="card shadow mb-4">
-
-                                                    <div className="card-body">
-
-                                                        <div className="card-header py-3">
-                                                            <h1 className="h3 mb-0 text-gray-800">Upload</h1>
-                                                        </div>
-
-                                                        <div className="form-group">
-                                                            <label htmlFor="exampleInputEmail1">Upload Image </label>
-                                                            <input type="file" id="imageLoader" name="imageLoader" onChange={this.handleImage}  multiple/>
-                                                        </div>
-
-
-
-                                                        <div className="form-group">
-                                                            <div className='btn-group'>
-                                                                <div className="dropdown">
-                                                                    <button className="btn btn-secondary dropdown-toggle"
-                                                                            type="button" id="dropdownMenuButton"
-                                                                            data-toggle="dropdown" aria-haspopup="true"
-                                                                            aria-expanded="false">
-                                                                        Save
-                                                                    </button>
-                                                                    <div className="dropdown-menu"
-                                                                         aria-labelledby="dropdownMenuButton">
-                                                                        <a className="dropdown-item" href="#" onClick={this.onSaveClick}>Save in Browser</a>
-                                                                        <a className="dropdown-item" href="#" onClick={this.onDownloadClick}>Download</a>
-                                                                        <a className="dropdown-item" href="#" onClick={this.onSaveToServerClick}>Save to Server</a>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div className="dropdown">
-                                                                    <button className="btn btn-secondary dropdown-toggle"
-                                                                            type="button" id="dropdownMenuButton"
-                                                                            data-toggle="dropdown" aria-haspopup="true"
-                                                                            aria-expanded="false">
-                                                                        Load
-                                                                    </button>
-                                                                    <div className="dropdown-menu"
-                                                                         aria-labelledby="dropdownMenuButton">
-                                                                        {/*<a className="dropdown-item" href="#" onClick={this.onSaveClick}>Save in Browser</a>
-                                                                        <a className="dropdown-item" href="#" onClick={this.onDownloadClick}>Upload
-                                                                            n</a>*/}
-                                                                        <a className="dropdown-item" href="#" onClick={this.onLoadFromServerClick}>Load from Server</a>
-                                                                    </div>
-                                                                </div>
-
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="card shadow mb-4">
-
-                                                    <div className="card-body">
-                                                        <div className="card-header py-3">
-                                                            <h1 className="h3 mb-0 text-gray-800">Preview</h1>
-
-                                                        </div>
-
-
-                                                        <canvas id="previewCanvas" height={256} width={256}></canvas>
-                                                        <div className="form-group">
-
-                                                            <button className="btn btn-info" onClick={this.onConfirmBoxClick}>Confirm</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="card shadow mb-4">
-
-                                                    <div className="card-body">
-                                                        {
-                                                            this.state.images.map((image) => {
-                                                                return <div>
-                                                                    <h3>
-                                                                        <a href="#" onClick={(e)=>{ this.onSelectImage(image); }}>Image {image.id}</a>
-                                                                    </h3>
-                                                                    <img src={image.imgSrc} width={64} />
-                                                                    <table>
-                                                                        <tbody>
-                                                                        {
-                                                                            image.boxes.map((box) => {
-                                                                                return <ChaosPixelBoxComponent box={box} page={this} image={image} buttons={this.getBoxButtons()}/>
-                                                                            })
-                                                                        }
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                            })
-                                                        }
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        }
-                                        <div className="col-xl-9 col-lg-9">
-                                            <div className="card shadow mb-4">
-                                                <div className="card-header py-3">
-                                                    <h1 className="h3 mb-0 text-gray-800">Box {this.state.currImage &&this.state.currImage.id}</h1>
-                                                    <div className='btn-group'>
-
-                                                        <button className="btn btn-info" onClick={this.onPrevImageClick}>Prev</button>
-                                                        <button className="btn btn-info" onClick={this.onNextImageClick}>Next</button>
-                                                    </div>
-                                                </div>
-
-                                                <div className="card-body">
-                                                    <div>
-                                                        <canvas id="imageCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE}></canvas>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-                                {/* /.container-fluid */}
-                            </div>
-                            {/* End of Main Content */}
-                            {/* Footer */}
-                            <FooterComponent />
-                            {/* End of Footer */}
-                        </div>
-                        {/* End of Content Wrapper */}
-                    </div>
-                    {/* End of Page Wrapper */}
-                    {/* Scroll to Top Button*/}
-
-                </div>
-
-            </div>
-        );
-    }
-
     getBoxButtons() {
 
         return [
@@ -478,6 +320,177 @@ class ChaosPixelBoxerPage extends Component {
             }
         ]
     }
+    render() {
+
+        return (
+            <div>
+                <div>
+                    {/* Page Wrapper */}
+                    <div id="wrapper">
+                        <SidebarComponent></SidebarComponent>
+                        {/* Content Wrapper */}
+                        <div id="content-wrapper" className="d-flex flex-column">
+                            {/* Main Content */}
+                            <div id="content">
+                                {/* Topbar */}
+                                <TopbarComponent></TopbarComponent>
+                                {/* End of Topbar */}
+                                {/* Begin Page Content */}
+                                <div className="container-fluid">
+
+                                    <div className="row">
+
+                                        {
+                                            this.state.error &&
+                                            <div className="alert alert-danger">
+                                                {this.state.error.message}
+                                            </div>
+                                        }
+
+                                    </div>
+                                    <div className="row">
+                                        <div className="col-xl-8 col-lg-8  col-md-8">
+                                            <div className='sticky'>
+                                                <div className="card shadow mb-4" >
+                                                    <div className="card-header py-3">
+                                                        <h1 className="h3 mb-0 text-gray-800">Box {this.state.currImage &&this.state.currImage.id}</h1>
+                                                        <div className='btn-group'>
+
+                                                            <button className="btn btn-info" onClick={this.onPrevImageClick}>Prev</button>
+                                                            <button className="btn btn-info" onClick={this.onNextImageClick}>Next</button>
+                                                        </div>
+                                                        <div className="form-group">
+                                                            <label htmlFor="scale">Scale {this.state.scale} </label>
+                                                            <input type="range" id="scale" name="scale" step=".25" min="0" max="8" value={this.state.scale} onChange={this.onScaleChange} />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="card-body">
+                                                        <div>
+                                                            <canvas id="imageCanvas" width={CANVAS_SIZE} height={CANVAS_SIZE}></canvas>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                        <div className="col-xl-3 col-lg-3 col-md-3">
+                                            <div className="card shadow mb-4">
+
+                                                <div className="card-body">
+
+                                                    <div className="card-header py-3">
+                                                        <h1 className="h3 mb-0 text-gray-800">Upload</h1>
+                                                    </div>
+
+                                                    <div className="form-group">
+                                                        <label htmlFor="exampleInputEmail1">Upload Image </label>
+                                                        <input type="file" id="imageLoader" name="imageLoader" onChange={this.handleImage}  multiple/>
+                                                    </div>
+
+
+
+                                                    <div className="form-group">
+                                                        <div className='btn-group'>
+                                                            <div className="dropdown">
+                                                                <button className="btn btn-secondary dropdown-toggle"
+                                                                        type="button" id="dropdownMenuButton"
+                                                                        data-toggle="dropdown" aria-haspopup="true"
+                                                                        aria-expanded="false">
+                                                                    Save
+                                                                </button>
+                                                                <div className="dropdown-menu"
+                                                                     aria-labelledby="dropdownMenuButton">
+                                                                    <a className="dropdown-item" href="#" onClick={this.onSaveClick}>Save in Browser</a>
+                                                                    <a className="dropdown-item" href="#" onClick={this.onDownloadClick}>Download</a>
+                                                                    <a className="dropdown-item" href="#" onClick={this.onSaveToServerClick}>Save to Server</a>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="dropdown">
+                                                                <button className="btn btn-secondary dropdown-toggle"
+                                                                        type="button" id="dropdownMenuButton"
+                                                                        data-toggle="dropdown" aria-haspopup="true"
+                                                                        aria-expanded="false">
+                                                                    Load
+                                                                </button>
+                                                                <div className="dropdown-menu"
+                                                                     aria-labelledby="dropdownMenuButton">
+                                                                    {/*<a className="dropdown-item" href="#" onClick={this.onSaveClick}>Save in Browser</a>
+                                                                    <a className="dropdown-item" href="#" onClick={this.onDownloadClick}>Upload
+                                                                        n</a>*/}
+                                                                    <a className="dropdown-item" href="#" onClick={this.onLoadFromServerClick}>Load from Server</a>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="card shadow mb-4">
+
+                                                <div className="card-body">
+                                                    <div className="card-header py-3">
+                                                        <h1 className="h3 mb-0 text-gray-800">Preview</h1>
+
+                                                    </div>
+
+
+                                                    <canvas id="previewCanvas" height={256} width={256}></canvas>
+                                                    <div className="form-group">
+
+                                                        <button className="btn btn-info" onClick={this.onConfirmBoxClick}>Confirm</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="card shadow mb-4">
+
+                                                <div className="card-body">
+                                                    {
+                                                        this.state.images.map((image) => {
+                                                            return <div>
+                                                                <h3>
+                                                                    <a href="#" onClick={(e)=>{ e.preventDefault(); this.onSelectImage(image); }}>Image {image.id}</a>
+                                                                </h3>
+                                                                <img src={image.imgSrc} width={64} />
+                                                                <table>
+                                                                    <tbody>
+                                                                    {
+                                                                        image.boxes.map((box) => {
+                                                                            return <ChaosPixelBoxComponent box={box} page={this} image={image} buttons={this.getBoxButtons()}/>
+                                                                        })
+                                                                    }
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        })
+                                                    }
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {/* /.container-fluid */}
+                            </div>
+                            {/* End of Main Content */}
+                            {/* Footer */}
+                            <FooterComponent />
+                            {/* End of Footer */}
+                        </div>
+                        {/* End of Content Wrapper */}
+                    </div>
+                    {/* End of Page Wrapper */}
+                    {/* Scroll to Top Button*/}
+
+                </div>
+
+            </div>
+        );
+    }
+
+
 }
 
 export default ChaosPixelBoxerPage;

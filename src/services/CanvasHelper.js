@@ -48,6 +48,10 @@ class CanvasHelper{
             bbox[3] * scale
         ]
     }
+    setScale(scale){
+        this.options.scale = scale;
+        this.resetCanvasWithImage();
+    }
     loadAndShapeImage(imgSrc) {
        /* return new Promise((resolve, reject)=>{
 

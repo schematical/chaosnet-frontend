@@ -476,7 +476,7 @@ console.log("event, image, box", event, image, box);
                                                             this.state.images.map((image) => {
                                                                 return <div>
                                                                     <h3>
-                                                                        <a href="#" onClick={(e)=>{ this.onSelectImage(image); }}>Image {image.id}</a>
+                                                                        <a href="#" onClick={(e)=>{  e.preventDefault(); this.onSelectImage(image); }}>Image {image.id}</a>
                                                                     </h3>
                                                                     <img src={image.imgSrc} width={64} />
                                                                     <table>
