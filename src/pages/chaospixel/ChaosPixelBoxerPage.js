@@ -21,7 +21,7 @@ class ChaosPixelBoxerPage extends Component {
         this.state = {
             loaded: true,
             images:[],//spriteGroup._component.previewCanvas.toDataURL()
-            scale: 1
+            scale: 2
         }
         HTTPService.get(
             '/' + AuthService.userData.username + '/chaospixel'
@@ -74,6 +74,7 @@ class ChaosPixelBoxerPage extends Component {
             scale: scale
         })
         this.canvasHelper.setScale(scale);
+        this.redrawImageBoxes();
     }
     onNextImageClick(e){
         this.onConfirmBoxClick(e);
@@ -147,6 +148,8 @@ class ChaosPixelBoxerPage extends Component {
         return cleanImages;
     }
     onSaveClick(e){
+
+        e.preventDefault();
         const cleanImages = this.getCleanImages();
         let state = {
             images: cleanImages
@@ -156,6 +159,7 @@ class ChaosPixelBoxerPage extends Component {
         localStorage.setItem('chaospixel:images', strData);
     }
     onSaveToServerClick(e){
+        e.preventDefault();
         const cleanImages = this.getCleanImages();
         let state = {
             images: cleanImages
@@ -190,6 +194,7 @@ class ChaosPixelBoxerPage extends Component {
     }
     onLoadFromServerClick(e){
 
+        e.preventDefault();
 
         HTTPService.get(
             '/' + AuthService.userData.username + '/chaospixel'
@@ -237,7 +242,15 @@ class ChaosPixelBoxerPage extends Component {
             currImage:imageObj,
         }
         this.setState(state);
+        this.redrawImageBoxes();
 
+    }
+    redrawImageBoxes(){
+        this.state.currImage.boxes.forEach((box)=>{
+            this.canvasHelper.drawRect({
+                bbox: this.canvasHelper.applyScaleToBBox(box.bbox)
+            })
+        })
     }
     async handleImage(e){
 
@@ -368,7 +381,7 @@ class ChaosPixelBoxerPage extends Component {
 
                                                     <div className="card-body">
                                                         <div>
-                                                            <canvas id="imageCanvas" width={CANVAS_WIDTH} height={CANVAS_HEIGHT}></canvas>
+                                                            <canvas id="imageCanvas"></canvas>
                                                         </div>
                                                     </div>
                                                 </div>

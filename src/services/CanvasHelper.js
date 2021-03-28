@@ -39,6 +39,8 @@ class CanvasHelper{
         ctx.mozImageSmoothingEnabled = false;
         ctx.webkitImageSmoothingEnabled = false;
         ctx.imageSmoothingEnabled = false;
+        ctx.msImageSmoothingEnabled = false;
+        ctx.oImageSmoothingEnabled = false;
         this.state = {
             mouseIsDown: false,
             mouseDownPos: null
@@ -60,7 +62,14 @@ class CanvasHelper{
         this.canvas.height = this.options.canvasHeight * this.options.scale;
         this.resetCanvasWithImage();
     }
-    loadAndShapeImage(imgSrc) {
+    clearCtxScale(){
+        const ctx = this.canvas.getContext('2d');
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
+    loadAndShapeImage(imgSrc, options) {
+        options = options || {};
+        options.goalHeight = options.goalHeight || this.options.canvasHeight;
+        options.goalWidth = options.goalWidth || this.options.canvasWidth;
         /*return new Promise((resolve, reject)=>{
 
             let imageEle = new Image();
@@ -73,38 +82,49 @@ class CanvasHelper{
             const fakeCanvas = document.createElement("canvas");
             document.body.appendChild(fakeCanvas);
             const fakeCtx = fakeCanvas.getContext('2d');
-            fakeCtx.mozImageSmoothingEnabled = false;
-            fakeCtx.webkitImageSmoothingEnabled = false;
-            fakeCtx.imageSmoothingEnabled = false;
+
             let imageEle = new Image();
+            imageEle.style = `image-rendering: auto;
+                image-rendering: crisp-edges;
+                image-rendering: pixelated;`;
             imageEle.onload = ()=>{
-                let scale = this.options.canvasWidth / imageEle.width;
-                /*if(imageEle.height < imageEle.width){
-                    scale = this.options.canvasHeight / imageEle.height;
-                }*/
-                let width = imageEle.width * scale;
-                let height = imageEle.height * scale;
+                let scale = options.goalWidth / imageEle.width;
 
 
-                fakeCanvas.width = width / scale;
-                fakeCanvas.height = height / scale;
+                fakeCanvas.width = options.goalWidth; //this.options.canvasWidth;
+                fakeCanvas.height = options.goalHeight;// this.options.canvasHeight;
+                fakeCtx.scale(scale, scale);
+                fakeCtx.mozImageSmoothingEnabled = false;
+                fakeCtx.webkitImageSmoothingEnabled = false;
+                fakeCtx.imageSmoothingEnabled = false;
+                fakeCtx.msImageSmoothingEnabled = false;
+                fakeCtx.oImageSmoothingEnabled = false;
+                console.log("fakeCtx.imageSmoothingEnabled: ", fakeCtx.imageSmoothingEnabled);
                 fakeCtx.fillStyle = 'green';
-                fakeCtx.fillRect(0, 0, this.options.canvasWidth, this.options.canvasHeight);
-                fakeCtx.drawImage(imageEle,0,0, imageEle.width, imageEle.height);
-                fakeCtx.scale(1/scale, 1/scale)
+                fakeCtx.fillRect(
+                    0,
+                    0,
+                    options.goalWidth,
+                    options.goalHeight
+                );
+                fakeCtx.drawImage(imageEle,0,0,   imageEle.width, imageEle.height); //width, height); //this.options.canvasWidth, this.options.canvasHeight);//
+                fakeCtx.setTransform(1, 0, 0, 1, 0, 0);
 
 
 
-                imageEle.width = width;// this.options.canvasWidth;
-                imageEle.height = height;// this.options.canvasHeight;
+                //imageEle.width = width;// this.options.canvasWidth;
+                //imageEle.height = height;// this.options.canvasHeight;
 
                 let newImageEle = new Image();
+                newImageEle.style = `image-rendering: auto;
+                image-rendering: crisp-edges;
+                image-rendering: pixelated;`;
                 newImageEle.onload = ()=>{
 
                     document.body.removeChild(fakeCanvas);
                     return resolve(newImageEle);
                 }
-                newImageEle.src = fakeCanvas.toDataURL();
+                newImageEle.src = fakeCanvas.toDataURL('image/bmp',1);
 
 
             }
@@ -133,20 +153,33 @@ class CanvasHelper{
             mouseDownPos: null,
             mouseUpPos: null
         };
+        console.log("Setting Image: ", image);
     }
 
     resetCanvasWithImage(image){
         if(image){
+
             this.setImage(image);
         }
         var ctx = this.canvas.getContext('2d');
-        let scaledWidth = this.options.canvasWidth/*this.img.width*/ * this.options.scale;
-        let scaledHeight =  this.options.canvasHeight/*this.img.height*/ * this.options.scale;
 
+        let scaledWidth = this.img.width * this.options.scale;
+        let scaledHeight =  this.img.height * this.options.scale;
 
-        this.canvas.width = scaledWidth;
-        this.canvas.height = scaledHeight;
-        ctx.drawImage(this.img,0,0, scaledWidth, scaledHeight);
+        let drawScale = this.options.canvasWidth / scaledWidth;
+
+     /*   this.canvas.width = scaledWidth;
+        this.canvas.height = scaledHeight;*/
+        console.log("DRAW SCALE: ", 1/drawScale);
+        ctx.scale(1/drawScale, 1/drawScale)
+        ctx.mozImageSmoothingEnabled = false;
+        ctx.webkitImageSmoothingEnabled = false;
+        ctx.imageSmoothingEnabled = false;
+        ctx.msImageSmoothingEnabled = false;
+        ctx.oImageSmoothingEnabled = false;
+        console.log("ctx.imageSmoothingEnabled", ctx.imageSmoothingEnabled)
+        ctx.drawImage(this.img,0,0, this.img.width, this.img.height);//this.img.width,this.img.height );//this.options.canvasWidth, this.options.canvasHeight);//scaledWidth, scaledHeight);//
+        this.clearCtxScale();
         let imageData = ctx.getImageData(0, 0, 1, 1);
 
         this.options.background_color = this.rgbToHex(
@@ -224,7 +257,7 @@ class CanvasHelper{
                     mousePos.y - this.state.mouseDownPos.y
                 ]
             })
-            if(
+            /*if(
                 this.options.previewCanvas &&
                 mousePos.x - this.state.mouseDownPos.x > 0 &&
                 mousePos.y - this.state.mouseDownPos.y > 0
@@ -240,18 +273,19 @@ class CanvasHelper{
                 );
 
                 previewCtx.clearRect(0, 0, this.options.previewCanvas.width, this.options.previewCanvas.height);
+                previewCtx.scale(this.options.previewScale, this.options.previewScale);
                 previewCtx.putImageData(
                     imageData,
                     0,
                     0,
                     0,
                     0,
-                    (mousePos.x - this.state.mouseDownPos.x) * this.options.previewScale,
-                    (mousePos.y - this.state.mouseDownPos.y) * this.options.previewScale
+                    (mousePos.x - this.state.mouseDownPos.x),
+                    (mousePos.y - this.state.mouseDownPos.y)
                 );
+                previewCtx.scale(1,1)
 
-
-            }
+            }*/
         }
     }
     onCanvasMouseDown(e){
@@ -263,8 +297,11 @@ class CanvasHelper{
 
     }
     drawRect(options){
+        console.log("OPTIONS", options);
         const ctx = this.canvas.getContext("2d");
+        // ctx.scale(1/this.state.scale,1/this.state.scale);
         ctx.beginPath();
+
         ctx.lineWidth = options.lineWidth || "2";
         ctx.strokeStyle = options.strokeStyle ||   "red";
         ctx.rect(
@@ -273,7 +310,9 @@ class CanvasHelper{
             options.bbox[2],
             options.bbox[3]
         );
+
         ctx.stroke();
+        // this.clearCtxScale();
     }
     eachPixel(fun, options){
         options = options || {};

@@ -159,7 +159,7 @@ class ChaosPixelTrainPage extends Component {
             classCount: Object.keys(tagsDict).length
         });
         model.compile({
-            loss: this.customLossFunction, //  'categoricalCrossentropy',
+            loss:  this.customLossFunction, //'categoricalCrossentropy', //
             optimizer: tf.train.rmsprop(5e-3), // tf.train.adam(0.01);
             metrics: ['accuracy']
         });
@@ -196,7 +196,7 @@ class ChaosPixelTrainPage extends Component {
             layer.trainable = true;
         }
         model.compile({
-            loss: this.customLossFunction,
+            loss: this.customLossFunction, //'categoricalCrossentropy', //
             optimizer: tf.train.rmsprop(2e-3),
             metrics: ['accuracy']
         });
@@ -239,6 +239,7 @@ class ChaosPixelTrainPage extends Component {
             // Scale the the first column (0-1 shape indicator) of `yTrue` in order
             // to ensure balanced contributions to the final loss value
             // from shape and bounding-box predictions.
+            console.log('customLossFunction', yTrue.print(), yTrue.mul(LABEL_MULTIPLIER).print(), yPred.print());
             return tf.metrics.meanSquaredError(yTrue.mul(LABEL_MULTIPLIER), yPred);
         });
     }
@@ -252,16 +253,18 @@ class ChaosPixelTrainPage extends Component {
         const truncatedBase =
             tf.model({inputs: mobilenet.inputs, outputs: layer.output});
         // Freeze the model's layers.
+        console.log("truncatedBase.layers: ", truncatedBase.layers);
         for (const layer of truncatedBase.layers) {
             layer.trainable = false;
             for (const groupName of topLayerGroupNames) {
                 if (layer.name.indexOf(groupName) === 0) {
+
                     fineTuningLayers.push(layer);
                     break;
                 }
             }
         }
-
+        console.log("fineTuningLayers: ", fineTuningLayers);
         tf.util.assert(
             fineTuningLayers.length > 1,
             `Did not find any layers that match the prefixes ${topLayerGroupNames}`);
@@ -280,18 +283,36 @@ class ChaosPixelTrainPage extends Component {
 
 
 
-
-            model = tf.sequential();
+            let inputShape =  [ CANVAS_HEIGHT,CANVAS_WIDTH, 3];
+            /*model = tf.sequential();
             model.add(tf.layers.depthwiseConv2d({
                 depthMultiplier: 8,
                 kernelSize: [32, 32],
                 activation: 'relu',
-                inputShape: [CANVAS_WIDTH, CANVAS_HEIGHT, 3]
+                inputShape: inputShape,
+                dilationRate: 1
             }));
-            model.add(tf.layers.maxPooling2d({poolSize: [1, 2], strides: [2, 2]}));
-            model.add(tf.layers.flatten());
-            model.add(tf.layers.dense({units: options.classCount, activation: 'softmax'}));
 
+             model.add(tf.layers.maxPooling2d({poolSize: [1, 2], strides: [2, 2]}));
+            model.add(tf.layers.flatten());
+
+            model.add(tf.layers.dense({units: 200, activation: 'relu'}));
+            // Five output units:
+            //   - The first is a shape indictor: predicts whether the target
+            //     shape is a triangle or a rectangle.
+            //   - The remaining four units are for bounding-box prediction:
+            //     [left, right, top, bottom] in the unit of pixels.
+            model.add(tf.layers.dense({units: 5}));
+            */
+             model = tf.sequential();
+            model.add(tf.layers.flatten({inputShape}));
+            model.add(tf.layers.dense({units: 200, activation: 'relu'}));
+            // Five output units:
+            //   - The first is a shape indictor: predicts whether the target
+            //     shape is a triangle or a rectangle.
+            //   - The remaining four units are for bounding-box prediction:
+            //     [left, right, top, bottom] in the unit of pixels.
+            model.add(tf.layers.dense({units: 5}));
 
 
         }
@@ -337,8 +358,19 @@ class ChaosPixelTrainPage extends Component {
     async predictImageBox(event, image, box){
 console.log("event, image, box", event, image, box);
 
-        let scaledTestImg = await this.canvasHelper.loadAndShapeImage(image.imgSrc);
+        let scaledTestImg = await this.canvasHelper.loadAndShapeImage(image.imgSrc, {
+            goalHeight: 224,
+            goalWidth: 224
+        })  /*new Promise((resolve, reject)=>{
 
+            let imageEle = new Image();
+            imageEle.onload = ()=>{
+                console.log("Image Loaded", imageEle);
+                return resolve(imageEle);
+            }
+            imageEle.src = image.imgSrc;
+        });*/
+        console.log("Image Scaled");
        /* let unscaledTestImg = await new Promise((resolve, reject)=> { //await this.loadAndShapeImage(image.imgSrc);
             let img = new Image();
             img.onload = ()=>{
@@ -349,14 +381,16 @@ console.log("event, image, box", event, image, box);
         this.canvasHelper.setImage(scaledTestImg);
         this.canvasHelper.resetCanvasWithImage();
         let model = this.state.model;
-        /*try {
-            model = await tf.loadLayersModel('indexeddb://my-model-1');
-            if (model) {
-                this.log("Loaded!");
+        if(!model) {
+            try {
+                model = await tf.loadLayersModel('indexeddb://my-model-1');
+                if (model) {
+                    this.log("Loaded!");
+                }
+            } catch (err) {
+                this.log(err.message);
             }
-        }catch(err){
-            this.log(err.message);
-        }*/
+        }
 
 
         const imageTensor = tf.browser.fromPixels(scaledTestImg).cast('float32');
