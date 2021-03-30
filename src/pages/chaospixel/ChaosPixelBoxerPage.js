@@ -70,6 +70,7 @@ class ChaosPixelBoxerPage extends Component {
         this.onLoadFromServerClick = this.onLoadFromServerClick.bind(this);
         this.onScaleChange = this.onScaleChange.bind(this);
         this.onClearAllImages = this.onClearAllImages.bind(this);
+        this.predictImageBox = this.predictImageBox.bind(this);
 
     }
     componentDidMount(){
@@ -377,10 +378,12 @@ class ChaosPixelBoxerPage extends Component {
             try {
                 model = await tf.loadLayersModel('indexeddb://my-model-1');
                 if (model) {
-                    this.log("Loaded!");
+                    alert("Model Loaded!");
                 }
             } catch (err) {
-                this.log(err.message);
+                this.setState({
+                    error: err
+                })
             }
         }
 
@@ -389,7 +392,7 @@ class ChaosPixelBoxerPage extends Component {
         const images = tf.stack([imageTensor]);
         const modelOut = await model.predict(images).data();
         let predictBoundingBox = modelOut.slice(1);
-        this.log(JSON.stringify( predictBoundingBox, null, 3));
+        console.log(JSON.stringify( predictBoundingBox, null, 3));
 
         tf.util.assert(
             predictBoundingBox != null && predictBoundingBox.length === 4,
@@ -409,7 +412,7 @@ class ChaosPixelBoxerPage extends Component {
             return;
         }
 
-        this.log(JSON.stringify( box.bbox, null, 3));
+        console.log(JSON.stringify( box.bbox, null, 3));
         this.canvasHelper.drawRect({
             lineWidth: "2",
             strokeStyle: "green",
@@ -449,6 +452,9 @@ class ChaosPixelBoxerPage extends Component {
                 onClick: this.predictImageBox
             }
         ]
+    }
+    getDataSet(){
+        return this.state.images;
     }
     render() {
 
@@ -537,73 +543,75 @@ class ChaosPixelBoxerPage extends Component {
                                         {
                                             this.state.mode === ChaosPixelBoxerPageMode.Train && <ChaosPixelTrainProgressComponent page={this} ></ChaosPixelTrainProgressComponent>
                                         }
-                                        <div className="col-xl-3 col-lg-3 col-md-3">
-                                            <div className="card shadow mb-4">
+                                        {
+                                            this.state.mode === ChaosPixelBoxerPageMode.Input &&
+                                            <div className="col-xl-3 col-lg-3 col-md-3">
+                                                <div className="card shadow mb-4">
 
-                                                <div className="card-body">
+                                                    <div className="card-body">
 
-                                                    <div className="card-header py-3">
-                                                        <h1 className="h3 mb-0 text-gray-800">Upload</h1>
-                                                    </div>
+                                                        <div className="card-header py-3">
+                                                            <h1 className="h3 mb-0 text-gray-800">Upload</h1>
+                                                        </div>
 
-                                                    <div className="form-group">
-                                                        <label htmlFor="exampleInputEmail1">Upload Image </label>
-                                                        <input type="file" id="imageLoader" name="imageLoader" onChange={this.handleImage}  multiple/>
-                                                    </div>
+                                                        <div className="form-group">
+                                                            <label htmlFor="exampleInputEmail1">Upload Image </label>
+                                                            <input type="file" id="imageLoader" name="imageLoader"
+                                                                   onChange={this.handleImage} multiple/>
+                                                        </div>
 
 
-
-                                                    <div className="form-group">
-                                                        <div className='btn-group'>
-                                                            <div className="dropdown">
-                                                                <button className="btn btn-sm  btn-secondary dropdown-toggle"
+                                                        <div className="form-group">
+                                                            <div className='btn-group'>
+                                                                <div className="dropdown">
+                                                                    <button
+                                                                        className="btn btn-sm  btn-secondary dropdown-toggle"
                                                                         type="button" id="dropdownMenuButton"
                                                                         data-toggle="dropdown" aria-haspopup="true"
                                                                         aria-expanded="false">
-                                                                    Save
-                                                                </button>
-                                                                <div className="dropdown-menu"
-                                                                     aria-labelledby="dropdownMenuButton">
-                                                                    <a className="dropdown-item" href="#" onClick={this.onSaveClick}>Save in Browser</a>
-                                                                    <a className="dropdown-item" href="#" onClick={this.onDownloadClick}>Download</a>
-                                                                    <a className="dropdown-item" href="#" onClick={this.onSaveToServerClick}>Save to Server</a>
+                                                                        Save
+                                                                    </button>
+                                                                    <div className="dropdown-menu"
+                                                                         aria-labelledby="dropdownMenuButton">
+                                                                        <a className="dropdown-item" href="#"
+                                                                           onClick={this.onSaveClick}>Save in
+                                                                            Browser</a>
+                                                                        <a className="dropdown-item" href="#"
+                                                                           onClick={this.onDownloadClick}>Download</a>
+                                                                        <a className="dropdown-item" href="#"
+                                                                           onClick={this.onSaveToServerClick}>Save to
+                                                                            Server</a>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
 
-                                                            <div className="dropdown">
-                                                                <button className="btn btn-sm  btn-secondary dropdown-toggle"
+                                                                <div className="dropdown">
+                                                                    <button
+                                                                        className="btn btn-sm  btn-secondary dropdown-toggle"
                                                                         type="button" id="dropdownMenuButton"
                                                                         data-toggle="dropdown" aria-haspopup="true"
                                                                         aria-expanded="false">
-                                                                    Load
-                                                                </button>
-                                                                <div className="dropdown-menu"
-                                                                     aria-labelledby="dropdownMenuButton">
-                                                                    {/*<a className="dropdown-item" href="#" onClick={this.onSaveClick}>Save in Browser</a>
-                                                                    <a className="dropdown-item" href="#" onClick={this.onDownloadClick}>Upload
-                                                                        n</a>*/}
-                                                                    <a className="dropdown-item" href="#" onClick={this.onLoadFromServerClick}>Load from Server</a>
+                                                                        Load
+                                                                    </button>
+                                                                    <div className="dropdown-menu"
+                                                                         aria-labelledby="dropdownMenuButton">
+                                                                        {/*<a className="dropdown-item" href="#" onClick={this.onSaveClick}>Save in Browser</a>
+                                                                        <a className="dropdown-item" href="#" onClick={this.onDownloadClick}>Upload
+                                                                            n</a>*/}
+                                                                        <a className="dropdown-item" href="#"
+                                                                           onClick={this.onLoadFromServerClick}>Load
+                                                                            from Server</a>
+                                                                    </div>
                                                                 </div>
+
+
                                                             </div>
-
-
-                                                            <div className="dropdown">
-                                                                <button className="btn btn-sm  btn-secondary dropdown-toggle"
-                                                                        type="button" id="dropdownMenuButton"
-                                                                        data-toggle="dropdown" aria-haspopup="true"
-                                                                        aria-expanded="false">
-                                                                    AI Stuff
-                                                                </button>
-                                                                <div className="dropdown-menu "
-                                                                     aria-labelledby="dropdownMenuButton">
-                                                                    <a className="dropdown-item" href="#" onClick={this.onLoadFromServerClick}>Train</a>
-                                                                </div>
-                                                            </div>
-
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                        }
+                                        {
+                                            this.state.mode === ChaosPixelBoxerPageMode.Input &&
                                             <div className="card shadow mb-4">
 
                                                 <div className="card-body">
@@ -616,40 +624,43 @@ class ChaosPixelBoxerPage extends Component {
                                                     <canvas id="previewCanvas" height={256} width={256}></canvas>
                                                     <div className="form-group">
 
-                                                        <button className="btn btn-info" onClick={this.onConfirmBoxClick}>Confirm</button>
+                                                        <button className="btn btn-info"
+                                                                onClick={this.onConfirmBoxClick}>Confirm
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div className="card shadow mb-4">
+                                        }
+                                        <div className="card shadow mb-4">
 
-                                                <div className="card-body">
-                                                    <div className="card-header py-3">
-                                                        <h1 className="h3 mb-0 text-gray-800">Images</h1>
-                                                        <button className="btn btn-info" onClick={this.onClearAllImages}>Clear All Images</button>
-                                                    </div>
-
-                                                    {
-                                                        this.state.images.map((image) => {
-                                                            return <div>
-                                                                <h3>
-                                                                    <a href="#" onClick={(e)=>{ e.preventDefault(); this.onSelectImage(image); }}>Image {image.id}</a>
-                                                                </h3>
-                                                                <img src={image.imgSrc} width={64} />
-                                                                <table>
-                                                                    <tbody>
-                                                                    {
-                                                                        image.boxes.map((box) => {
-                                                                            return <ChaosPixelBoxComponent box={box} page={this} image={image} buttons={this.getBoxButtons()}/>
-                                                                        })
-                                                                    }
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        })
-                                                    }
-
+                                            <div className="card-body">
+                                                <div className="card-header py-3">
+                                                    <h1 className="h3 mb-0 text-gray-800">Images</h1>
+                                                    <button className="btn btn-info" onClick={this.onClearAllImages}>Clear All Images</button>
                                                 </div>
+
+                                                {
+                                                    this.state.images.map((image) => {
+                                                        return <div>
+                                                            <h3>
+                                                                <a href="#" onClick={(e)=>{ e.preventDefault(); this.onSelectImage(image); }}>Image {image.id}</a>
+                                                            </h3>
+                                                            <img src={image.imgSrc} width={64} />
+                                                            <table>
+                                                                <tbody>
+                                                                {
+                                                                    image.boxes.map((box) => {
+                                                                        return <ChaosPixelBoxComponent box={box} page={this} image={image} buttons={this.getBoxButtons()}/>
+                                                                    })
+                                                                }
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    })
+                                                }
+
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>

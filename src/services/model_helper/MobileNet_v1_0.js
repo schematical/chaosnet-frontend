@@ -1,24 +1,45 @@
 import * as tf from "@tensorflow/tfjs";
+import * as _ from 'underscore';
+class MobileNet_v1_0{
 
-module.exports = class MobileNet_v1_0{
     constructor(options) {
         this.options = _.extend(
-            options,
+
             {
-                numExamples: 2000,
                 validationSplit: 0.05,
                 batchSize: 128,
                 initialTransferEpochs: 100,
                 fineTuningEpochs: 100,
-                logUpdateFreq: 'batch'
-            }
+                logUpdateFreq: 'batch',
+                canvasWidth: 224,
+                topLayerGroupNames: [ 'conv_pw_11']
+
+
+            },
+            options
         );
+        this.options.topLayerName = this.options.topLayerGroupNames[this.options.topLayerGroupNames.length - 1] + `_relu`;
+        this.options.labelMultiplier = this.options.labelMultiplier || [this.options.canvasWidth, 1, 1, 1, 1];
+        this._listeners = {};
+        this.customLossFunction = this.customLossFunction.bind(this);
     }
     build(){
 
     }
     load(){
 
+    }
+    on(eventType, cb){
+        this._listeners[eventType] = this._listeners[eventType] || [];
+        this._listeners[eventType].push(cb);
+    }
+    trigger(eventType, event){
+        if(!this._listeners[eventType]){
+            return;
+        }
+        this._listeners[eventType].forEach((cb) =>{
+            return cb(event);
+        })
     }
     async fit(inputImages){
 
@@ -28,7 +49,13 @@ module.exports = class MobileNet_v1_0{
         let p = Promise.resolve();
         inputImages.forEach((image)=>{
             p = p.then(()=>{
-                return this.canvasHelper.loadAndShapeImage(image.imgSrc)
+                return new Promise((resolve) => {
+                        const imageEle = new Image();
+                        imageEle.onload = ()=>{
+                            return resolve(imageEle);
+                        }
+                        imageEle.src = image.imgSrc;
+                    })
                     .then((imageEle)=>{
                         imageEleDict[image.id] = imageEle;
                     });
@@ -95,7 +122,12 @@ module.exports = class MobileNet_v1_0{
                 onEpochEnd: (epoch, logs) => {
                     this.log(
                         `Accuracy: ${(logs.acc * 100).toFixed(1)}% Epoch: ${epoch + 1}`);
-
+                    this.trigger('progress', {
+                        phase:'initial',
+                        epoch: epoch + 1,
+                        percent: Math.round(epoch / this.options.initialTransferEpochs * 100),
+                        acc: logs.acc
+                    })
                 },
                 onTrainEnd: async (logs) => {
 
@@ -136,6 +168,12 @@ module.exports = class MobileNet_v1_0{
                     this.log(
                         `Accuracy: ${(logs.acc * 100).toFixed(1)}% Epoch: ${epoch + 1}`);
 
+                    this.trigger('progress', {
+                        phase:'fine',
+                        epoch: epoch + 1,
+                        percent: Math.round(epoch / this.options.fineTuningEpochs * 100),
+                        acc: logs.acc
+                    })
                 },
                 onTrainEnd: async  (logs) =>{
 
@@ -150,11 +188,15 @@ module.exports = class MobileNet_v1_0{
 
 
     }
-    async predict(){
+    log(log){
+        //document.querySelector('#console').innerHTML += log + "<br>";
+        console.log(log);
+    }
+    async predict(scaledTestImg){
 
         const imageTensor = tf.browser.fromPixels(scaledTestImg).cast('float32');
         const images = tf.stack([imageTensor]);
-        const modelOut = await model.predict(images).data();
+        const modelOut = await this.model.predict(images).data();
         let predictBoundingBox = modelOut.slice(1);
         this.log(JSON.stringify( predictBoundingBox, null, 3));
 
@@ -173,8 +215,7 @@ module.exports = class MobileNet_v1_0{
             // Scale the the first column (0-1 shape indicator) of `yTrue` in order
             // to ensure balanced contributions to the final loss value
             // from shape and bounding-box predictions.
-            console.log('customLossFunction', yTrue.print(), yTrue.mul(LABEL_MULTIPLIER).print(), yPred.print());
-            return tf.metrics.meanSquaredError(yTrue.mul(LABEL_MULTIPLIER), yPred);
+            return tf.metrics.meanSquaredError(yTrue.mul(this.options.labelMultiplier), yPred);
         });
     }
     async loadTruncatedBase() {
@@ -183,14 +224,14 @@ module.exports = class MobileNet_v1_0{
 
         // Return a model that outputs an internal activation.
         const fineTuningLayers = [];
-        const layer = mobilenet.getLayer(topLayerName);
+        const layer = mobilenet.getLayer(this.options.topLayerName);
         const truncatedBase =
             tf.model({inputs: mobilenet.inputs, outputs: layer.output});
         // Freeze the model's layers.
         console.log("truncatedBase.layers: ", truncatedBase.layers);
         for (const layer of truncatedBase.layers) {
             layer.trainable = false;
-            for (const groupName of topLayerGroupNames) {
+            for (const groupName of this.options.topLayerGroupNames) {
                 if (layer.name.indexOf(groupName) === 0) {
 
                     fineTuningLayers.push(layer);
@@ -201,7 +242,7 @@ module.exports = class MobileNet_v1_0{
         console.log("fineTuningLayers: ", fineTuningLayers);
         tf.util.assert(
             fineTuningLayers.length > 1,
-            `Did not find any layers that match the prefixes ${topLayerGroupNames}`);
+            `Did not find any layers that match the prefixes ${this.options.topLayerGroupNames}`);
         return {truncatedBase, fineTuningLayers};
     }
     /*async buildObjectDetectionModel(options) {
@@ -267,10 +308,9 @@ module.exports = class MobileNet_v1_0{
         const newHead = this.buildNewHead(truncatedBase.outputs[0].shape.slice(1));
         const newOutput = newHead.apply(truncatedBase.outputs[0]);
         let model = tf.model({inputs: truncatedBase.inputs, outputs: newOutput});
-
         return {model, fineTuningLayers};
     }
-    async buildNewHead(inputShape) {
+    buildNewHead(inputShape) {
         const newHead = tf.sequential();
         newHead.add(tf.layers.flatten({inputShape}));
         newHead.add(tf.layers.dense({units: 200, activation: 'relu'}));
@@ -285,3 +325,4 @@ module.exports = class MobileNet_v1_0{
 
 
 }
+export default MobileNet_v1_0;
