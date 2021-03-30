@@ -11,8 +11,21 @@ import * as _ from "underscore";
 import FitnessRuleComponent from "../../components/chaosnet/FitnessRuleComponent";
 import ChaosPixelBoxComponent from "../../components/chaospixel/ChaosPixelBoxComponent";
 import axios from 'axios';
-const CANVAS_WIDTH = 320;//640;//224;  // Matches the input size of MobileNet.
-const CANVAS_HEIGHT = 240;
+import * as tf from "@tensorflow/tfjs";
+import ChaosPixelTrainProgressComponent from "../../components/chaospixel/ChaosPixelTrainProgressComponent";
+const CANVAS_WIDTH = 224;// 320;//640;//224;  // Matches the input size of MobileNet.
+const CANVAS_HEIGHT = 224;
+class ChaosPixelBoxerPageMode{
+    static get Input(){
+        return "Input";
+    }
+    static get Train(){
+        return "Train";
+    }
+    static get Predict(){
+        return "Predict";
+    }
+}
 class ChaosPixelBoxerPage extends Component {
 
     constructor(props) {
@@ -21,7 +34,8 @@ class ChaosPixelBoxerPage extends Component {
         this.state = {
             loaded: true,
             images:[],//spriteGroup._component.previewCanvas.toDataURL()
-            scale: 2
+            scale: 2,
+            mode: ChaosPixelBoxerPageMode.Input
         }
         HTTPService.get(
             '/' + AuthService.userData.username + '/chaospixel'
@@ -55,6 +69,7 @@ class ChaosPixelBoxerPage extends Component {
         this.onSaveToServerClick = this.onSaveToServerClick.bind(this);
         this.onLoadFromServerClick = this.onLoadFromServerClick.bind(this);
         this.onScaleChange = this.onScaleChange.bind(this);
+        this.onClearAllImages = this.onClearAllImages.bind(this);
 
     }
     componentDidMount(){
@@ -67,6 +82,30 @@ class ChaosPixelBoxerPage extends Component {
             scale: this.state.scale
         });
         document.body.onkeypress = this.onKeyPress
+    }
+    getMainNavButtonClass(modeName){
+        let baseClasses = "btn btn-sm ";
+        if(this.state.mode == modeName){
+            baseClasses += "btn-info";
+        }else{
+            baseClasses += "btn-dark";
+        }
+        return baseClasses;
+    }
+
+    setMode(mode) {
+        return (p1) => {
+            this.setState({
+                mode: mode
+            })
+        };
+    }
+    onClearAllImages(e){
+        e.preventDefault();
+        this.setState({
+            currImage: null,
+            images:[]
+        })
     }
     onScaleChange(e){
         const scale =  e.target.value;
@@ -306,11 +345,84 @@ class ChaosPixelBoxerPage extends Component {
                break;
         }
     }
+
+
+
+    async predictImageBox(event, image, box){
+
+        let scaledTestImg = await this.canvasHelper.loadAndShapeImage(image.imgSrc, {
+            goalHeight: 224,
+            goalWidth: 224
+        })  /*new Promise((resolve, reject)=>{
+
+            let imageEle = new Image();
+            imageEle.onload = ()=>{
+                console.log("Image Loaded", imageEle);
+                return resolve(imageEle);
+            }
+            imageEle.src = image.imgSrc;
+        });*/
+        console.log("Image Scaled");
+        /* let unscaledTestImg = await new Promise((resolve, reject)=> { //await this.loadAndShapeImage(image.imgSrc);
+             let img = new Image();
+             img.onload = ()=>{
+                 return resolve(img);
+             }
+             img.src = image.imgSrc;
+         });*/
+        this.canvasHelper.setImage(scaledTestImg);
+        this.canvasHelper.resetCanvasWithImage();
+        let model = this.state.model;
+        if(!model) {
+            try {
+                model = await tf.loadLayersModel('indexeddb://my-model-1');
+                if (model) {
+                    this.log("Loaded!");
+                }
+            } catch (err) {
+                this.log(err.message);
+            }
+        }
+
+
+        const imageTensor = tf.browser.fromPixels(scaledTestImg).cast('float32');
+        const images = tf.stack([imageTensor]);
+        const modelOut = await model.predict(images).data();
+        let predictBoundingBox = modelOut.slice(1);
+        this.log(JSON.stringify( predictBoundingBox, null, 3));
+
+        tf.util.assert(
+            predictBoundingBox != null && predictBoundingBox.length === 4,
+            `Expected boundingBoxArray to have length 4, ` +
+            `but got ${predictBoundingBox} instead`);
+
+
+
+        predictBoundingBox = this.canvasHelper.applyScaleToBBox(predictBoundingBox);
+        this.canvasHelper.drawRect({
+            lineWidth: "2",
+            strokeStyle: "blue",
+            bbox:predictBoundingBox
+        })
+
+        if(!box){
+            return;
+        }
+
+        this.log(JSON.stringify( box.bbox, null, 3));
+        this.canvasHelper.drawRect({
+            lineWidth: "2",
+            strokeStyle: "green",
+            bbox: this.canvasHelper.applyScaleToBBox(box.bbox)
+        })
+
+
+    }
     getBoxButtons() {
 
         return [
             {
-                text:'delete',
+                text:'Delete',
                 onClick: (event, img, box, component) =>{
                     let boxIndex = -1;
                     img.boxes.forEach((testBox, index) => {
@@ -331,6 +443,10 @@ class ChaosPixelBoxerPage extends Component {
                         images: this.state.images
                     });
                 }
+            },
+            {
+                text:'Predict',
+                onClick: this.predictImageBox
             }
         ]
     }
@@ -360,35 +476,67 @@ class ChaosPixelBoxerPage extends Component {
                                                 {this.state.error.message}
                                             </div>
                                         }
-
                                     </div>
                                     <div className="row">
-                                        <div className="col-xl-8 col-lg-8  col-md-8">
-                                            <div className='sticky'>
-                                                <div className="card shadow mb-4" >
-                                                    <div className="card-header py-3">
-                                                        <h1 className="h3 mb-0 text-gray-800">Box {this.state.currImage &&this.state.currImage.id}</h1>
-                                                        <div className='btn-group'>
+                                        <div className="col-xl-12 col-lg-12  col-md-12">
 
-                                                            <button className="btn btn-info" onClick={this.onPrevImageClick}>Prev</button>
-                                                            <button className="btn btn-info" onClick={this.onNextImageClick}>Next</button>
-                                                        </div>
-                                                        <div className="form-group">
-                                                            <label htmlFor="scale">Scale {this.state.scale} </label>
-                                                            <input type="range" id="scale" name="scale" step=".25" min="0" max="8" value={this.state.scale} onChange={this.onScaleChange} />
-                                                        </div>
+                                            <div className="card shadow mb-4" >
+                                               {/* <div className="card-header py-3">
+
+
+                                                </div>*/}
+
+                                                <div className="card-body">
+                                                    <div className='btn-group'>
+
+                                                        <button className={this.getMainNavButtonClass(ChaosPixelBoxerPageMode.Input)} onClick={this.setMode(ChaosPixelBoxerPageMode.Input)}>Input</button>
+                                                        <button className={this.getMainNavButtonClass(ChaosPixelBoxerPageMode.Train)} onClick={this.setMode(ChaosPixelBoxerPageMode.Train)}>Train</button>
+                                                        <button className={this.getMainNavButtonClass(ChaosPixelBoxerPageMode.Predict)} onClick={this.setMode(ChaosPixelBoxerPageMode.Predict)}>Predict</button>
                                                     </div>
 
-                                                    <div className="card-body">
-                                                        <div>
-                                                            <canvas id="imageCanvas"></canvas>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div className="row">
+                                        {
+                                            this.state.mode !== ChaosPixelBoxerPageMode.Train &&
+                                            <div className="col-xl-8 col-lg-8  col-md-8">
+                                                <div className='sticky'>
+                                                    <div className="card shadow mb-4">
+                                                        <div className="card-header py-3">
+                                                            <h1 className="h3 mb-0 text-gray-800">Box {this.state.currImage && this.state.currImage.id}</h1>
+                                                            <div className='btn-group'>
+
+                                                                <button className="btn btn-info"
+                                                                        onClick={this.onPrevImageClick}>Prev
+                                                                </button>
+                                                                <button className="btn btn-info"
+                                                                        onClick={this.onNextImageClick}>Next
+                                                                </button>
+                                                            </div>
+                                                            <div className="form-group">
+                                                                <label htmlFor="scale">Scale {this.state.scale} </label>
+                                                                <input type="range" id="scale" name="scale" step=".25"
+                                                                       min="0" max="8" value={this.state.scale}
+                                                                       onChange={this.onScaleChange}/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="card-body">
+                                                            <div>
+                                                                <canvas id="imageCanvas"></canvas>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        }
 
-
+                                        {
+                                            this.state.mode === ChaosPixelBoxerPageMode.Train && <ChaosPixelTrainProgressComponent page={this} ></ChaosPixelTrainProgressComponent>
+                                        }
                                         <div className="col-xl-3 col-lg-3 col-md-3">
                                             <div className="card shadow mb-4">
 
@@ -408,7 +556,7 @@ class ChaosPixelBoxerPage extends Component {
                                                     <div className="form-group">
                                                         <div className='btn-group'>
                                                             <div className="dropdown">
-                                                                <button className="btn btn-secondary dropdown-toggle"
+                                                                <button className="btn btn-sm  btn-secondary dropdown-toggle"
                                                                         type="button" id="dropdownMenuButton"
                                                                         data-toggle="dropdown" aria-haspopup="true"
                                                                         aria-expanded="false">
@@ -423,7 +571,7 @@ class ChaosPixelBoxerPage extends Component {
                                                             </div>
 
                                                             <div className="dropdown">
-                                                                <button className="btn btn-secondary dropdown-toggle"
+                                                                <button className="btn btn-sm  btn-secondary dropdown-toggle"
                                                                         type="button" id="dropdownMenuButton"
                                                                         data-toggle="dropdown" aria-haspopup="true"
                                                                         aria-expanded="false">
@@ -435,6 +583,20 @@ class ChaosPixelBoxerPage extends Component {
                                                                     <a className="dropdown-item" href="#" onClick={this.onDownloadClick}>Upload
                                                                         n</a>*/}
                                                                     <a className="dropdown-item" href="#" onClick={this.onLoadFromServerClick}>Load from Server</a>
+                                                                </div>
+                                                            </div>
+
+
+                                                            <div className="dropdown">
+                                                                <button className="btn btn-sm  btn-secondary dropdown-toggle"
+                                                                        type="button" id="dropdownMenuButton"
+                                                                        data-toggle="dropdown" aria-haspopup="true"
+                                                                        aria-expanded="false">
+                                                                    AI Stuff
+                                                                </button>
+                                                                <div className="dropdown-menu "
+                                                                     aria-labelledby="dropdownMenuButton">
+                                                                    <a className="dropdown-item" href="#" onClick={this.onLoadFromServerClick}>Train</a>
                                                                 </div>
                                                             </div>
 
@@ -461,6 +623,11 @@ class ChaosPixelBoxerPage extends Component {
                                             <div className="card shadow mb-4">
 
                                                 <div className="card-body">
+                                                    <div className="card-header py-3">
+                                                        <h1 className="h3 mb-0 text-gray-800">Images</h1>
+                                                        <button className="btn btn-info" onClick={this.onClearAllImages}>Clear All Images</button>
+                                                    </div>
+
                                                     {
                                                         this.state.images.map((image) => {
                                                             return <div>

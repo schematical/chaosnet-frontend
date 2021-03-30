@@ -77,21 +77,31 @@ class ChaosPixelBoxComponent extends Component {
                     }*/}
                 </td>
                 <td>
-                    <div className='btn-group'>
-                        {
-                            this.state.buttons.map((button) => {
-                                return   <button className='btn btn-sm btn-info' onClick={(event => {
-                                    event.preventDefault();
-                                    button.onClick(
-                                        event,
-                                        this.state.image,
-                                        this.state.box,
-                                        this
-                                    );
-                                })}>{button.text}</button>
-                            })
-                        }
+                    <div className="dropdown">
+                        <button className="btn btn-secondary dropdown-toggle"
+                                type="button" id="dropdownMenuButton"
+                                data-toggle="dropdown" aria-haspopup="true"
+                                aria-expanded="false">
+                            Options
+                        </button>
+                        <div className="dropdown-menu"
+                             aria-labelledby="dropdownMenuButton">
+                            {
+                                this.state.buttons.map((button) => {
+                                    return   <a className="dropdown-item" href="#" onClick={(event => {
+                                        event.preventDefault();
+                                        button.onClick(
+                                            event,
+                                            this.state.image,
+                                            this.state.box,
+                                            this
+                                        );
+                                    })}>{button.text}</a>
+                                })
+                            }
+                        </div>
                     </div>
+
 
                 </td>
             </tr>
