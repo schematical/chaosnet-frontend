@@ -26,6 +26,13 @@ class ChaosPixelBoxComponent extends Component {
         let img = new Image();
         let _this = this;
         img.onload = ()=>{
+            if(
+                img.height == 0 ||
+                img.width == 0
+            ){
+                document.body.removeChild(fakeCanvas);
+                return;
+            }
             fakeCanvas.height = img.height;
             fakeCanvas.width = img.width;
             document.body.appendChild(fakeCanvas);
@@ -37,17 +44,29 @@ class ChaosPixelBoxComponent extends Component {
                //  img.width,
                 // img.height,
             );
-            const imageData = fakeCtx.getImageData(
-                _this.state.box.bbox[0],
-                _this.state.box.bbox[1],
-                _this.state.box.bbox[2],
-                _this.state.box.bbox[3],
-            );
-            ctx.putImageData(
-                imageData,
-                0,
-                0
-            );
+            let imageData = null;
+            try {
+                imageData = fakeCtx.getImageData(
+                    _this.state.box.bbox[0],
+                    _this.state.box.bbox[1],
+                    _this.state.box.bbox[2],
+                    _this.state.box.bbox[3],
+                );
+                ctx.putImageData(
+                    imageData,
+                    0,
+                    0
+                );
+            }catch(err){
+                console.error(err.message, err.stack, "IMAGE: ", img.height, img.width, fakeCanvas.height, fakeCanvas.width);
+                fakeCtx.hegith = 224;
+                fakeCtx.width = 224;
+                ctx.beginPath();
+                ctx.rect(0, 0, 224, 224);
+                ctx.fillStyle = "red";
+                ctx.fill();
+            }
+
             document.body.removeChild(fakeCanvas);
 
         }

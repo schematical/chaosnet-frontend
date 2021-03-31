@@ -54,7 +54,7 @@ class ChaosPixelTrainProgressComponent extends Component {
         return (
 
                 <div className="col-xl-8 col-lg-8  col-md-8">
-                    <div className='sticky'>
+                    {/*<div className='sticky'>*/}
                         <div className="card shadow mb-4" >
                             <div className="card-header py-3">
                                 <div className="dropdown">
@@ -96,7 +96,7 @@ class ChaosPixelTrainProgressComponent extends Component {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    {/*</div>*/}
                 </div>
 
         );

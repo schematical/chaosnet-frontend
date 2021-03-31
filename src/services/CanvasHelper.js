@@ -161,6 +161,9 @@ class CanvasHelper{
 
             this.setImage(image);
         }
+        if(!this.img){
+            return;
+        }
         var ctx = this.canvas.getContext('2d');
 
         let scaledWidth = this.img.width * this.options.scale;

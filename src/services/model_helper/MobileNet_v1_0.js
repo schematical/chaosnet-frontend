@@ -6,9 +6,9 @@ class MobileNet_v1_0{
         this.options = _.extend(
 
             {
-                validationSplit: 0.05,
+                validationSplit: 0.01,
                 batchSize: 128,
-                initialTransferEpochs: 100,
+                initialTransferEpochs: 250,
                 fineTuningEpochs: 100,
                 logUpdateFreq: 'batch',
                 canvasWidth: 224,

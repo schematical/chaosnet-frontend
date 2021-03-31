@@ -37,27 +37,10 @@ class ChaosPixelBoxerPage extends Component {
             scale: 2,
             mode: ChaosPixelBoxerPageMode.Input
         }
-        HTTPService.get(
-            '/' + AuthService.userData.username + '/chaospixel'
-        )
-            .then((response) => {
-                return axios.get(response.data.url);
+        if(AuthService.userData){
+            this.loadDataSet();
+        }
 
-            })
-            .then((response) => {
-                console.log("response", response.data);
-                let state = {
-                    images: response.data
-                }
-                this.setState(state);
-                this.reorderImages();
-            })
-            .catch((err) => {
-                let state = {};
-                state.error = err;
-                this.setState(state);
-                console.error("Error: ", err.message);
-            });
         this.handleImage = this.handleImage.bind(this);
 
         this.onConfirmBoxClick = this.onConfirmBoxClick.bind(this);
@@ -286,6 +269,9 @@ class ChaosPixelBoxerPage extends Component {
 
     }
     redrawImageBoxes(){
+        if(!this.state.currImage){
+            return;
+        }
         this.state.currImage.boxes.forEach((box)=>{
             this.canvasHelper.drawRect({
                 bbox: this.canvasHelper.applyScaleToBBox(box.bbox)
@@ -380,6 +366,9 @@ class ChaosPixelBoxerPage extends Component {
                 if (model) {
                     alert("Model Loaded!");
                 }
+                this.setState({
+                    model: model
+                })
             } catch (err) {
                 this.setState({
                     error: err
@@ -455,6 +444,29 @@ class ChaosPixelBoxerPage extends Component {
     }
     getDataSet(){
         return this.state.images;
+    }
+    loadDataSet() {
+        return HTTPService.get(
+            '/' + AuthService.userData.username + '/chaospixel'
+        )
+            .then((response) => {
+                return axios.get(response.data.url);
+
+            })
+            .then((response) => {
+                console.log("response", response.data);
+                let state = {
+                    images: response.data
+                }
+                this.setState(state);
+                this.reorderImages();
+            })
+            .catch((err) => {
+                let state = {};
+                state.error = err;
+                this.setState(state);
+                console.error("Error: ", err.message);
+            });
     }
     render() {
 
@@ -541,11 +553,12 @@ class ChaosPixelBoxerPage extends Component {
                                         }
 
                                         {
-                                            this.state.mode === ChaosPixelBoxerPageMode.Train && <ChaosPixelTrainProgressComponent page={this} ></ChaosPixelTrainProgressComponent>
+                                            this.state.mode === ChaosPixelBoxerPageMode.Train && <ChaosPixelTrainProgressComponent  page={this} ></ChaosPixelTrainProgressComponent>
                                         }
-                                        {
-                                            this.state.mode === ChaosPixelBoxerPageMode.Input &&
+
                                             <div className="col-xl-3 col-lg-3 col-md-3">
+                                                {
+                                                    this.state.mode === ChaosPixelBoxerPageMode.Input &&
                                                 <div className="card shadow mb-4">
 
                                                     <div className="card-body">
@@ -608,59 +621,59 @@ class ChaosPixelBoxerPage extends Component {
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        }
-                                        {
-                                            this.state.mode === ChaosPixelBoxerPageMode.Input &&
+
+                                            }
+                                            {
+                                                this.state.mode === ChaosPixelBoxerPageMode.Input &&
+                                                <div className="card shadow mb-4">
+
+                                                    <div className="card-body">
+                                                        <div className="card-header py-3">
+                                                            <h1 className="h3 mb-0 text-gray-800">Preview</h1>
+
+                                                        </div>
+
+
+                                                        <canvas id="previewCanvas" height={256} width={256}></canvas>
+                                                        <div className="form-group">
+
+                                                            <button className="btn btn-info"
+                                                                    onClick={this.onConfirmBoxClick}>Confirm
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
                                             <div className="card shadow mb-4">
 
                                                 <div className="card-body">
                                                     <div className="card-header py-3">
-                                                        <h1 className="h3 mb-0 text-gray-800">Preview</h1>
-
+                                                        <h1 className="h3 mb-0 text-gray-800">Images</h1>
+                                                        <button className="btn btn-info" onClick={this.onClearAllImages}>Clear All Images</button>
                                                     </div>
 
+                                                    {
+                                                        this.state.images.map((image) => {
+                                                            return <div>
+                                                                <h3>
+                                                                    <a href="#" onClick={(e)=>{ e.preventDefault(); this.onSelectImage(image); }}>Image {image.id}</a>
+                                                                </h3>
+                                                                <img src={image.imgSrc} width={64} />
+                                                                <table>
+                                                                    <tbody>
+                                                                    {
+                                                                        image.boxes.map((box) => {
+                                                                            return <ChaosPixelBoxComponent box={box} page={this} image={image} buttons={this.getBoxButtons()}/>
+                                                                        })
+                                                                    }
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        })
+                                                    }
 
-                                                    <canvas id="previewCanvas" height={256} width={256}></canvas>
-                                                    <div className="form-group">
-
-                                                        <button className="btn btn-info"
-                                                                onClick={this.onConfirmBoxClick}>Confirm
-                                                        </button>
-                                                    </div>
                                                 </div>
                                             </div>
-                                        }
-                                        <div className="card shadow mb-4">
-
-                                            <div className="card-body">
-                                                <div className="card-header py-3">
-                                                    <h1 className="h3 mb-0 text-gray-800">Images</h1>
-                                                    <button className="btn btn-info" onClick={this.onClearAllImages}>Clear All Images</button>
-                                                </div>
-
-                                                {
-                                                    this.state.images.map((image) => {
-                                                        return <div>
-                                                            <h3>
-                                                                <a href="#" onClick={(e)=>{ e.preventDefault(); this.onSelectImage(image); }}>Image {image.id}</a>
-                                                            </h3>
-                                                            <img src={image.imgSrc} width={64} />
-                                                            <table>
-                                                                <tbody>
-                                                                {
-                                                                    image.boxes.map((box) => {
-                                                                        return <ChaosPixelBoxComponent box={box} page={this} image={image} buttons={this.getBoxButtons()}/>
-                                                                    })
-                                                                }
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    })
-                                                }
-
-                                            </div>
-
                                         </div>
                                     </div>
                                 </div>
@@ -681,6 +694,7 @@ class ChaosPixelBoxerPage extends Component {
             </div>
         );
     }
+
 
 
 }
