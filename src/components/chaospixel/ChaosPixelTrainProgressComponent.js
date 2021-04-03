@@ -10,7 +10,7 @@ class ChaosPixelTrainProgressComponent extends Component {
         super(props);
         this.state = {
             page: props.page,
-            modelHelper: new MobileNet_v1_0(),
+            modelHelper: props.page.state.modelHelper,
             progress:{
                 'initial':{
                     percent: 0

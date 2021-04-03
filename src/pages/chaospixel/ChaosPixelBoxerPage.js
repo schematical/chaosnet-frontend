@@ -13,6 +13,8 @@ import ChaosPixelBoxComponent from "../../components/chaospixel/ChaosPixelBoxCom
 import axios from 'axios';
 import * as tf from "@tensorflow/tfjs";
 import ChaosPixelTrainProgressComponent from "../../components/chaospixel/ChaosPixelTrainProgressComponent";
+import ChaosPixelModelManagerComponent from "../../components/chaospixel/ChaosPixelModelManagerComponent";
+import MobileNet_v1_0 from "../../services/model_helper/MobileNet_v1_0";
 const CANVAS_WIDTH = 224;// 320;//640;//224;  // Matches the input size of MobileNet.
 const CANVAS_HEIGHT = 224;
 class ChaosPixelBoxerPageMode{
@@ -35,8 +37,19 @@ class ChaosPixelBoxerPage extends Component {
             loaded: true,
             images:[],//spriteGroup._component.previewCanvas.toDataURL()
             scale: 2,
-            mode: ChaosPixelBoxerPageMode.Input
+            mode: ChaosPixelBoxerPageMode.Input,
+            modelHelper: new MobileNet_v1_0(),
         }
+        tf.loadLayersModel('indexeddb://my-model-1')
+            .then((model)=>{
+                this.state.modelHelper.setModel(model);
+            })
+            .catch((err)=>{
+                this.setState({
+                    error: err
+                })
+            })
+
         if(AuthService.userData){
             this.loadDataSet();
         }
@@ -54,7 +67,8 @@ class ChaosPixelBoxerPage extends Component {
         this.onScaleChange = this.onScaleChange.bind(this);
         this.onClearAllImages = this.onClearAllImages.bind(this);
         this.predictImageBox = this.predictImageBox.bind(this);
-
+        this.showError = this.showError.bind(this);
+        this.onUploadTestImage = this.onUploadTestImage.bind(this);
     }
     componentDidMount(){
         this.canvasHelper = new CanvasHelper({
@@ -106,6 +120,7 @@ class ChaosPixelBoxerPage extends Component {
         }else{
             this.setImageById(this.state.currImage.id + 1);
         }
+
 
     }
     onPrevImageClick(e){
@@ -184,10 +199,7 @@ class ChaosPixelBoxerPage extends Component {
     onSaveToServerClick(e){
         e.preventDefault();
         const cleanImages = this.getCleanImages();
-        let state = {
-            images: cleanImages
-        }
-        this.setState(state);
+
         //const strData = JSON.stringify(cleanImages);
         //localStorage.setItem('chaospixel:images', strData);
         HTTPService.post(
@@ -266,6 +278,11 @@ class ChaosPixelBoxerPage extends Component {
         }
         this.setState(state);
         this.redrawImageBoxes();
+        if(this.state.mode === ChaosPixelBoxerPageMode.Predict){
+            imageObj.boxes.forEach((box)=> {
+                this.predictImageBox(null, imageObj, box);
+            });
+        }
 
     }
     redrawImageBoxes(){
@@ -277,6 +294,39 @@ class ChaosPixelBoxerPage extends Component {
                 bbox: this.canvasHelper.applyScaleToBBox(box.bbox)
             })
         })
+    }
+    async onUploadTestImage(e){
+
+            let file = e.target.files[0];
+
+        return new Promise((resolve, reject) =>{
+            const reader = new FileReader();
+            reader.onload = async (event) =>{
+                const imageEle = await this.canvasHelper.loadAndShapeImage(event.target.result)
+                let imageObj = {
+                    id: this.state.images.length,
+                    imgSrc: imageEle.src,//  event.target.result,
+                    boxes:[]
+                }
+
+
+                this.canvasHelper.resetCanvasWithImage(imageEle);
+                this.setState({
+                    currImage: imageObj
+                });
+
+                return resolve(imageObj);
+
+
+            }
+            reader.readAsDataURL(file);
+        })
+        .then((imageObj)=>{
+            return this.predictImageBox(e, imageObj, null);
+        })
+        .catch(this.showError);
+
+
     }
     async handleImage(e){
 
@@ -337,49 +387,13 @@ class ChaosPixelBoxerPage extends Component {
 
     async predictImageBox(event, image, box){
 
-        let scaledTestImg = await this.canvasHelper.loadAndShapeImage(image.imgSrc, {
-            goalHeight: 224,
-            goalWidth: 224
-        })  /*new Promise((resolve, reject)=>{
+        let scaledTestImg = await this.canvasHelper.loadAndShapeImage(image.imgSrc);
 
-            let imageEle = new Image();
-            imageEle.onload = ()=>{
-                console.log("Image Loaded", imageEle);
-                return resolve(imageEle);
-            }
-            imageEle.src = image.imgSrc;
-        });*/
-        console.log("Image Scaled");
-        /* let unscaledTestImg = await new Promise((resolve, reject)=> { //await this.loadAndShapeImage(image.imgSrc);
-             let img = new Image();
-             img.onload = ()=>{
-                 return resolve(img);
-             }
-             img.src = image.imgSrc;
-         });*/
         this.canvasHelper.setImage(scaledTestImg);
         this.canvasHelper.resetCanvasWithImage();
-        let model = this.state.model;
-        if(!model) {
-            try {
-                model = await tf.loadLayersModel('indexeddb://my-model-1');
-                if (model) {
-                    alert("Model Loaded!");
-                }
-                this.setState({
-                    model: model
-                })
-            } catch (err) {
-                this.setState({
-                    error: err
-                })
-            }
-        }
+        const modelOut = await this.state.modelHelper.predict(scaledTestImg);
 
 
-        const imageTensor = tf.browser.fromPixels(scaledTestImg).cast('float32');
-        const images = tf.stack([imageTensor]);
-        const modelOut = await model.predict(images).data();
         let predictBoundingBox = modelOut.slice(1);
         console.log(JSON.stringify( predictBoundingBox, null, 3));
 
@@ -387,7 +401,6 @@ class ChaosPixelBoxerPage extends Component {
             predictBoundingBox != null && predictBoundingBox.length === 4,
             `Expected boundingBoxArray to have length 4, ` +
             `but got ${predictBoundingBox} instead`);
-
 
 
         predictBoundingBox = this.canvasHelper.applyScaleToBBox(predictBoundingBox);
@@ -401,7 +414,6 @@ class ChaosPixelBoxerPage extends Component {
             return;
         }
 
-        console.log(JSON.stringify( box.bbox, null, 3));
         this.canvasHelper.drawRect({
             lineWidth: "2",
             strokeStyle: "green",
@@ -461,13 +473,15 @@ class ChaosPixelBoxerPage extends Component {
                 this.setState(state);
                 this.reorderImages();
             })
-            .catch((err) => {
-                let state = {};
-                state.error = err;
-                this.setState(state);
-                console.error("Error: ", err.message);
-            });
+            .catch(this.showError);
     }
+    showError(err){
+        let state = {};
+        state.error = err;
+        this.setState(state);
+        console.error("Error: ", err.message);
+    }
+
     render() {
 
         return (
@@ -539,6 +553,16 @@ class ChaosPixelBoxerPage extends Component {
                                                                 <input type="range" id="scale" name="scale" step=".25"
                                                                        min="0" max="8" value={this.state.scale}
                                                                        onChange={this.onScaleChange}/>
+                                                            </div>
+                                                            <div className="float-right">
+                                                                {
+                                                                    this.state.mode === ChaosPixelBoxerPageMode.Predict &&
+                                                                    <div className="form-group">
+                                                                        <label htmlFor="exampleInputEmail1">Upload Image </label>
+                                                                        <input type="file" id="imageLoader" name="imageLoader"
+                                                                               onChange={this.onUploadTestImage} multiple/>
+                                                                    </div>
+                                                                }
                                                             </div>
                                                         </div>
 
@@ -643,6 +667,11 @@ class ChaosPixelBoxerPage extends Component {
                                                         </div>
                                                     </div>
                                                 </div>
+                                            }
+
+                                            {
+                                                this.state.mode !== ChaosPixelBoxerPageMode.Input &&
+                                                <ChaosPixelModelManagerComponent page={this}></ChaosPixelModelManagerComponent>
                                             }
                                             <div className="card shadow mb-4">
 

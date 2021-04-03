@@ -23,11 +23,24 @@ class MobileNet_v1_0{
         this._listeners = {};
         this.customLossFunction = this.customLossFunction.bind(this);
     }
+    setModel(model){
+        this.model = model;
+    }
     build(){
 
     }
     load(){
 
+    }
+    async setModelFromData(modelJson, weights){
+        this.model = await tf.loadLayersModel(
+            tf.io.browserFiles(
+                [
+                    modelJson,
+                    weights
+                ]
+            )
+        );
     }
     on(eventType, cb){
         this._listeners[eventType] = this._listeners[eventType] || [];
@@ -204,6 +217,7 @@ class MobileNet_v1_0{
             predictBoundingBox != null && predictBoundingBox.length === 4,
             `Expected boundingBoxArray to have length 4, ` +
             `but got ${predictBoundingBox} instead`);
+        return modelOut;
 
     }
 
