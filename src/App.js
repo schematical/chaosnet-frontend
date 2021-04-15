@@ -42,6 +42,9 @@ import AdminHomePage from "./pages/admin/AdminHomePage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ChaosPixelBoxerPage from "./pages/chaospixel/ChaosPixelBoxerPage";
 import ChaosPixelTrainPage from "./pages/chaospixel/ChaosPixelTrainPage";
+import ChaosProjectListPage from "./pages/chaosnet/ChaosProjectListPage";
+import ChaosProjectNewPage from "./pages/chaosnet/ChaosProjectNewPage";
+import ChaosProjectDetailPage from "./pages/chaosnet/ChaosProjectDetailPage";
 class App extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired
@@ -68,6 +71,9 @@ class App extends Component {
             <Router.Location path="/:username/simmodels" handler={SimModelListPage} />
             <Router.Location path="/:username/simmodels/:simModelNamespace" handler={SimModelDetailPage} />
             <Router.Location path="/:username/simmodels/:simModelNamespace/tags/:simModelTag/payload" handler={SimModelPayloadEditPage} />
+            <Router.Location path="/:username/projects" handler={ChaosProjectListPage} />
+            <Router.Location path="/:username/projects/new" handler={ChaosProjectNewPage} />
+            <Router.Location path="/:username/projects/:chaosproject" handler={ChaosProjectDetailPage} />
             <Router.Location path="/:username/trainingrooms" handler={TrainingRoomListPage} />
             <Router.Location path="/:username/trainingrooms/new" handler={TrainingRoomNewPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace" handler={TrainingRoomDetailPage} />

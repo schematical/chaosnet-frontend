@@ -2,24 +2,24 @@ import React, {Component} from 'react';
 import SidebarComponent from '../../components/SidebarComponent';
 import TopbarComponent from '../../components/TopbarComponent';
 import AuthService from "../../services/AuthService";
-import TrainingRoomListComponent from "../../components/chaosnet/TrainingRoomListComponent";
 import FooterComponent from "../../components/FooterComponent";
 import HTTPService from "../../services/HTTPService";
 import LoadingComponent from "../../components/LoadingComponent";
-const axios = require('axios');
-class TrainingRoomListPage extends Component {
+import ChaosProjectListComponent from "../../components/chaosnet/ChaosProjectListComponent";
+
+class ChaosProjectListPage extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            trainingrooms:[]
+            projects:[]
         }
-        HTTPService.get( "/" + this.props.username+ '/trainingrooms', {
+        HTTPService.get( "/" + this.props.username+ '/projects', {
 
         })
         .then((response) => {
             let state = {};
-            state.trainingrooms = response.data;
+            state.projects = response.data;
             state.loaded = true;
             this.setState(state);
         })
@@ -88,18 +88,18 @@ class TrainingRoomListPage extends Component {
                                                             </thead>
                                                             <tbody>
                                                             {
-                                                                this.state.trainingrooms.map((trainingRoom) => {
-                                                                    return <TrainingRoomListComponent
-                                                                        key={trainingRoom.namespace}
-                                                                        trainingRoom={trainingRoom} page={this}/>
+                                                                this.state.projects.map((chaosProject) => {
+                                                                    return <ChaosProjectListComponent
+                                                                        key={chaosProject.namespace}
+                                                                        chaosProject={chaosProject} page={this}/>
                                                                 })
                                                             }
 
                                                             </tbody>
                                                         </table>
-                                                        <a href={"/" + this.props.username + "/trainingrooms/new"}
+                                                        <a href={"/" + this.props.username + "/projects/new"}
                                                            className="btn btn-danger btn-lg"
-                                                          >Create New</a>
+                                                           >Create New</a>
                                                     </div>
                                                 </div>
 
@@ -124,28 +124,6 @@ class TrainingRoomListPage extends Component {
                     <a className="scroll-to-top rounded" href="#page-top">
                         <i className="fas fa-angle-up"/>
                     </a>
-                    {/* Logout Modal*/}
-                    <div className="modal fade" id="logoutModal" tabIndex={-1} role="dialog"
-                         aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div className="modal-dialog" role="document">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h5 className="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                                    <button className="close" type="button" data-dismiss="modal" aria-label="Close">
-                                        <span aria-hidden="true">×</span>
-                                    </button>
-                                </div>
-                                <div className="modal-body">Select "Logout" below if you are ready to end your current
-                                    session.
-                                </div>
-                                <div className="modal-footer">
-                                    <button className="btn btn-secondary" type="button" data-dismiss="modal">Cancel
-                                    </button>
-                                    <a className="btn btn-primary" href="login.html">Logout</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
             </div>
@@ -153,4 +131,4 @@ class TrainingRoomListPage extends Component {
     }
 }
 
-export default TrainingRoomListPage;
+export default ChaosProjectListPage;
