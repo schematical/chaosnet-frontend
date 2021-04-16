@@ -23,8 +23,8 @@ class ChaosProjectDetailPage extends Component {
         this.showRawEdit = this.showRawEdit.bind(this);
         this.promptDelete = this.promptDelete.bind(this);
         this.onConfirmDelete = this.onConfirmDelete.bind(this);
-        this.promptEditSimModel = this.promptEditSimModel.bind(this);
-        HTTPService.get('/' + this.props.username + '/projects/' + this.props.chaosProject )
+
+        HTTPService.get('/' + this.props.username + '/projects/' + this.props.chaosproject )
             .then((response) => {
                 let state = {};
                 state.project = response.data;
@@ -154,7 +154,7 @@ class ChaosProjectDetailPage extends Component {
                                             /<a href={"/" + this.props.username}>{this.props.username}</a>
                                             /<a href={"/" + this.props.username + "/projects"}>projects</a>
                                             /<a
-                                            href={"/" + this.props.username + "/projects/" + this.props.chaosProject}>{this.props.chaosProject}</a>
+                                            href={"/" + this.props.username + "/projects/" + this.props.chaosproject}>{this.props.chaosproject}</a>
                                         </h1>
 
                                     </div>
@@ -242,7 +242,7 @@ class ChaosProjectDetailPage extends Component {
                                                         <div className="col-xl-6 col-md-12 mb-6">
                                                             <div className="card shadow mb-4">
                                                                 <div className="card-header py-3">
-                                                                    <h1 className="h3 mb-0 text-gray-800">Info</h1>
+                                                                    <h1 className="h3 mb-0 text-gray-800">{this.state.project.name}</h1>
                                                                 </div>
                                                                 <div className="card-body">
                                                                     <form className="user" onSubmit={this.handleSubmit}>
@@ -258,41 +258,12 @@ class ChaosProjectDetailPage extends Component {
                                                                                    name="desc"
                                                                                    aria-describedby="description"
                                                                                    placeholder="description"
-                                                                                   value={this.state.chaosproject.desc}
+                                                                                   value={this.state.project.desc}
                                                                                    onChange={this.handleConfigChange}
                                                                             ></textarea>
                                                                         </div>
-                                                                        <div className="form-group">
-                                                                            <label>
-                                                                                Observe Mode
-                                                                            </label>
-                                                                            <select id="observeMode" name="observeMode"
-                                                                                    className="form-control"
-                                                                                    value={this.state.chaosproject.observeMode}
-                                                                                    onChange={this.handleChange}>
-                                                                                <option value="Dynamic">Dynamic</option>
-                                                                                <option value="Fixed">Fixed</option>
-                                                                            </select>
 
-                                                                        </div>
-                                                                        {
-                                                                            this.state.chaosproject.observeMode == "Fixed" &&
-                                                                            <div className="form-group">
-                                                                                <label>
-                                                                                    Observed Attributes
-                                                                                </label>
-                                                                                <textarea
-                                                                                    className="form-control"
-                                                                                    readOnly={!this.isOwner()}
-                                                                                    id="_observedAttributes"
-                                                                                    name="_observedAttributes"
-                                                                                    aria-describedby="description"
-                                                                                    placeholder="description"
-                                                                                    value={this.state.chaosproject._observedAttributes}
-                                                                                    onChange={this.handleChange}
-                                                                                ></textarea>
-                                                                            </div>
-                                                                        }
+
 
                                                                         {
                                                                             this.isOwner() &&

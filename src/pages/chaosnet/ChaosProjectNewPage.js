@@ -10,12 +10,9 @@ class ChaosProjectNewPage extends Component {
         super(props);
         console.log('this.props', props);
         this.state = {
-
-
             chaosProject:{
-                simModelUsername: this.props._query.simModelUsername || "schematical",
-                simModelNamespace: this.props._query.simModelNamespace || "chaoscraftdiscovery",
-                simModelTag: this.props._query.simModelTag,
+                owner_username: AuthService.userData.username,
+                type: 'chaospixel'
             },
             loaded: true
         }
@@ -54,7 +51,7 @@ class ChaosProjectNewPage extends Component {
 
 
         event.preventDefault();
-        return HTTPService.post( this.state.chaosProject.owner_username +'/projects' ,
+        return HTTPService.post( '/' + this.state.chaosProject.owner_username +'/projects' ,
             this.state.chaosProject,
             {
             }
