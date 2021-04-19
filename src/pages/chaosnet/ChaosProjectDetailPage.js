@@ -8,6 +8,7 @@ import RawEditComponent from "../../components/chaosnet/RawEditComponent";
 import LoadingComponent from "../../components/LoadingComponent";
 import ConfirmComponent from "../../components/chaosnet/ConfirmComponent";
 import $ from "jquery";
+import ChaosPixelProjectComponent from "../../components/chaospixel/ChaosPixelProjectComponent";
 const axios = require('axios');
 class ChaosProjectDetailPage extends Component {
     constructor(props) {
@@ -173,64 +174,7 @@ class ChaosProjectDetailPage extends Component {
                                                     </div>
                                                 </div>
                                             }
-                                            {/*{
-                                                this.state.loaded &&
-                                                <div className="card shadow mb-4">
-                                                    <div className="btn-group" role="group" aria-label="Basic example">
 
-                                                        <a className="btn btn-primary btn-sm"
-                                                           href={"/" + this.state.chaosproject.owner_username + "/projects/" + this.state.chaosproject.namespace + "/tranks"}>
-                                                            Taxonomic Ranks
-                                                        </a>
-                                                        <a className="btn btn-primary btn-sm"
-                                                           href={"/" + this.state.chaosproject.owner_username + "/chaosprojects/" + this.state.chaosproject.namespace + "/sessions"}>
-                                                            Sessions
-                                                        </a>
-                                                        <a className="btn btn-primary btn-sm"
-                                                           href={"/simmodels/" + this.state.chaosproject.simModelId }>
-                                                            Sim Model
-                                                        </a>
-                                                        <div className="btn-group" role="group">
-                                                            <button id="btnGroupDrop1" type="button"
-                                                                    className="btn btn-secondary dropdown-toggle"
-                                                                    data-toggle="dropdown" aria-haspopup="true"
-                                                                    aria-expanded="false">
-                                                                Edit
-                                                            </button>
-                                                            <div className="dropdown-menu"
-                                                                 aria-labelledby="btnGroupDrop1">
-                                                                <a className="dropdown-item" href={"/" + this.state.chaosproject.owner_username + "/chaosprojects/" + this.state.chaosproject.namespace + "/presetneurons"}>
-                                                                    Preset Neurons
-                                                                </a>
-                                                                <a className="dropdown-item" href={"/" + this.state.chaosproject.owner_username + "/chaosprojects/" + this.state.chaosproject.namespace + "/fitnessrules"}>
-                                                                    Fitness Rules
-                                                                </a>
-                                                                <a className="dropdown-item" href={"/" + this.state.chaosproject.owner_username + "/chaosprojects/" + this.state.chaosproject.namespace + "/roles"}>
-                                                                    Roles
-                                                                </a>
-                                                                {
-                                                                    this.state.canEdit &&
-                                                                    <a className="dropdown-item" href={"/" + this.state.chaosproject.owner_username + "/chaosprojects/" + this.state.chaosproject.namespace + "/delete"} onClick={this.promptEditSimModel}>
-                                                                        Sim Model Tag
-                                                                    </a>
-                                                                }
-                                                                {
-                                                                    this.state.canEdit &&
-                                                                    <a className="dropdown-item" href={"/" + this.state.chaosproject.owner_username + "/chaosprojects/" + this.state.chaosproject.namespace + "/delete"} onClick={this.promptDelete}>
-                                                                        Delete
-                                                                    </a>
-                                                                }
-
-
-                                                            </div>
-                                                        </div>
-
-
-                                                    </div>
-
-
-                                                </div>
-                                            }*/}
 
                                             {
                                                 this.state.loaded &&
@@ -247,30 +191,44 @@ class ChaosProjectDetailPage extends Component {
                                                                 <div className="card-body">
                                                                     <form className="user" onSubmit={this.handleSubmit}>
 
-                                                                        <div className="form-group">
-                                                                            <label>
-                                                                                Description
-                                                                            </label>
-                                                                            <textarea
-                                                                                   className="form-control"
-                                                                                   readOnly={!this.isOwner()}
-                                                                                   id="desc"
-                                                                                   name="desc"
-                                                                                   aria-describedby="description"
-                                                                                   placeholder="description"
-                                                                                   value={this.state.project.desc}
-                                                                                   onChange={this.handleConfigChange}
-                                                                            ></textarea>
-                                                                        </div>
-
+                                                                        {
+                                                                            this.state.isEditing &&
+                                                                            <div className="form-group">
+                                                                                <label>
+                                                                                    Description
+                                                                                </label>
+                                                                                <textarea
+                                                                                    className="form-control"
+                                                                                    readOnly={!this.isOwner()}
+                                                                                    id="desc"
+                                                                                    name="desc"
+                                                                                    aria-describedby="description"
+                                                                                    placeholder="description"
+                                                                                    value={this.state.project.desc}
+                                                                                    onChange={this.handleConfigChange}
+                                                                                ></textarea>
+                                                                            </div>
+                                                                        }
+                                                                        {
+                                                                            ! this.state.isEditing&&
+                                                                            <div className="form-group">
+                                                                                {this.state.project.description}
+                                                                            </div>
+                                                                        }
 
 
                                                                         {
                                                                             this.isOwner() &&
+                                                                            this.state.isEditing &&
                                                                             <button
                                                                                 className="btn btn-primary btn-user btn-block">
                                                                                 Save
                                                                             </button>
+                                                                        }
+                                                                        {
+                                                                            this.state.project &&
+                                                                            this.state.project.type === 'chaospixel' &&
+                                                                            <ChaosPixelProjectComponent chaosProject={this.state.project} />
                                                                         }
                                                                     </form>
                                                                 </div>

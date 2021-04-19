@@ -32,10 +32,10 @@ class ConfirmComponent extends Component {
     }
 
 
-    confirm(){
+    confirm(e){
         try {
 
-            this.props.onConfirm(true);
+            this.props.onConfirm(e, true);
             $('#' + this.props.id).modal('hide');
         }catch(err){
             this.setState({

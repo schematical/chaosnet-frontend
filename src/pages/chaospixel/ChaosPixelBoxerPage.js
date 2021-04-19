@@ -15,6 +15,8 @@ import * as tf from "@tensorflow/tfjs";
 import ChaosPixelTrainProgressComponent from "../../components/chaospixel/ChaosPixelTrainProgressComponent";
 import ChaosPixelModelManagerComponent from "../../components/chaospixel/ChaosPixelModelManagerComponent";
 import MobileNet_v1_0 from "../../services/model_helper/MobileNet_v1_0";
+import ChaosProjectDatasetSelectComponent from "../../components/ChaosProjectDatasetSelectComponent";
+import ConfirmComponent from "../../components/chaosnet/ConfirmComponent";
 const CANVAS_WIDTH = 224;// 320;//640;//224;  // Matches the input size of MobileNet.
 const CANVAS_HEIGHT = 224;
 class ChaosPixelBoxerPageMode{
@@ -32,7 +34,27 @@ class ChaosPixelBoxerPage extends Component {
 
     constructor(props) {
         super(props);
+        this.showError = this.showError.bind(this);
+        this.onDatasetLoad = this.onDatasetLoad.bind(this);
+        this.handleImage = this.handleImage.bind(this);
 
+        this.onConfirmBoxClick = this.onConfirmBoxClick.bind(this);
+        this.onSaveClick = this.onSaveClick.bind(this);
+        this.onNextImageClick = this.onNextImageClick.bind(this);
+        this.onPrevImageClick = this.onPrevImageClick.bind(this);
+        this.onKeyPress = this.onKeyPress.bind(this);
+        this.onDownloadClick = this.onDownloadClick.bind(this);
+        this.onSaveToServerClick = this.onSaveToServerClick.bind(this);
+        this.onLoadFromServerClick = this.onLoadFromServerClick.bind(this);
+        this.onScaleChange = this.onScaleChange.bind(this);
+        this.onClearAllImages = this.onClearAllImages.bind(this);
+        this.predictImageBox = this.predictImageBox.bind(this);
+        this.onPromptDatasetName = this.onPromptDatasetName.bind(this);
+        this.onConfirmDatasetNamePromptComponent = this.onConfirmDatasetNamePromptComponent.bind(this);
+        this.handleDatasetNamePromptComponentChange = this.handleDatasetNamePromptComponentChange.bind(this);
+        this.onLoadDataSetsClick = this.onLoadDataSetsClick.bind(this);
+
+        this.onUploadTestImage = this.onUploadTestImage.bind(this);
         this.state = {
             loaded: true,
             images:[],//spriteGroup._component.previewCanvas.toDataURL()
@@ -50,25 +72,11 @@ class ChaosPixelBoxerPage extends Component {
                 })
             })
 
-        if(AuthService.userData){
+        /*if(AutShervice.userData){
             this.loadDataSet();
-        }
+        }*/
+        this.loadProject();
 
-        this.handleImage = this.handleImage.bind(this);
-
-        this.onConfirmBoxClick = this.onConfirmBoxClick.bind(this);
-        this.onSaveClick = this.onSaveClick.bind(this);
-        this.onNextImageClick = this.onNextImageClick.bind(this);
-        this.onPrevImageClick = this.onPrevImageClick.bind(this);
-        this.onKeyPress = this.onKeyPress.bind(this);
-        this.onDownloadClick = this.onDownloadClick.bind(this);
-        this.onSaveToServerClick = this.onSaveToServerClick.bind(this);
-        this.onLoadFromServerClick = this.onLoadFromServerClick.bind(this);
-        this.onScaleChange = this.onScaleChange.bind(this);
-        this.onClearAllImages = this.onClearAllImages.bind(this);
-        this.predictImageBox = this.predictImageBox.bind(this);
-        this.showError = this.showError.bind(this);
-        this.onUploadTestImage = this.onUploadTestImage.bind(this);
     }
     componentDidMount(){
         this.canvasHelper = new CanvasHelper({
@@ -196,14 +204,13 @@ class ChaosPixelBoxerPage extends Component {
         const strData = JSON.stringify(cleanImages);
         localStorage.setItem('chaospixel:images', strData);
     }
-    onSaveToServerClick(e){
+    onSaveToServerClick(e, dataSetTag){
         e.preventDefault();
         const cleanImages = this.getCleanImages();
 
-        //const strData = JSON.stringify(cleanImages);
-        //localStorage.setItem('chaospixel:images', strData);
+
         HTTPService.post(
-            '/' + AuthService.userData.username + '/chaospixel'
+            '/' + this.state.project.owner_username + '/projects/' + this.state.project.namespace + '/data/images/tags/' + (dataSetTag || this.state.dataSetTag)
         )
         .then((response) => {
             return axios.put(response.data.url, cleanImages, {
@@ -227,12 +234,12 @@ class ChaosPixelBoxerPage extends Component {
             console.error("Error: ", err.message);
         });
     }
-    onLoadFromServerClick(e){
+    onLoadFromServerClick(e, dataSetTag){
 
         e.preventDefault();
 
         HTTPService.get(
-            '/' + AuthService.userData.username + '/chaospixel'
+            '/' + this.state.project.owner_username + '/projects/' + this.state.project.namespace + '/data/images/tags/' + (dataSetTag || this.state.dataSetTag)
         )
             .then((response) => {
                 return axios.get(response.data.url);
@@ -457,7 +464,37 @@ class ChaosPixelBoxerPage extends Component {
     getDataSet(){
         return this.state.images;
     }
-    loadDataSet() {
+    loadProject() {
+        return HTTPService.get(
+            '/' + this.props.username + '/projects/' + this.props.chaosproject
+        )
+        .then((response) => {
+            console.log("choasProject", response);
+            let state = {
+                project: response.data
+            }
+            this.setState(state);
+        })
+        .catch(this.showError);
+    }
+    onLoadDataSetsClick() {
+        this.setState({
+            projectDatas: null
+        });
+        return HTTPService.get(
+            '/' + this.props.username + '/projects/' + this.props.chaosproject + '/data'
+        )
+            .then((response) => {
+
+                let state = {
+                    projectDatas: response.data
+                }
+                console.log("projectDatas", state);
+                this.setState(state);
+            })
+            .catch(this.showError);
+    }
+    /*loadDataSet() {
         return HTTPService.get(
             '/' + AuthService.userData.username + '/chaospixel'
         )
@@ -474,14 +511,36 @@ class ChaosPixelBoxerPage extends Component {
                 this.reorderImages();
             })
             .catch(this.showError);
-    }
+    }*/
     showError(err){
         let state = {};
         state.error = err;
         this.setState(state);
         console.error("Error: ", err.message);
     }
-
+    onDatasetLoad(images, tag){
+        this.setState({
+            images: images,
+            dataSetTag: tag
+        });
+    }
+    onConfirmDatasetNamePromptComponent(e){
+        this.setState({
+            dataSetTag: this.state._dataSetTag,
+            _dataSetTag: null
+        })
+        this.onSaveToServerClick(e, this.state._dataSetTag);
+    }
+    handleDatasetNamePromptComponentChange(e){
+        console.log(" e.target.value: ",  e.target.value);
+        this.setState({
+            _dataSetTag: e.target.value
+        })
+    }
+    onPromptDatasetName(e) {
+        e.preventDefault();
+        this.refs.datasetNamePromptComponent.show();
+    }
     render() {
 
         return (
@@ -519,7 +578,13 @@ class ChaosPixelBoxerPage extends Component {
                                                 </div>*/}
 
                                                 <div className="card-body">
-                                                    <div className='btn-group'>
+                                                    {/*{
+                                                        this.state.project &&
+                                                        <ChaosProjectDatasetSelectComponent className="float-left"
+                                                        chaosProject={this.state.project} type='images'
+                                                        onDatasetLoad={this.onDatasetLoad} />
+                                                    }*/}
+                                                    <div className='btn-group' className="float-left">
 
                                                         <button className={this.getMainNavButtonClass(ChaosPixelBoxerPageMode.Input)} onClick={this.setMode(ChaosPixelBoxerPageMode.Input)}>Input</button>
                                                         <button className={this.getMainNavButtonClass(ChaosPixelBoxerPageMode.Train)} onClick={this.setMode(ChaosPixelBoxerPageMode.Train)}>Train</button>
@@ -616,8 +681,14 @@ class ChaosPixelBoxerPage extends Component {
                                                                         <a className="dropdown-item" href="#"
                                                                            onClick={this.onDownloadClick}>Download</a>
                                                                         <a className="dropdown-item" href="#"
-                                                                           onClick={this.onSaveToServerClick}>Save to
-                                                                            Server</a>
+                                                                           onClick={this.onSaveToServerClick}>
+                                                                            Save to Server
+                                                                        </a>
+                                                                        <a className="dropdown-item" href="#"
+                                                                           onClick={ this.onPromptDatasetName}>
+                                                                            Save to
+                                                                            Server as ...
+                                                                        </a>
                                                                     </div>
                                                                 </div>
 
@@ -626,17 +697,31 @@ class ChaosPixelBoxerPage extends Component {
                                                                         className="btn btn-sm  btn-secondary dropdown-toggle"
                                                                         type="button" id="dropdownMenuButton"
                                                                         data-toggle="dropdown" aria-haspopup="true"
-                                                                        aria-expanded="false">
+                                                                        aria-expanded="false"
+                                                                        onClick={this.onLoadDataSetsClick}
+                                                                    >
                                                                         Load
+
                                                                     </button>
                                                                     <div className="dropdown-menu"
                                                                          aria-labelledby="dropdownMenuButton">
-                                                                        {/*<a className="dropdown-item" href="#" onClick={this.onSaveClick}>Save in Browser</a>
-                                                                        <a className="dropdown-item" href="#" onClick={this.onDownloadClick}>Upload
-                                                                            n</a>*/}
-                                                                        <a className="dropdown-item" href="#"
-                                                                           onClick={this.onLoadFromServerClick}>Load
-                                                                            from Server</a>
+                                                                        {
+                                                                            this.state.projectDatas &&
+                                                                            this.state.projectDatas.images.map((tag) => {
+                                                                                return <a className="dropdown-item" href="#"
+                                                                                   onClick={(e) => {
+                                                                                       this.onLoadFromServerClick(e, tag)
+                                                                                   }}>
+                                                                                    {tag}
+                                                                                </a>
+                                                                            })
+                                                                        }
+                                                                        {
+                                                                            !this.state.projectDatas &&
+                                                                            <a className="dropdown-item" href="#">
+                                                                                Loading ...
+                                                                            </a>
+                                                                        }
                                                                     </div>
                                                                 </div>
 
@@ -712,6 +797,14 @@ class ChaosPixelBoxerPage extends Component {
                             {/* Footer */}
                             <FooterComponent />
                             {/* End of Footer */}
+
+                            <ConfirmComponent ref="datasetNamePromptComponent" id='datasetNamePromptComponent' title={"Save As"} body={
+                                <div>
+                                    Name: <input type='text' onChange={this.handleDatasetNamePromptComponentChange} value={this.state.dataSetTag}/>
+                                </div>
+
+                            } onConfirm={this.onConfirmDatasetNamePromptComponent} />
+
                         </div>
                         {/* End of Content Wrapper */}
                     </div>
@@ -723,8 +816,6 @@ class ChaosPixelBoxerPage extends Component {
             </div>
         );
     }
-
-
 
 }
 
