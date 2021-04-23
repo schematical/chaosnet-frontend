@@ -45,6 +45,7 @@ import ChaosPixelTrainPage from "./pages/chaospixel/ChaosPixelTrainPage";
 import ChaosProjectListPage from "./pages/chaosnet/ChaosProjectListPage";
 import ChaosProjectNewPage from "./pages/chaosnet/ChaosProjectNewPage";
 import ChaosProjectDetailPage from "./pages/chaosnet/ChaosProjectDetailPage";
+import PersonalAccessTokenListPage from "./pages/chaosnet/PersonalAccessTokenListPage";
 class App extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired
@@ -66,6 +67,7 @@ class App extends Component {
             <Router.Location path="/signup" handler={SignupPage} />
             <Router.Location path="/forgot_password" handler={ForgotPasswordPage} />
             <Router.Location path="/admin" handler={AdminHomePage} />
+            <Router.Location path="/:username/tokens" handler={PersonalAccessTokenListPage} />
             <Router.Location path="/simmodels" handler={SimModelListPage} />
             <Router.Location path="/simmodels/:simModelId" handler={SimModelDetailPage} />
             <Router.Location path="/:username/simmodels" handler={SimModelListPage} />

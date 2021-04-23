@@ -208,14 +208,10 @@ class TopbarComponent extends Component {
                         {/* Dropdown - User Information */}
                         <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                              aria-labelledby="userDropdown">
-                            {/*<a className="dropdown-item" href="#">
-                                <i className="fas fa-user fa-sm fa-fw mr-2 text-gray-400"/>
-                                Profile
-                            </a>
-                            <a className="dropdown-item" href="#">
+                            <a className="dropdown-item" href={'/' + AuthService.userData.username + '/tokens' }>
                                 <i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"/>
-                                Settings
-                            </a>*/}
+                                Personal Access Tokens
+                            </a>
                             <a className="dropdown-item" href="#" onClick={this.gotoCurrentSession}>
                                 <i className="fas fa-list fa-sm fa-fw mr-2 text-gray-400"/>
                                 Current Session

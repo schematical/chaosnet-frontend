@@ -615,7 +615,7 @@ class ChaosPixelBoxerPage extends Component {
                                                             </div>
                                                             <div className="form-group">
                                                                 <label htmlFor="scale">Scale {this.state.scale} </label>
-                                                                <input type="range" id="scale" name="scale" step=".25"
+                                                                <input className="form-control"  type="range" id="scale" name="scale" step=".25"
                                                                        min="0" max="8" value={this.state.scale}
                                                                        onChange={this.onScaleChange}/>
                                                             </div>
@@ -624,7 +624,7 @@ class ChaosPixelBoxerPage extends Component {
                                                                     this.state.mode === ChaosPixelBoxerPageMode.Predict &&
                                                                     <div className="form-group">
                                                                         <label htmlFor="exampleInputEmail1">Upload Image </label>
-                                                                        <input type="file" id="imageLoader" name="imageLoader"
+                                                                        <input  className="form-control"  type="file" id="imageLoader" name="imageLoader"
                                                                                onChange={this.onUploadTestImage} multiple/>
                                                                     </div>
                                                                 }
