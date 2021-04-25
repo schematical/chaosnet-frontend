@@ -80,9 +80,8 @@ class SidebarComponent extends Component {
                          data-parent="#accordionSidebar">
                         <div className="bg-white py-2 collapse-inner rounded">
                             <h6 className="collapse-header">ChaosPixel:</h6>
-                            <a className="collapse-item" href="/chaospixel">Home</a>
-                            <a className="collapse-item" href="/chaospixel/slicer">Slicer</a>
-                            <a className="collapse-item" href="/chaospixel/boxer">Boxer</a>
+                            <a className="collapse-item" href="/projects?type=chaospixel">Projects</a>
+
                         </div>
                     </div>
                 </li>

@@ -7,13 +7,13 @@ import HTTPService from "../../services/HTTPService";
 import LoadingComponent from "../../components/LoadingComponent";
 import ChaosProjectListComponent from "../../components/chaosnet/ChaosProjectListComponent";
 
-class ChaosProjectListPage extends Component {
+class ChaosProjectFeaturedListPage extends Component {
 
     constructor(props) {
         super(props);
 console.log("PROBS: ", props);
         this.state = {
-            projects:[]
+            newProjectUri: "/" + this.props.username + "/projects/new?"
         }
         let url = '/projects';
         if(this.props.username) {
@@ -23,6 +23,7 @@ console.log("PROBS: ", props);
 
         if(this.props._query.type){
             url += 'type=' + this.props._query.type + '&';
+            this.state.newProjectUri += 'type=' + this.props._query.type + '&';
         }
         HTTPService.get(
             url,
@@ -91,28 +92,58 @@ console.log("PROBS: ", props);
                                                                 </div>
                                                             </div>
                                                         }
-                                                        <table className="table">
-                                                            <thead>
-                                                            <tr>
-                                                                <th scope="col">#</th>
+                                                        {
+                                                            this.state.projects &&
+                                                            this.state.projects.owned.length > 0 &&
+                                                            <div>
+                                                                <h3>Your Projects</h3>
+                                                                <table className="table">
+                                                                   {/* <thead>
+                                                                    <tr>
+                                                                        <th scope="col">#</th>
 
-                                                            </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            {
-                                                                this.state.projects.map((chaosProject) => {
-                                                                    return <ChaosProjectListComponent
-                                                                        key={chaosProject.namespace}
-                                                                        chaosProject={chaosProject} page={this}/>
-                                                                })
-                                                            }
+                                                                    </tr>
+                                                                    </thead>*/}
+                                                                    <tbody>
+                                                                    {
+                                                                        this.state.projects.owned.map((chaosProject) => {
+                                                                            return <ChaosProjectListComponent
+                                                                                key={chaosProject.namespace}
+                                                                                chaosProject={chaosProject} page={this}/>
+                                                                        })
+                                                                    }
 
-                                                            </tbody>
-                                                        </table>
-                                                        <a href={"/" + this.props.username + "/projects/new"}
-                                                           className="btn btn-danger btn-lg"
-                                                           >Create New</a>
+                                                                    </tbody>
+                                                                </table>
+
+                                                            </div>
+                                                        }
+
+                                                        {
+                                                            this.state.projects &&
+                                                            this.state.projects.featured.length > 0 &&
+                                                            <div>
+                                                                <h3>Featured Projects</h3>
+                                                                <table className="table">
+                                                                   {/* <thead> <tr> <th scope="col">#</th> </tr> </thead>*/}
+                                                                    <tbody>
+                                                                    {
+                                                                        this.state.projects.featured.map((chaosProject) => {
+                                                                            return <ChaosProjectListComponent
+                                                                                key={chaosProject.namespace}
+                                                                                chaosProject={chaosProject} page={this}/>
+                                                                        })
+                                                                    }
+
+                                                                    </tbody>
+                                                                </table>
+
+                                                            </div>
+                                                        }
                                                     </div>
+                                                    <a href={this.state.newProjectsUri}
+                                                       className="btn btn-danger btn-lg"
+                                                    >Create New</a>
                                                 </div>
 
                                             }
@@ -143,4 +174,4 @@ console.log("PROBS: ", props);
     }
 }
 
-export default ChaosProjectListPage;
+export default ChaosProjectFeaturedListPage;

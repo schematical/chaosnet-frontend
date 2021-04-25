@@ -8,9 +8,7 @@ import Router  from 'react-router-component';
 import logo from './logo.svg';
 import './App.css';
 import '../node_modules/codemirror/lib/codemirror.css'
-import ChaosPixelSlicerPage from "./pages/chaospixel/ChaosPixelSlicerPage";
 
-import ChaosPixelListTrainingDatasPage from "./pages/chaospixel/ChaosPixelListTrainingDatasPage";
 import AuthService from "./services/AuthService";
 import {Cookies, withCookies} from "react-cookie";
 import {instanceOf} from "prop-types";
@@ -41,11 +39,12 @@ import SimModelPayloadEditPage from "./pages/chaosnet/SimModelPayloadEditPage";
 import AdminHomePage from "./pages/admin/AdminHomePage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ChaosPixelBoxerPage from "./pages/chaospixel/ChaosPixelBoxerPage";
-import ChaosPixelTrainPage from "./pages/chaospixel/ChaosPixelTrainPage";
+
 import ChaosProjectListPage from "./pages/chaosnet/ChaosProjectListPage";
 import ChaosProjectNewPage from "./pages/chaosnet/ChaosProjectNewPage";
 import ChaosProjectDetailPage from "./pages/chaosnet/ChaosProjectDetailPage";
 import PersonalAccessTokenListPage from "./pages/chaosnet/PersonalAccessTokenListPage";
+import ChaosProjectFeaturedListPage from "./pages/chaosnet/ChaosProjectFeaturedListPage";
 class App extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired
@@ -70,6 +69,7 @@ class App extends Component {
             <Router.Location path="/:username/tokens" handler={PersonalAccessTokenListPage} />
             <Router.Location path="/simmodels" handler={SimModelListPage} />
             <Router.Location path="/simmodels/:simModelId" handler={SimModelDetailPage} />
+            <Router.Location path="/projects" handler={ChaosProjectFeaturedListPage} />
             <Router.Location path="/:username/simmodels" handler={SimModelListPage} />
             <Router.Location path="/:username/simmodels/:simModelNamespace" handler={SimModelDetailPage} />
             <Router.Location path="/:username/simmodels/:simModelNamespace/tags/:simModelTag/payload" handler={SimModelPayloadEditPage} />
@@ -101,10 +101,10 @@ class App extends Component {
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/sessions" handler={TrainingRoomSessionsListPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/sessions/:session" handler={TrainingRoomSessionDetailPage} />
             <Router.Location path="/:username/trainingrooms/:trainingRoomNamespace/sessions/:session/species" handler={TrainingRoomTRanksListPage} />
-            <Router.Location path="/chaospixel" handler={ChaosPixelListTrainingDatasPage} />
+{/*            <Router.Location path="/chaospixel" handler={ChaosPixelListTrainingDatasPage} />
             <Router.Location path="/chaospixel/slicer" handler={ChaosPixelSlicerPage} />
             <Router.Location path="/chaospixel/boxer" handler={ChaosPixelBoxerPage} />
-            <Router.Location path="/chaospixel/train" handler={ChaosPixelTrainPage} />
+            <Router.Location path="/chaospixel/train" handler={ChaosPixelTrainPage} />*/}
             <Router.NotFound handler={HomePage} />
         </Router.Locations>
     );

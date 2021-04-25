@@ -4,7 +4,6 @@
   "private": true,
   "dependencies": {
     "@tensorflow/tfjs": "^3.3.0",
-    "@zip.js/zip.js": "^2.2.27",
     "axios": "^0.18.1",
     "bootstrap": "^4.6.0",
     "chart.js": "^2.9.4",
@@ -29,7 +28,8 @@
     "react-dom": "^16.14.0",
     "react-router-component": "^0.39.1",
     "react-scripts": "2.1.8",
-    "underscore": "^1.12.1"
+    "underscore": "^1.12.1",
+    "unzip-js": "^1.0.0"
   },
   "devDependencies": {
     "aws-lambda": "0.1.2",

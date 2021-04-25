@@ -26,6 +26,7 @@ class ChaosPixelModelManagerComponent extends Component {
     async onModelUpload(e){
         const uploadJSONInput = document.getElementById('modelLoader');
         const uploadWeightsInput = document.getElementById('weightLoader');
+        console.log("uploadWeightsInput.files[0]: ", uploadWeightsInput.files[0]);
         this.state.page.state.modelHelper.setModelFromData(
             uploadJSONInput.files[0],
             uploadWeightsInput.files[0]

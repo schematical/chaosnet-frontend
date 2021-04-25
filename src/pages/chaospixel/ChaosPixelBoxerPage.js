@@ -3,7 +3,7 @@ import SidebarComponent from '../../components/SidebarComponent';
 import TopbarComponent from '../../components/TopbarComponent';
 import FooterComponent from "../../components/FooterComponent";
 import HTTPService from "../../services/HTTPService";
-
+import * as unzip from "unzip-js";
 import LoadingComponent from "../../components/LoadingComponent";
 import AuthService from "../../services/AuthService";
 import CanvasHelper from "../../services/CanvasHelper";
@@ -55,28 +55,117 @@ class ChaosPixelBoxerPage extends Component {
         this.onLoadDataSetsClick = this.onLoadDataSetsClick.bind(this);
 
         this.onUploadTestImage = this.onUploadTestImage.bind(this);
+        let mode = ChaosPixelBoxerPageMode.Input;
+        switch(props.mode){
+            case(ChaosPixelBoxerPageMode.Input.toLowerCase()):
+                mode = ChaosPixelBoxerPageMode.Input;
+            break;
+            case(ChaosPixelBoxerPageMode.Train.toLowerCase()):
+                mode = ChaosPixelBoxerPageMode.Train;
+                break;
+            case(ChaosPixelBoxerPageMode.Predict.toLowerCase()):
+                mode = ChaosPixelBoxerPageMode.Predict;
+                break;
+
+        }
         this.state = {
             loaded: true,
             images:[],//spriteGroup._component.previewCanvas.toDataURL()
             scale: 2,
-            mode: ChaosPixelBoxerPageMode.Input,
+            mode: mode,
             modelHelper: new MobileNet_v1_0(),
         }
-        tf.loadLayersModel('indexeddb://my-model-1')
-            .then((model)=>{
-                this.state.modelHelper.setModel(model);
-            })
-            .catch((err)=>{
-                this.setState({
-                    error: err
-                })
-            })
+
 
         /*if(AutShervice.userData){
             this.loadDataSet();
         }*/
-        this.loadProject();
+        this.loadProject()
+            .then(() => {
+                if (props._query.model) {
+                    return this.loadModel(props._query.model);
+                }
+                return tf.loadLayersModel('indexeddb://my-model-1')
+                    .then((model)=>{
+                        this.state.modelHelper.setModel(model);
+                    })
+            })
+            .catch(this.showError);
 
+
+    }
+    loadModel(model){
+        let zipFile = null;
+        let entries = null;
+        return HTTPService.get(
+            '/' + this.props.username + '/projects/' + this.props.chaosproject + '/data/models/tags/' + model
+        )
+        .then((response) => {
+       /*     return axios.get(response.data.url)
+        })
+        .then((response) => {
+            console.error("AXIOS response: ", response);*/
+            return new Promise((resolve, reject) => {
+                unzip(response.data.url /*response.data*/, (err, zipFile) => {
+                    console.error("zipFile: ", zipFile);
+                    if (err) return reject(err);
+                    return resolve(zipFile);
+                })
+            });
+        })
+        .then((_zipFile) => {
+           zipFile = _zipFile;
+           return new Promise((resolve, reject) => {
+               zipFile.readEntries(function (err, entries) {
+                   if (err) return reject(err);
+                   return resolve(entries);
+               });
+           })
+        })
+        .then((_entries) => {
+            entries = _entries;
+            console.log("ENTRIES: ", entries);
+            let promises = [];
+            entries.forEach((entry) => {
+                promises.push(new Promise((resolve, reject) => {
+                    zipFile.readEntryData(entry, false, function (err, readStream) {
+                        if (err) {
+                            return reject(err);
+                        }
+                        let response = [];
+                        readStream.on('data', function (chunk) {
+                            response.push(chunk);
+                        })
+                        readStream.on('error', function (err) {
+                            return reject(err);
+                        })
+                        readStream.on('end', function () {
+                            return resolve(response);
+                        })
+                    })
+                }));
+            })
+
+            return Promise.all(promises);
+        })
+        .then((entryData)=>{
+            console.log("entryData: ", entryData);
+            const modelFile = new File([entryData[0].join('')], 'model.json');
+            const weightsBlob = new Blob(entryData[1], { type: "application/octet-stream"});
+            const weightsFile = new File([weightsBlob],'weights.bin', { type: "application/octet-stream"});
+            console.log(modelFile, weightsFile, weightsBlob);
+            this.state.modelHelper.setModelFromData(
+                modelFile,
+                weightsFile
+            );
+           /* let state = {
+                projectDatas: response.data
+            }
+            console.log("projectDatas", state);
+            this.setState(state);*/
+
+        })
+        .catch(this.showError);
     }
     componentDidMount(){
         this.canvasHelper = new CanvasHelper({

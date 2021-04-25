@@ -27,7 +27,7 @@ class ChaosProjectListComponent extends Component {
 
             <tr>
                 <th scope="row">
-                    <a href={"/" + this.props.trainingRoom.owner_username + "/projects/" + this.props.chaosProject.namespace}>
+                    <a href={"/" + this.props.chaosProject.owner_username + "/projects/" + this.props.chaosProject.namespace}>
                         {this.props.chaosProject.name}
                     </a>
 

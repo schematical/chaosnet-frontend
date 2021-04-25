@@ -62,15 +62,16 @@ class ChaosPixelProjectComponent extends Component {
                                      aria-labelledby="btnGroupDrop1">
                                     {
                                         this.state.projectData &&
+                                        this.state.projectData.images &&
                                         this.state.projectData.images.map((tag) => {
-                                            return <a className="dropdown-item"
+                                            return <a className="dropdown-item" key={tag}
                                                href={"/" + this.state.project.owner_username + "/projects/" + this.state.project.namespace + "/chaospixel/dataset?tag=" + tag}>
-                                                {{tag}}
+                                                {tag}
                                             </a>
                                         })
                                     }
                                     <hr className="dropdown-divider" />
-                                    <a className="dropdown-item" href={"/" + this.state.project.owner_username + "/projects/" + this.state.project.namespace + "/chaospixel/dataset?tag=new"}>
+                                    <a className="dropdown-item" href={"/" + this.state.project.owner_username + "/projects/" + this.state.project.namespace + "/chaospixel/predict?tag=new"}>
                                         New
                                     </a>
                                 </div>
@@ -78,11 +79,33 @@ class ChaosPixelProjectComponent extends Component {
 
 
 
-                            <a className="btn btn-primary btn-sm"
-                               href={"/" + this.state.project.owner_username + "/projects/" + this.state.project.namespace + "/chaospixel"}>
-                                Models
-                            </a>
+                            <div className="btn-group" role="group">
+                                <button id="btnGroupDrop1" type="button"
+                                        className="btn btn-secondary dropdown-toggle"
+                                        data-toggle="dropdown" aria-haspopup="true"
+                                        aria-expanded="false">
+                                    Models
+                                </button>
+                                <div className="dropdown-menu"
+                                     aria-labelledby="btnGroupDrop1">
+                                    {
+                                        this.state.projectData &&
+                                        this.state.projectData.models &&
+                                        this.state.projectData.models.length > 0 &&
+                                        this.state.projectData.models.map((model) => {
+                                            return <a className="dropdown-item" key={model}
+                                                      href={"/" + this.state.project.owner_username + "/projects/" + this.state.project.namespace + "/chaospixel/predict?model=" + model}>
+                                                {model}
+                                            </a>
+                                        }) ||
+                                        <a className="dropdown-item">
+                                            None
+                                        </a>
+                                    }
 
+
+                                </div>
+                            </div>
                             <div className="btn-group" role="group">
                                 <button id="btnGroupDrop1" type="button"
                                         className="btn btn-secondary dropdown-toggle"
