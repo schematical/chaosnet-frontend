@@ -85,10 +85,15 @@ class ChaosPixelBoxerPage extends Component {
                 if (props._query.model) {
                     return this.loadModel(props._query.model);
                 }
-                return tf.loadLayersModel('indexeddb://my-model-1')
+       /*         return tf.loadLayersModel('indexeddb://my-model-1')
                     .then((model)=>{
                         this.state.modelHelper.setModel(model);
-                    })
+                    })*/
+            })
+            .then(() =>{
+                if (props._query.tag) {
+                   return this.loadDataSet(props._query.tag);
+                }
             })
             .catch(this.showError);
 
@@ -583,24 +588,24 @@ class ChaosPixelBoxerPage extends Component {
             })
             .catch(this.showError);
     }
-    /*loadDataSet() {
+    loadDataSet(tag) {
         return HTTPService.get(
-            '/' + AuthService.userData.username + '/chaospixel'
+            '/' + this.props.username + '/projects/' + this.props.chaosproject + '/data/images/tags/' + tag
         )
-            .then((response) => {
-                return axios.get(response.data.url);
+        .then((response) => {
+            return axios.get(response.data.url);
 
-            })
-            .then((response) => {
-                console.log("response", response.data);
-                let state = {
-                    images: response.data
-                }
-                this.setState(state);
-                this.reorderImages();
-            })
-            .catch(this.showError);
-    }*/
+        })
+        .then((response) => {
+            console.log("response", response.data);
+            let state = {
+                images: response.data
+            }
+            this.setState(state);
+            this.reorderImages();
+        })
+        .catch(this.showError);
+    }
     showError(err){
         let state = {};
         state.error = err;
