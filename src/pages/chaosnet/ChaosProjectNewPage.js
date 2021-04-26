@@ -97,7 +97,7 @@ class ChaosProjectNewPage extends Component {
                                         <div className="col-xl-12 col-lg-12">
                                             <div className="card shadow mb-4">
                                                 <h2 className="h3 mb-0 text-gray-800">
-                                                  New Training Room
+                                                  New ChaosProject
                                                 </h2>
                                                 {/* Card Body */}
                                                 <div className="card-body">
@@ -114,12 +114,16 @@ class ChaosProjectNewPage extends Component {
                                                             </div>
                                                         }
                                                         <div className="form-group">
+                                                            <label className="mr-sm-2"
+                                                                   htmlFor="inlineFormCustomSelect">Project Name</label>
                                                             <input type="text" className="form-control form-control-user"
                                                                    id="chaosProject_name" name="chaosProject_name" aria-describedby="chaosProject_name"
                                                                    placeholder="Chaos Project Name..."  value={this.state.chaosProject.name} onChange={this.handleChange}
                                                             />
                                                         </div>
                                                         <div className="form-group">
+                                                            <label className="mr-sm-2"
+                                                                   htmlFor="inlineFormCustomSelect">Project Namespace</label>
                                                             <input type="text" className="form-control form-control-user"
                                                                    readOnly={true}
                                                                    id="chaosProject_namespace" name="chaosProject_namespace" aria-describedby="chaosProject_namespace"
@@ -127,7 +131,11 @@ class ChaosProjectNewPage extends Component {
                                                             />
                                                         </div>
                                                         <div className="form-group">
+                                                            <label className="mr-sm-2"
+                                                                   htmlFor="inlineFormCustomSelect">Project Type</label>
                                                             <div className="input-group mb-3">
+
+
                                                                 <input type="text" className="form-control form-control-user"
                                                                        id="chaosProject_simModelNamespace" name="chaosProject_type" aria-describedby="chaosProject_type"
                                                                        readOnly={true}

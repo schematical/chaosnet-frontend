@@ -141,7 +141,7 @@ console.log("PROBS: ", props);
                                                             </div>
                                                         }
                                                     </div>
-                                                    <a href={this.state.newProjectsUri}
+                                                    <a href={this.state.newProjectUri}
                                                        className="btn btn-danger btn-lg"
                                                     >Create New</a>
                                                 </div>

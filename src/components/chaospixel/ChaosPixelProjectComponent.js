@@ -111,15 +111,15 @@ class ChaosPixelProjectComponent extends Component {
                                         className="btn btn-secondary dropdown-toggle"
                                         data-toggle="dropdown" aria-haspopup="true"
                                         aria-expanded="false">
-                                    Job
+                                    Jobs
                                 </button>
                                 <div className="dropdown-menu"
                                      aria-labelledby="btnGroupDrop1">
                                     <a className="dropdown-item"
-                                       href={"/" + this.state.project.owner_username + "/projects/" + this.state.project.namespace + "/presetneurons"}>
-                                        Preset Neurons
+                                       href='https://www.patreon.com/bePatron?u=12320615'>
+                                        Coming Soon...
                                     </a>
-                                    <a className="dropdown-item"
+                                   {/* <a className="dropdown-item"
                                        href={"/" + this.state.project.owner_username + "/projects/" + this.state.project.namespace + "/fitnessrules"}>
                                         Fitness Rules
                                     </a>
@@ -142,7 +142,7 @@ class ChaosPixelProjectComponent extends Component {
                                            onClick={this.promptDelete}>
                                             Delete
                                         </a>
-                                    }
+                                    }*/}
 
 
                                 </div>
