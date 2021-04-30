@@ -33,6 +33,7 @@ class ConfirmComponent extends Component {
 
 
     confirm(e){
+        e.preventDefault();
         try {
 
             this.props.onConfirm(e, true);

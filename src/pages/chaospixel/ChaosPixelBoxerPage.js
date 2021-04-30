@@ -481,9 +481,24 @@ class ChaosPixelBoxerPage extends Component {
            case('e'):
                this.onNextImageClick(event);
                break;
+           case('+'):
+           case('='):
+                this.changeScale(this.state.scale + .25);
+               break;
+           case('-'):
+           case('_'):
+               this.changeScale(this.state.scale - .25);
+               break;
         }
     }
+    changeScale(scale) {
 
+        this.setState({
+            scale :scale
+        })
+        this.canvasHelper.setScale(scale);
+        this.redrawImageBoxes();
+    }
 
 
     async predictImageBox(event, image, box){
@@ -571,7 +586,8 @@ class ChaosPixelBoxerPage extends Component {
         })
         .catch(this.showError);
     }
-    onLoadDataSetsClick() {
+    onLoadDataSetsClick(event) {
+        event.preventDefault();
         this.setState({
             projectDatas: null
         });
@@ -619,6 +635,7 @@ class ChaosPixelBoxerPage extends Component {
         });
     }
     onConfirmDatasetNamePromptComponent(e){
+        e.preventDefault();
         this.setState({
             dataSetTag: this.state._dataSetTag,
             _dataSetTag: null
@@ -697,21 +714,28 @@ class ChaosPixelBoxerPage extends Component {
                                                 <div className='sticky'>
                                                     <div className="card shadow mb-4">
                                                         <div className="card-header py-3">
-                                                            <h1 className="h3 mb-0 text-gray-800">Box {this.state.currImage && this.state.currImage.id}</h1>
-                                                            <div className='btn-group'>
-
-                                                                <button className="btn btn-info"
-                                                                        onClick={this.onPrevImageClick}>Prev
-                                                                </button>
-                                                                <button className="btn btn-info"
-                                                                        onClick={this.onNextImageClick}>Next
-                                                                </button>
+                                                            <div className="float-left">
+                                                                <h1 className="h3 mb-0 text-gray-800">{this.state.currImage && this.state.currImage.id}</h1>
                                                             </div>
-                                                            <div className="form-group">
-                                                                <label htmlFor="scale">Scale {this.state.scale} </label>
-                                                                <input className="form-control"  type="range" id="scale" name="scale" step=".25"
-                                                                       min="0" max="8" value={this.state.scale}
-                                                                       onChange={this.onScaleChange}/>
+                                                            <div className="float-left">
+                                                                <div className='btn-group'>
+
+                                                                    <button className="btn btn-info"
+                                                                            onClick={this.onPrevImageClick}>Prev
+                                                                    </button>
+                                                                    <button className="btn btn-info"
+                                                                            onClick={this.onNextImageClick}>Next
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="float-right">
+                                                                <div className="form-group">
+                                                                    <label htmlFor="scale">Scale {this.state.scale} </label>
+                                                                    <input className="form-control"  type="range" id="scale" name="scale" step=".25"
+                                                                           min="0" max="8" value={this.state.scale}
+                                                                           onChange={this.onScaleChange}/>
+                                                                </div>
                                                             </div>
                                                             <div className="float-right">
                                                                 {
@@ -870,8 +894,8 @@ class ChaosPixelBoxerPage extends Component {
                                                                 <table>
                                                                     <tbody>
                                                                     {
-                                                                        image.boxes.map((box) => {
-                                                                            return <ChaosPixelBoxComponent box={box} page={this} image={image} buttons={this.getBoxButtons()}/>
+                                                                        image.boxes.map((box, index) => {
+                                                                            return <ChaosPixelBoxComponent key={index} box={box} page={this} image={image} buttons={this.getBoxButtons()}/>
                                                                         })
                                                                     }
                                                                     </tbody>

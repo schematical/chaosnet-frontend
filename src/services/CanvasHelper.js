@@ -66,18 +66,18 @@ class CanvasHelper{
         const ctx = this.canvas.getContext('2d');
         ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
-    loadAndShapeImage(imgSrc, options) {
+    /*loadAndShapeImage(imgSrc, options) {
         options = options || {};
         options.goalHeight = options.goalHeight || this.options.canvasHeight;
         options.goalWidth = options.goalWidth || this.options.canvasWidth;
-        /*return new Promise((resolve, reject)=>{
+        /!*return new Promise((resolve, reject)=>{
 
             let imageEle = new Image();
             imageEle.onload = ()=>{
                 return resolve(imageEle);
             }
             imageEle.src = imgSrc;
-        });*/
+        });*!/
         return new Promise((resolve, reject)=>{
             const fakeCanvas = document.createElement("canvas");
             document.body.appendChild(fakeCanvas);
@@ -99,7 +99,7 @@ class CanvasHelper{
                 fakeCtx.imageSmoothingEnabled = false;
                 fakeCtx.msImageSmoothingEnabled = false;
                 fakeCtx.oImageSmoothingEnabled = false;
-                console.log("fakeCtx.imageSmoothingEnabled: ", fakeCtx.imageSmoothingEnabled);
+
                 fakeCtx.fillStyle = 'green';
                 fakeCtx.fillRect(
                     0,
@@ -121,6 +121,104 @@ class CanvasHelper{
                 image-rendering: pixelated;`;
                 newImageEle.onload = ()=>{
 
+                    document.body.removeChild(fakeCanvas);
+                    return resolve(newImageEle);
+                }
+                newImageEle.src = fakeCanvas.toDataURL('image/bmp',1);
+
+
+            }
+            imageEle.src = imgSrc;
+        });
+    }*/
+    loadAndShapeImage(imgSrc, options) {
+        options = options || {};
+        options.goalHeight = options.goalHeight || this.options.canvasHeight;
+        options.goalWidth = options.goalWidth || this.options.canvasWidth;
+        /*return new Promise((resolve, reject)=>{
+
+            let imageEle = new Image();
+            imageEle.onload = ()=>{
+                return resolve(imageEle);
+            }
+            imageEle.src = imgSrc;
+        });*/
+        return new Promise((resolve, reject)=>{
+            const fakeCanvas = document.createElement("canvas");
+            document.body.appendChild(fakeCanvas);
+            fakeCanvas.height = options.goalHeight;
+            fakeCanvas.width = options.goalWidth;
+            const fakeCtx = fakeCanvas.getContext('2d');
+
+
+            const sourceCanvas = document.createElement("canvas");
+            document.body.appendChild(sourceCanvas);
+            const sourceCtx = sourceCanvas.getContext('2d');
+
+            let imageEle = new Image();
+            imageEle.style = `image-rendering: auto;
+                image-rendering: crisp-edges;
+                image-rendering: pixelated;`;
+            imageEle.onload = ()=>{
+                let scale = imageEle.width / options.goalWidth;
+                sourceCanvas.width = imageEle.width;
+                sourceCanvas.height = imageEle.height;
+                sourceCtx.drawImage(imageEle,0,0,   imageEle.width, imageEle.height);
+
+                console.log("LOADING IMAGE");
+
+                var wd = options.goalWidth;  // destination image
+                var hd = options.goalHeight;
+// use 32bit ints as we are not interested in the channels
+                var src = sourceCtx.getImageData(0, 0, sourceCanvas.width, sourceCanvas.height);
+                var data = src.data;// new Uint32Array(src.data.buffer);// source
+                var dest = fakeCtx.createImageData(wd, hd);
+                var zoomData = dest.data;// new Uint32Array(dest.data.buffer);// destination
+
+                var ind = 0;
+                var xx,yy;
+                let colorMap = {};
+                for(var y = 0; y < options.goalHeight; y ++){
+                    for(var x = 0; x <  options.goalWidth; x ++){
+                        // transform point
+                        xx = Math.floor(x * scale);
+                        yy = Math.floor(y * scale);
+                        // is the lookup pixel in bounds
+                        if(
+                            xx >= 0 &&
+                            xx < sourceCanvas.width &&
+                            yy >= 0 &&
+                            yy < sourceCanvas.height
+                        ){
+                            let srcIndex = (xx + (yy * sourceCanvas.width)) * 4;
+                            // use the nearest pixel to set the new pixel
+                            zoomData[ind] = data[srcIndex]; // set the pixel
+                            zoomData[ind + 1] = data[srcIndex + 1];
+                            zoomData[ind + 2] = data[srcIndex + 2];
+                            zoomData[ind + 3] = data[srcIndex + 3];
+                           /* colorMap[data[xx + (yy * sourceCanvas.width)]] = colorMap[data[xx + (yy * sourceCanvas.width)]] || 0;
+                            colorMap[data[xx + (yy * sourceCanvas.width)]] += 1;*/
+                        }else{
+                            zoomData[ind] = 0;
+                            zoomData[ind + 1] = 0;
+                            zoomData[ind + 2] = 0;
+                            zoomData[ind + 3] = 0;
+                        }
+                        ind += 4;
+                    }
+                }
+
+                fakeCtx.putImageData(dest, 0, 0); // put the pixels onto the destination canvas
+                console.log("COLOR MAP: ", colorMap);
+
+
+
+                let newImageEle = new Image();
+                newImageEle.style = `image-rendering: auto;
+                image-rendering: crisp-edges;
+                image-rendering: pixelated;`;
+                newImageEle.onload = ()=>{
+                    document.body.removeChild(sourceCanvas);
                     document.body.removeChild(fakeCanvas);
                     return resolve(newImageEle);
                 }
@@ -153,7 +251,6 @@ class CanvasHelper{
             mouseDownPos: null,
             mouseUpPos: null
         };
-        console.log("Setting Image: ", image);
     }
 
     resetCanvasWithImage(image){
@@ -173,14 +270,14 @@ class CanvasHelper{
 
      /*   this.canvas.width = scaledWidth;
         this.canvas.height = scaledHeight;*/
-        console.log("DRAW SCALE: ", 1/drawScale);
+
         ctx.scale(1/drawScale, 1/drawScale)
         ctx.mozImageSmoothingEnabled = false;
         ctx.webkitImageSmoothingEnabled = false;
         ctx.imageSmoothingEnabled = false;
         ctx.msImageSmoothingEnabled = false;
         ctx.oImageSmoothingEnabled = false;
-        console.log("ctx.imageSmoothingEnabled", ctx.imageSmoothingEnabled)
+
         ctx.drawImage(this.img,0,0, this.img.width, this.img.height);//this.img.width,this.img.height );//this.options.canvasWidth, this.options.canvasHeight);//scaledWidth, scaledHeight);//
         this.clearCtxScale();
         let imageData = ctx.getImageData(0, 0, 1, 1);

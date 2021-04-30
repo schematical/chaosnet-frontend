@@ -106,8 +106,8 @@ class ChaosPixelBoxComponent extends Component {
                         <div className="dropdown-menu"
                              aria-labelledby="dropdownMenuButton">
                             {
-                                this.state.buttons.map((button) => {
-                                    return   <a className="dropdown-item" href="#" onClick={(event => {
+                                this.state.buttons.map((button, index) => {
+                                    return   <a className="dropdown-item" key={index} href="#" onClick={(event => {
                                         event.preventDefault();
                                         button.onClick(
                                             event,
