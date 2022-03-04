@@ -46,6 +46,8 @@ import ChaosProjectDetailPage from "./pages/chaosnet/ChaosProjectDetailPage";
 import PersonalAccessTokenListPage from "./pages/chaosnet/PersonalAccessTokenListPage";
 import ChaosProjectFeaturedListPage from "./pages/chaosnet/ChaosProjectFeaturedListPage";
 import AccountPage from "./pages/account/AccountPage";
+import SubscriptionsPage from "./pages/account/SubscriptionsPage";
+import PaymentMethodsPage from "./pages/account/PaymentMethodsPage";
 class App extends Component {
     static propTypes = {
         cookies: instanceOf(Cookies).isRequired
@@ -67,6 +69,8 @@ class App extends Component {
             <Router.Location path="/signup" handler={SignupPage} />
             <Router.Location path="/account" handler={AccountPage} />
             <Router.Location path="/:username/account" handler={AccountPage} />
+            <Router.Location path="/:username/account/subscriptions" handler={SubscriptionsPage} />
+            <Router.Location path="/:username/account/paymentmethods" handler={PaymentMethodsPage} />
             <Router.Location path="/forgot_password" handler={ForgotPasswordPage} />
             <Router.Location path="/admin" handler={AdminHomePage} />
             <Router.Location path="/:username/tokens" handler={PersonalAccessTokenListPage} />
