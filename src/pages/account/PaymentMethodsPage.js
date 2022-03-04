@@ -55,7 +55,7 @@ class PaymentMethodAddForm extends Component {
         })
         .then((paymentMethod) => {
             if (this.props.onSave) {
-                this.props.onSave(null, paymentMethod);
+                this.props.onSave(null, paymentMethod.data);
                 return;
             }
             console.log("Success but no callback");
@@ -173,6 +173,11 @@ class PaymentMethodsPage extends AccountPage {
         let state = {};
         state.stripeOptions = null;
         this.setState(state);
+        if (this.props._query.redirect) {
+            const url = this.props._query.redirect + '?paymentmethod=' + paymentmethod.id;
+            console.log('[paymentmethod]', paymentmethod);
+            return document.location.href = url;
+        }
         return this.loadPaymentMethods();
     }
 
@@ -309,7 +314,7 @@ export class PaymentMethodDetailComponent extends Component{
                          data-parent="#accordionSidebar">
                         <div className="bg-white py-2 collapse-inner rounded">
                             <h6 className="collapse-header">Options: </h6>
-                            <a className="collapse-item" href="/chaospixel" onClick={this.delete}>Delete</a>
+                            <a className="collapse-item btn btn-sm btn-danger" href="/chaospixel" onClick={this.delete}>Delete</a>
                         </div>
                     </div>
                 </div>

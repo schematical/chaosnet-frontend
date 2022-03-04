@@ -10,6 +10,7 @@ import SidebarComponent from "../../components/SidebarComponent";
 import TopbarComponent from "../../components/TopbarComponent";
 import LoadingComponent from "../../components/LoadingComponent";
 import FooterComponent from "../../components/FooterComponent";
+import PaymentMethodDropdownComponent from "../../components/account/PaymentMethodDropdownComponent";
 
 
 class SubscriptionsPage extends AccountPage {
@@ -19,23 +20,56 @@ class SubscriptionsPage extends AccountPage {
         super(props)
         this.checkUrl('/subscriptions');
 
-
-
-        // this.handleSubmit = this.handleSubmit.bind(this);
-
+        this.startAddSubscription = this.startAddSubscription.bind(this);
+        this.onPaymentMethodSelected = this.onPaymentMethodSelected.bind(this);
+        this.addSubscription = this.addSubscription.bind(this);
+        this.deleteSubscription = this.deleteSubscription.bind(this);
         this.loadSubscriptions();
+        if (this.props._query.paymentmethod) {
+            this.state.paymentMethodId = this.props._query.paymentmethod;
+        }
+        this.paymentMethodDropdownComponent = React.createRef();
 
+    }
+    addSubscription($event) {
+        $event.preventDefault();
+        const selectedPaymentMethod = this.paymentMethodDropdownComponent.current.getSelectedPaymentMethod();
+        if (!selectedPaymentMethod) {
+            this.setState({
+                error: {
+                    message: "Please select a payment method first"
+                }
+            });
+            return;
+        }
+        return HTTPService.post('/' + this.props.username + '/stripe/subscriptions',
+            {
+                stripePaymentMethodId: selectedPaymentMethod.id
+            }
+        )
+        .then((response) => {
+           /* let state = {};
+            state.subscriptins = response.data;
+            this.setState(state);*/
+            return this.loadSubscriptions();
+        })
+        .catch((err) => {
+            let state = {};
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        })
 
     }
     loadSubscriptions() {
-        HTTPService.get('/' + this.props.username + '/stripe/subscriptions',
+        return HTTPService.get('/' + this.props.username + '/stripe/subscriptions',
             {
 
             }
         )
         .then((response) => {
             let state = {};
-            state.subscriptins = response.data;
+            state.subscriptions = response.data;
             this.setState(state);
         })
         .catch((err) => {
@@ -45,7 +79,36 @@ class SubscriptionsPage extends AccountPage {
             console.error("Error: ", err.message);
         })
     }
+    deleteSubscription(subscription) {
+        return HTTPService.delete('/' + this.props.username + '/stripe/subscriptions/' + subscription.id,
+            {
 
+            }
+        )
+        .then((response) => {
+            return this.loadSubscriptions();
+        })
+        .catch((err) => {
+            let state = {};
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        })
+    }
+    startAddSubscription($event) {
+        $event.preventDefault();
+        let state = {};
+        state.showAddSubscription = true;
+        this.setState(state);
+
+    }
+    onPaymentMethodSelected(paymentMethod) {
+
+        let state = {};
+        state.paymentMethod = paymentMethod;
+        console.log('onPaymentMethodSelected ', state);
+        this.setState(state);
+    }
 
     render() {
         return (
@@ -97,21 +160,63 @@ class SubscriptionsPage extends AccountPage {
                                                         }
 
                                                         {
-                                                            this.state.subscriptins &&
-                                                            this.state.subscriptins.length === 0 &&
-                                                            <div className="card mb-4 py-3  bg-info text-white shadow">
-                                                                <div className="card-body">
-                                                                    You have no subscriptions. Add one here TODO!!!!!
+                                                            this.state.subscriptions &&
+                                                            this.state.subscriptions.length === 0 &&
+                                                            <a href={"#"}
+                                                               className="btn btn-info btn-lg"
+                                                               onClick={this.startAddSubscription}
+                                                            >Add Subscription</a>
+                                                        }
+                                                        {
+                                                            this.state.showAddSubscription &&
+                                                            <form lass="form-inline"
+                                                                  onSubmit={this.addSubscription}>
+                                                                <div className="card mb-4 py-3 ext-white shadow">
+                                                                    <div className="card-body">
+                                                                        <div className="form-group">
+                                                                            <label htmlFor="exampleFormControlSelect1">Payment Method</label>
+                                                                            {/*<select className="form-control">
+                                                                                {
+                                                                                    this.state.paymentmethods.map((paymentmethod) => {
+                                                                                        return <option>
+                                                                                            {paymentmethod.card.brand} - {paymentmethod.card.last4}
+                                                                                        </option>
+                                                                                    })
+                                                                                }
+                                                                            </select>*/}
+                                                                            <PaymentMethodDropdownComponent
+                                                                                onSelect={this.onPaymentMethodSelected}
+                                                                                accountUrlBase={this.state.accountUrlBase}
+                                                                                paymentMethodId={this.state.paymentMethodId}
+                                                                                ref={this.paymentMethodDropdownComponent}
+                                                                            />
+
+                                                                        </div>
+                                                                        <div className="form-group">
+                                                                            <label htmlFor="exampleFormControlSelect1">Subscription</label>
+                                                                            <select className="form-control">
+                                                                                <option>ChaosNet Alpha Paid</option>
+                                                                            </select>
+                                                                        </div>
+                                                                        <button type="submit" className="btn btn-primary mb-2">
+                                                                            Add Subscription
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
+                                                            </form>
                                                         }
                                                         <table className='table'>
-                                                            {
-                                                                this.state.subscriptins &&
-                                                                this.state.subscriptins.map((subscription) => {
-                                                                    return <SubscriptionDetailComponent subscription={subscription} />
-                                                                })
-                                                            }
+                                                            <tbody>
+                                                                {
+                                                                    this.state.subscriptions &&
+                                                                    this.state.subscriptions.map((subscription) => {
+                                                                        return <SubscriptionDetailComponent
+                                                                            subscription={subscription}
+                                                                            parent={this}
+                                                                        />
+                                                                    })
+                                                                }
+                                                            </tbody>
                                                         </table>
 
                                                     </div>
@@ -147,28 +252,36 @@ class SubscriptionsPage extends AccountPage {
 }
 export default SubscriptionsPage;
 export class SubscriptionDetailComponent extends Component{
+    constructor(props) {
+        super(props);
+        this.delete = this.delete.bind(this);
+    }
+    delete($event) {
+        $event.preventDefault();
+        this.props.parent.deleteSubscription(this.props.subscription);
+    }
     render() {
         return <tr>
             <th scope="row">
-                    X? {this.props.subscription.name}
+                    {this.props.subscription.id}
             </th>
 
-            {/*<td>
-                    <div className="dropdown">
-                        <a className="btn btn-sm btn-secondary nav-link collapsed" href="#" data-toggle="collapse"
-                           data-target={"#spriteGroup_" + this.props.trainingRoom.namespace} aria-expanded="true" aria-controls="collapseTwo">
-                            <i className="fas fa-fw fa-cog"/>
-                            <span>Options</span>
-                        </a>
-                        <div id={"spriteGroup_" + this.props.trainingRoom.namespace} className="collapse" aria-labelledby="headingTwo"
-                             data-parent="#accordionSidebar">
-                            <div className="bg-white py-2 collapse-inner rounded">
-                                <h6 className="collapse-header">ChaosPixel:</h6>
-                                <a className="collapse-item" href="/chaospixel">Slicer</a>
-                            </div>
+            <td>
+                <div className="dropdown">
+                    <a className="btn btn-sm btn-secondary nav-link collapsed" href="#" data-toggle="collapse"
+                       data-target={"#subscription_" + this.props.subscription.id} aria-expanded="true" aria-controls="collapseTwo">
+                        <i className="fas fa-fw fa-cog"/>
+                        <span>Options</span>
+                    </a>
+                    <div id={"subscription_" + this.props.subscription.id} className="collapse" aria-labelledby="headingTwo"
+                         data-parent="#accordionSidebar">
+                        <div className="bg-white py-2 collapse-inner rounded">
+                            <h6 className="collapse-header">Options:</h6>
+                            <a className="collapse-item btn btn-sm btn-danger" href="/chaospixel" onClick={this.delete}>Delete</a>
                         </div>
                     </div>
-                </td>*/}
+                </div>
+            </td>
 
         </tr>
     }
