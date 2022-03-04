@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import AuthService from '../services/AuthService';
+import {Elements, PaymentElement} from '@stripe/react-stripe-js';
+import {loadStripe} from '@stripe/stripe-js';
 import $ from 'jquery';
 class SignupPage extends Component {
 
@@ -19,6 +21,7 @@ class SignupPage extends Component {
         this.addToList = this.addToList.bind(this);
         this.signup = this.signup.bind(this);
         this.showSignup = this.showSignup.bind(this);
+
 
     }
     showSignup(event){
@@ -98,6 +101,12 @@ class SignupPage extends Component {
                                                 {this.state.message} then <a href="/login"> Login</a>
                                             </div>
                                         }
+
+
+
+
+
+
                                         <div className="user">
                                             <div className="form-group">
                                                 <input type="email" className="form-control form-control-user"

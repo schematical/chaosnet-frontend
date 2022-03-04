@@ -4,6 +4,8 @@
   "private": true,
   "homepage": "https://chaosnet.ai",
   "dependencies": {
+    "@stripe/react-stripe-js": "^1.7.0",
+    "@stripe/stripe-js": "^1.23.0",
     "@tensorflow/tfjs": "^3.3.0",
     "axios": "^0.18.1",
     "bootstrap": "^4.6.0",
