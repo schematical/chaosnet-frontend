@@ -19,6 +19,7 @@ class AccountPage extends Component {
         super(props);
         if(this.constructor.name === 'AccountPage') {
             this.checkUrl('');
+            this.state = this.state || {};
 
         }
     }
