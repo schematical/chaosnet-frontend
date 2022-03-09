@@ -17,7 +17,7 @@
     "d3-drag": "^1.2.5",
     "d3-force": "^2.1.1",
     "d3-zoom": "^1.8.3",
-    "datatables.net": "^1.10.24",
+    "datatables.net": "^1.11.3",
     "datatables.net-bs4": "^1.10.24",
     "datatables.net-dt": "^1.10.24",
     "datatables.net-editor": "^1.6.5",
