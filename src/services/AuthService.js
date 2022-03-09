@@ -170,5 +170,11 @@ class AuthService{
     }
 
 
+    static isPremium() {
+        return (
+            AuthService.hasScope("premium") ||
+            AuthService.hasScope("premium_test")
+        );
+    }
 }
 export default AuthService;

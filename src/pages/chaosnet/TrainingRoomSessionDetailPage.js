@@ -65,18 +65,18 @@ class TrainingRoomSessionDetailPage extends Component {
         }, {
 
         })
-            .then((response) => {
-                let state = {};
-                state.session = response.data;
-                state.message = response.data.message  || "success";;
-                this.setState(state);
-            })
-            .catch((err) => {
-                let state = {};
-                state.error = err;
-                this.setState(state);
-                console.error("Error: ", err.message);
-            })
+        .then((response) => {
+            let state = {};
+            state.session = response.data;
+            state.message = response.data.message  || "success";;
+            this.setState(state);
+        })
+        .catch((err) => {
+            let state = {};
+            state.error = err;
+            this.setState(state);
+            console.error("Error: ", err.message);
+        })
     }
     repairSession(){
         let url = this.state.uri + "/repair"

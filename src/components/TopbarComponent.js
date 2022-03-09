@@ -6,6 +6,11 @@ import {Cookies, withCookies} from "react-cookie";
 import HTTPService from "../services/HTTPService";
 
 class TopbarComponent extends Component {
+    constructor(props) {
+        super(props);
+
+    }
+
     gotoCurrentSession(event){
         event.preventDefault();
 
@@ -194,6 +199,26 @@ class TopbarComponent extends Component {
                         </div>
                     </li>*/}
                     <div className="topbar-divider d-none d-sm-block"/>
+                    <li className="nav-item dropdown no-arrow">
+                    {
+                        !AuthService.isPremium() &&
+                        <div className="nav-link">
+                            <div className="alert alert-primary" role="alert">
+                                <a href="/account">
+                                    Want to train your own AI? Go Premium
+                                </a>
+                            </div>
+                        </div>
+                    }
+                    {
+                        AuthService.isPremium() &&
+                        <div className="nav-link">
+                            <div className="alert alert-primary" role="alert">
+                                Thanks for your support!
+                            </div>
+                        </div>
+                    }
+                    </li>
                     {/* Nav Item - User Information */}
                     {
                         AuthService.userData &&
@@ -208,6 +233,10 @@ class TopbarComponent extends Component {
                         {/* Dropdown - User Information */}
                         <div className="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                              aria-labelledby="userDropdown">
+                            <a className="dropdown-item" href={'/' + AuthService.userData.username + '/account' }>
+                                <i className="fas fa-address-card fa-sm fa-fw mr-2 text-gray-400"/>
+                                Account
+                            </a>
                             <a className="dropdown-item" href={'/' + AuthService.userData.username + '/tokens' }>
                                 <i className="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"/>
                                 Personal Access Tokens

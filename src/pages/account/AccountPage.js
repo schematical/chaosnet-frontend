@@ -19,6 +19,7 @@ class AccountPage extends Component {
         super(props);
         if(this.constructor.name === 'AccountPage') {
             this.checkUrl('');
+
         }
     }
     checkUrl(afterUsernameUri) {
@@ -99,7 +100,23 @@ class AccountPage extends Component {
                                                             </div>
                                                         }
                                                         <AccountPageNavComponent accountUrlBase={this.state.accountUrlBase} />
-                                                        <h1>TODO:CALL TO ACTION</h1>
+                                                        {
+                                                            !AuthService.isPremium() &&
+                                                            <div className="card mb-4 py-3 text-white shadow">
+                                                                <div className="card-body">
+                                                                    <h1 className="h3 mb-0 text-gray-800">Setup ChaosNet Alpha Premium Today!</h1>
+                                                                    <div className="text-black-50">
+                                                                       Interested in training your own Neural Networks using ChaosNet or
+                                                                        just supporting our various projects?
+
+                                                                    </div>
+                                                                    <a href={this.state.accountUrlBase + '/subscriptions'} className="btn btn-primary">
+                                                                        Sign up for <b>ChaosNet Alpha Premium</b> here
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+
+                                                        }
 
                                                     </div>
                                                 </div>
