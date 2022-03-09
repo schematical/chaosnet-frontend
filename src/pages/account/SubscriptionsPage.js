@@ -48,9 +48,9 @@ class SubscriptionsPage extends AccountPage {
             }
         )
         .then((response) => {
-           /* let state = {};
-            state.subscriptins = response.data;
-            this.setState(state);*/
+            let state = {};
+            state.showSuccess = true;
+            this.setState(state);
             return this.loadSubscriptions();
         })
         .catch((err) => {
@@ -158,6 +158,20 @@ class SubscriptionsPage extends AccountPage {
                                                                 </div>
                                                             </div>
                                                         }
+                                                        {
+                                                            this.state.showSuccess &&
+                                                            <div className="card mb-4 py-3  bg-success text-white shadow">
+                                                                <div className="card-body">
+                                                                    Congratulations!
+                                                                    <div className="text-white-50 small">
+                                                                        You have been signed up for <b>ChaosNet Alpha Premium</b>!
+
+                                                                        Get started by picking a <a href='/schematical/trainingrooms'>training room</a>
+                                                                        or <a href={'/' + AuthService.userData.username + 'l/trainingrooms/new'}>create a new one here</a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        }
 
                                                         {
                                                             this.state.subscriptions &&
@@ -195,7 +209,7 @@ class SubscriptionsPage extends AccountPage {
                                                                         <div className="form-group">
                                                                             <label htmlFor="exampleFormControlSelect1">Subscription</label>
                                                                             <select className="form-control">
-                                                                                <option>ChaosNet Alpha Paid</option>
+                                                                                <option>ChaosNet Alpha Paid $5/month</option>
                                                                             </select>
                                                                         </div>
                                                                         <button type="submit" className="btn btn-primary mb-2">
@@ -263,7 +277,7 @@ export class SubscriptionDetailComponent extends Component{
     render() {
         return <tr>
             <th scope="row">
-                    {this.props.subscription.id}
+                    {this.props.subscription.plan.name} ${this.props.subscription.plan.amount/100}/{this.props.subscription.plan.interval}
             </th>
 
             <td>
