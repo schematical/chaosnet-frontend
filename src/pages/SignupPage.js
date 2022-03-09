@@ -126,7 +126,7 @@ class SignupPage extends Component {
                                                 </div>
 
                                             </div>
-                                            <div className="form-group">
+                                            {/*<div className="form-group">
                                                 <input type="text" className="form-control form-control-user"
                                                        id="signupKey" name="signupKey" placeholder="Signup Key"
                                                        value={this.state.signupKey} onChange={this.handleChange}/>
@@ -134,7 +134,7 @@ class SignupPage extends Component {
                                             <div className="text-center">
                                                 <a className="small" href="/login" onClick={this.addToList}>Don't have a
                                                     signup key? Click here to get on the list</a>
-                                            </div>
+                                            </div>*/}
                                             <button
                                                 className="btn btn-primary btn-user btn-block"
                                                 onClick={() => this.signup()}
