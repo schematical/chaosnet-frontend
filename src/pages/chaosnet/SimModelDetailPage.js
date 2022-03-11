@@ -59,7 +59,7 @@ class SimModelDetailPage extends Component {
                     state.loaded = true;
                     state.canEdit = AuthService.userData && (
                         AuthService.isAdmin() ||
-                        AuthService.userData.username == state.trainingroom.owner_username
+                        AuthService.userData.username == state.simModel.owner_username
                     );
 
                     this.setState(state);

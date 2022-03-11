@@ -104,7 +104,7 @@ class SimModelListPage extends Component {
                                                         </table>
                                                         {
                                                             AuthService.isAdmin() &&
-                                                            <a href={"/" + this.props.username + "/simmodels/new"}
+                                                            <a href={"/" + (this.props.username  || AuthService.userData.username) + "/simmodels/new"}
                                                                className="btn btn-danger btn-lg"
                                                                 /*onClick={this.createSimModel}*/>Create New</a>
                                                         }
