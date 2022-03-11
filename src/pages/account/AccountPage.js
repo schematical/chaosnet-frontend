@@ -118,6 +118,23 @@ class AccountPage extends Component {
                                                             </div>
 
                                                         }
+                                                        {
+                                                            AuthService.isPremium() &&
+                                                            <div className="card mb-4 py-3 text-white shadow">
+                                                                <div className="card-body">
+                                                                    <h1 className="h3 mb-0 text-gray-800">
+                                                                        Need help?
+                                                                    </h1>
+                                                                    <div className="text-black-50">
+                                                                        Hop on Discord and either @schematical or one of the members of the community can help
+
+                                                                    </div>
+                                                                    <a href='https://discord.gg/eJWT8mftv4' className="btn btn-primary">
+                                                                        Get support in the #chaosnet-support channel on Discord
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        }
 
                                                     </div>
                                                 </div>
