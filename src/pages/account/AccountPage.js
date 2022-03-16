@@ -24,6 +24,7 @@ class AccountPage extends Component {
         }
     }
     checkUrl(afterUsernameUri) {
+        console.log("checkUrl: ", afterUsernameUri, AuthService.userData);
         if (!AuthService.userData) {
             document.location.href = '/login';
             return;
@@ -31,6 +32,7 @@ class AccountPage extends Component {
         let accountUrlBase = '/' + AuthService.userData.username + '/account';
         let accountUrl = accountUrlBase + afterUsernameUri;
         if (!this.props.username) {
+            console.log("No username. Redirecting to: ", accountUrl);
             document.location.href = accountUrl;
             return;
         }
