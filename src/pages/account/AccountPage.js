@@ -17,7 +17,10 @@ class AccountPage extends Component {
 
     constructor(props) {
         super(props);
-        if(this.constructor.name === 'AccountPage') {
+        if(
+            this.constructor.name === 'AccountPage' ||
+            this.constructor.name === AccountPage.name
+        ) {
             this.checkUrl('');
 
 
