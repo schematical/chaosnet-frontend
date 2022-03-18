@@ -19,9 +19,10 @@ class AccountPage extends Component {
         super(props);
         if(this.constructor.name === 'AccountPage') {
             this.checkUrl('');
-            this.state = this.state || {};
+
 
         }
+        this.state = this.state || {};
     }
     checkUrl(afterUsernameUri) {
         console.log("checkUrl: ", afterUsernameUri, AuthService.userData);
@@ -85,9 +86,9 @@ class AccountPage extends Component {
 
                                         <div className="col-xl-12 col-lg-12">
 
-                                            { !this.state.loaded && <LoadingComponent /> }
+                                            { !(this.state && this.state.loaded) && <LoadingComponent /> }
                                             {
-                                                this.state.loaded &&
+                                                (this.state && this.state.loaded) &&
                                                 <div className="card shadow mb-4">
 
                                                     <div className="card-body">
